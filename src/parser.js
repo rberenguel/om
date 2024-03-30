@@ -1,4 +1,4 @@
-export { parseIntoWrapper, iterateDOM, toMarkdown };
+export { parseIntoWrapper, parseInto, iterateDOM, toMarkdown };
 
 import { manipulation, panelFields } from "./panel.js";
 import weave from "./weave.js";
@@ -17,6 +17,7 @@ const parseIntoWrapper = (text, body) => {
   let rest = [];
   for (const line of lines) {
     if (processingProperties) {
+      console.log(`Parsing config line: ${line}`)
       // Processing properties
       if (line.startsWith("<!--")) {
         continue;
@@ -171,8 +172,11 @@ const parseInto = (text, body) => {
   const lines = text.split("\n");
   let codeBlock = false
   for (const line of lines) {
+    console.log(`Parsing line: ${line}`)
     if (line == "<br/>") {
-      body.appendChild(document.createElement("div"));
+      const div = document.createElement("div")
+      div.appendChild(document.createElement("br"));
+      body.appendChild(div);
       continue;
     }
     if(codeBlock && !line.startsWith("```")){
@@ -269,21 +273,31 @@ const parseTillTick = (text) => {
   return [match[1], match[2]];
 };
 
-const toMarkdown = (container) => {
-  const content = iterateDOM(container.querySelector(".body"));
-  let saveable = ["<!--\n"];
-  for (const prop of Object.values(panelFields)) {
-    const value = manipulation.get(container, prop);
-    saveable.push(`- ${prop}: ${value}\n`);
+const toMarkdown = (element) => {
+  console.log("Parsing markdown on element")
+  console.log(element)
+  const content = iterateDOM(element);
+  let saveable = []
+  if(element.classList.contains("body")){
+    const container = element.closest(".body-container")
+    saveable = ["<!--\n"];
+    for (const prop of Object.values(panelFields)) {
+      const value = manipulation.get(container, prop);
+      saveable.push(`- ${prop}: ${value}\n`);
+    }
+    saveable.push("-->\n");
   }
-  saveable.push("-->\n");
-  const markdown = saveable.concat(content).join("");
+  const fixedContent = content.join("").trim()
+  console.log(fixedContent)
+  const fixedSaveable = saveable.join("")
+  const markdown = fixedSaveable + fixedContent
   console.info("Generated as markdown:");
   console.info(markdown);
   return markdown;
 };
 
-function iterateDOM(node) {
+function iterateDOM(node, mode) {
+  // If mode == foldNL it will convert new lines into \n
   // The generated structures are never more than 2 levels deep, seems, for now
   let generated = [];
   for (const child of node.childNodes) {
@@ -337,7 +351,14 @@ function iterateDOM(node) {
     if(child.nodeName === "LI"){
       // TODO this is ignoring all possibly HTML inside lists
       const text = child.innerText
-      const md = `- ${text}\n`
+      let nl = "\n"
+      if(mode === "foldNL"){
+        nl = "\\n"
+      }
+      if (child.nextSibling === null) {
+        nl = ""
+      }
+      const md = `- ${text}${nl}`
       generated.push(md)
     }
     if (child.nodeName === "H1") {
@@ -372,12 +393,16 @@ function iterateDOM(node) {
       generated.push(md)
     }
     if (child.classList.contains("dynamic-div")) {
-      const text = child.innerText;
+      // const text = child.innerText;
       const allClasses = Array.from(child.classList)
         .filter((c) => c != "dynamic-div")
         .map((c) => `.${c}`)
         .join(" ");
-      const md = `\`[div] .dynamic-div ${allClasses} ${text}\``;
+      const inner = iterateDOM(child, "foldNL").join("")
+      console.log(inner)
+      const toAdd = [allClasses, inner].join(" ").trim()
+      console.log(toAdd)
+      const md = `\`[div] .dynamic-div ${toAdd}\``;
       generated.push(md);
       generated.push("\n");
     }

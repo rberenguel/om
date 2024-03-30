@@ -1,17 +1,17 @@
 export { div, dndDynamicDiv, dynamicDiv };
 
 import { draggy } from "./betterDragging.js";
+import { parseInto, toMarkdown } from "./parser.js";
 
 const div = {
   text: ["div"],
   action: (ev) => {
     const selection = window.getSelection();
-    //const htmlContainer = document.createElement("div");
-    //htmlContainer.appendChild(selection.getRangeAt(0).cloneContents());
-    //const selectedHTML = htmlContainer.innerHTML + "";
+    const htmlContainer = document.createElement("div");
+    htmlContainer.appendChild(selection.getRangeAt(0).cloneContents());
     // TODO by how I process parsing, I don't allow nested divs
-    const text = selection + "";
-    const div = dynamicDiv(text);
+    //const text = selection + "";
+    const div = dynamicDiv(toMarkdown(htmlContainer));
     let range = selection.getRangeAt(0);
     //const [div, handle] = divWithDraggableHandle();
     //div.classList.add("dynamic-div");
@@ -39,12 +39,13 @@ const div = {
 const dynamicDiv = (text) => {
   const div = document.createElement("div");
   div.classList.add("dynamic-div");
+  // First extract the classes present
   const splits = text.split(" ");
   console.log(splits);
   let i = 0,
     classes = [];
   while (splits.length >= i + 1 && splits[i].startsWith(".")) {
-    console.log(splits[i]);
+    console.log(`Extracted class: ${splits[i]}`);
     classes.push(splits[i].trim());
     i += 1;
   }
@@ -79,8 +80,11 @@ const dynamicDiv = (text) => {
       ev.stopPropagation();
     });
   }
-  const tn = document.createTextNode(splits.slice(i).join(" "));
-  div.appendChild(tn);
+  const cleanText = splits.slice(i).join(" ").replaceAll("\\n", "\n")
+  console.log(`Text ready to be parsed into a div: ${cleanText}`)
+  parseInto(cleanText, div)
+  //const tn = document.createTextNode(cleanText);
+  //div.appendChild(tn);
   draggy(div);
   return div;
 };

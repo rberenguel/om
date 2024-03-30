@@ -11,7 +11,7 @@ const unrawPane = (body, container) => {
 };
 
 const rawPane = (body, container) => {
-  const md = toMarkdown(container);
+  const md = toMarkdown(container.querySelector(".body"));
   body.innerText = md;
   container.raw = true;
   container.style.minHeight = "fit-content";

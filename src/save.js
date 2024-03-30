@@ -152,8 +152,7 @@ const isave = {
     ev.stopPropagation();
     filenameToSelectedBodyFromSelection()
       .then(([filename, body]) => {
-        const container = body.closest(".body-container");
-        const saveString = btoa(encodeURIComponent(toMarkdown(container)));
+        const saveString = btoa(encodeURIComponent(toMarkdown(body)));
         set(filename, saveString)
           .then(() => console.log("Data saved in IndexedDb"))
           .catch((err) => console.log("Saving in IndexedDb failed", err));
@@ -181,8 +180,7 @@ function processFiles() {
         body.closest(".body-container").classList.add("highlighted");
         return setFilenameInBodyDataset(body).then(([filename, _]) => {
           //const saveString = getBasicSaveString(body);
-          const container = body.closest(".body-container");
-          const saveString = btoa(encodeURIComponent(toMarkdown(container)));
+          const saveString = btoa(encodeURIComponent(toMarkdown(body)));
           allFiles.push(body.dataset.filename);
           body.closest(".body-container").classList.remove("highlighted");
           return set(filename, saveString);
@@ -256,8 +254,7 @@ const save = {
     filenameToSelectedBodyFromSelection()
       .then(([filename, body]) => {
         //const saveString = getBasicSaveString(body);
-        const container = body.closest(".body-container");
-        const saveString = btoa(encodeURIComponent(toMarkdown(container)));
+        const saveString = btoa(encodeURIComponent(toMarkdown(body)));
         const downloadLink = document.createElement("a");
         const fileData = "data:application/json;base64," + saveString;
         console.log(saveString);

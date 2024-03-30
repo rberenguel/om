@@ -6,7 +6,7 @@ import { common } from "./commands_base.js";
 import { configLevels } from "./common.js";
 import { wireEverything } from "./load.js";
 import { manipulation } from "./panel.js";
-import { parseIntoWrapper, toMarkdown } from "./parser.js";
+import { parseIntoWrapper, parseInto, toMarkdown } from "./parser.js";
 import { get, keys, del, set, entries } from "./libs/idb-keyval.js";
 import { enterKeyDownEvent } from "./commands_base.js";
 import { toTop } from "./doms.js";
@@ -82,24 +82,84 @@ const code = {
   action: (ev) => {
     const selection = window.getSelection();
     const text = selection + "";
-    if(selection.anchorNode.parentNode && selection.anchorNode.parentNode.nodeName === "PRE"){
-      const parent = selection.anchorNode.parentNode
-      const div = document.createElement("div")
-      const granny = parent.parentNode
-      div.innerText = text
-      console.log("Granny")
-      console.log(granny)
-      granny.insertBefore(div,parent.nextSibling)
-      parent.remove()
+    if (
+      selection.anchorNode.parentNode &&
+      selection.anchorNode.parentNode.nodeName === "PRE"
+    ) {
+      const parent = selection.anchorNode.parentNode;
+      const div = document.createElement("div");
+      const granny = parent.parentNode;
+      div.innerText = text;
+      console.log("Granny");
+      console.log(granny);
+      granny.insertBefore(div, parent.nextSibling);
+      parent.remove();
     } else {
       const pre = document.createElement("pre");
       pre.innerText = text; // This might need tweaking due to nested crap
       let range = selection.getRangeAt(0);
       range.deleteContents();
       range.insertNode(pre);
-      hilite()
+      hilite();
+    }
+  },
+  description: "Code block/uncode block",
+};
+
+const lists = {
+  text: ["list"],
+  action: (ev) => {
+    const selection = window.getSelection();
+    const text = selection + "";
+    const lines = text.split("\n");
+    const liNode =
+      selection.anchorNode.parentNode &&
+      selection.anchorNode.parentNode.nodeName === "LI";
+    console.log(lines);
+    console.log(selection.anchorNode.parentNode);
+    if (lines.length == 1 && liNode) {
+      // Our selection is on a single node and we want to un-list it,
+      // potentially
+      console.log("Single node, unlisting");
+      const parent = selection.anchorNode.parentNode;
+      const div = document.createElement("div");
+      const granny = parent.parentNode;
+      div.innerText = selection.anchorNode.textContent;
+      console.log(selection.anchorNode);
+      granny.insertBefore(div, parent.nextSibling);
+      parent.remove();
+      return;
     }
 
+    if (lines.length > 0 && !liNode) {
+      // We have selected several nodes, and the base node parent
+      // is not a list: we
+      const div = document.createElement("div");
+      for (const line of lines) {
+        const li = document.createElement("li");
+        li.innerText = line; // This might need tweaking due to nested crap
+        div.appendChild(li);
+      }
+      let range = selection.getRangeAt(0);
+      range.deleteContents();
+      range.insertNode(div);
+      return;
+    }
+    if (
+      selection.anchorNode.parentNode &&
+      selection.anchorNode.parentNode.nodeName === "LI"
+    ) {
+      const htmlContainer = document.createElement("div");
+      htmlContainer.appendChild(selection.getRangeAt(0).cloneContents());
+      const div = document.createElement("div");
+      const newContent = toMarkdown(htmlContainer).replace(/^- /gm, "")
+      const fixed = newContent.split("\n").join("\n<br/>\n")
+      console.log(fixed)
+      parseInto(fixed, div)
+      let range = selection.getRangeAt(0);
+      range.deleteContents();
+      range.insertNode(div);
+    }
   },
   description: "Code block/uncode block",
 };
@@ -231,7 +291,7 @@ const reparse = {
     }
     const body = document.getElementById(weave.internal.bodyClicks[0]);
     const container = body.closest(".body-container");
-    parseIntoWrapper(toMarkdown(container), body);
+    parseIntoWrapper(toMarkdown(body), body);
     wireEverything(weave.buttons(weave.root));
   },
   description: "Reparses the current panel through a fake markdown conversion",
@@ -521,7 +581,6 @@ const dbload = {
 
 const filePicker = document.getElementById("filePicker");
 
-
 const idel = {
   text: ["idel"],
   action: (ev) => {
@@ -749,7 +808,8 @@ const buttons = (parentId) => {
     link,
     getAllThingsAsStrings,
     headers,
-    code
+    code,
+    lists,
   ];
 };
 
