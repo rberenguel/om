@@ -1,5 +1,6 @@
 import weave from "../src/weave.js";
 import { parseIntoWrapper, toMarkdown } from "../src/parser.js";
+import { stringDiffer } from "./test_helpers.js"
 
 weave.root = "weave-target";
 weave.createPanel(weave.root, "b0", weave.buttons(weave.root), weave);
@@ -44,48 +45,114 @@ c
 });
 
 describe('Dynamic div: parsing & idempotency', function() {
-    let body = document.getElementById(b)
-    it('should create a div', function() {
-        const txt = "`[div] .dynamic-div foo bar baz`"
-        parseIntoWrapper(addConfig(txt), body)
-        const div = body.querySelector(".dynamic-div")
-        chai.expect(div.classList).to.not.be.null
-        chai.expect(div.innerText).to.eql("foo bar baz")
-        const md = toMarkdown(body)
-        // console.log(`"${addConfig(txt)}"`)
-        // console.log(`"${md}"`)
-        chai.expect(addConfig(txt)).to.eql(md)
-        div.remove()
-    });
-    it('should create a div with particular classes', function() {
-        const txt = "`[div] .dynamic-div .class1 .class2 .class3 foo bar baz`"
-        parseIntoWrapper(addConfig(txt), body)
-        const div = body.querySelector(".dynamic-div")
-        chai.expect(div.classList).to.not.be.null
-        chai.expect(Array.from(div.classList)).to.include("class1")
-        chai.expect(Array.from(div.classList)).to.include("class2")
-        chai.expect(Array.from(div.classList)).to.include("class3")
-        chai.expect(div.innerText).to.eql("foo bar baz")
-        const md = toMarkdown(body)
-        // console.log(`"${addConfig(txt)}"`)
-        // console.log(`"${md}"`)
-        chai.expect(addConfig(txt)).to.eql(md)
-        div.remove()
-    });
-    it('should nest lists in divs', function() {
-        const txt = "`[div] .dynamic-div - foo\\n- bar\\n- baz`"
-        parseIntoWrapper(addConfig(txt), body)
-        const div = body.querySelector(".dynamic-div")
-        console.log(body)
-        chai.expect(div.classList).to.not.be.null
-        chai.expect(div.children[0].nodeName).to.eql("LI")
-        const lis = div.querySelectorAll("li")
-        chai.expect(lis).to.have.length(3)
-        chai.expect(lis[2].innerText).to.eql("baz")
-        const md = toMarkdown(body)
-        console.log(`"${addConfig(txt)}"`)
-        console.log(`"${md}"`)
-        chai.expect(addConfig(txt)).to.eql(md)
-        div.remove()
-    });
+  let body = document.getElementById(b)
+  it('should create a div', function() {
+    const txt = "`[div] .dynamic-div foo bar baz`"
+    parseIntoWrapper(addConfig(txt), body)
+    const div = body.querySelector(".dynamic-div")
+    chai.expect(div.classList).to.not.be.null
+    chai.expect(div.innerText).to.eql("foo bar baz")
+    const md = toMarkdown(body)
+    // console.log(`"${addConfig(txt)}"`)
+    // console.log(`"${md}"`)
+    chai.expect(addConfig(txt)).to.eql(md)
+    div.remove()
+  });
+  it('should create a div with particular classes', function() {
+    const txt = "`[div] .dynamic-div .class1 .class2 .class3 foo bar baz`"
+    parseIntoWrapper(addConfig(txt), body)
+    const div = body.querySelector(".dynamic-div")
+    chai.expect(div.classList).to.not.be.null
+    chai.expect(Array.from(div.classList)).to.include("class1")
+    chai.expect(Array.from(div.classList)).to.include("class2")
+    chai.expect(Array.from(div.classList)).to.include("class3")
+    chai.expect(div.innerText).to.eql("foo bar baz")
+    const md = toMarkdown(body)
+    // console.log(`"${addConfig(txt)}"`)
+    // console.log(`"${md}"`)
+    chai.expect(addConfig(txt)).to.eql(md)
+    div.remove()
+  });
+  it('should nest lists in divs', function() {
+    const txt = "`[div] .dynamic-div - foo\\n- bar\\n- baz`"
+    parseIntoWrapper(addConfig(txt), body)
+    const div = body.querySelector(".dynamic-div")
+    console.log(body)
+    chai.expect(div.classList).to.not.be.null
+    chai.expect(div.children[0].nodeName).to.eql("LI")
+    const lis = div.querySelectorAll("li")
+    chai.expect(lis).to.have.length(3)
+    chai.expect(lis[2].innerText).to.eql("baz")
+    const md = toMarkdown(body)
+    //console.log(`"${addConfig(txt)}"`)
+    //console.log(`"${md}"`)
+    chai.expect(addConfig(txt)).to.eql(md)
+    div.remove()
+  });
 })
+
+describe('Button: parsing & idempotency', function() {
+  let body = document.getElementById(b)
+  it('should create a button and parse it again', function() {
+    const txt = "`[div] .wrap u .alive raw raw`"
+    parseIntoWrapper(addConfig(txt), body)
+    const div = body.querySelector(".wrap")
+    const inner = div.querySelector(".alive")
+    chai.expect(div.classList).to.not.be.null
+    chai.expect(div.innerText).to.eql("raw")
+    chai.expect(inner.dataset.action).to.eql("raw")
+    const md = toMarkdown(body)
+    //console.log(`"${addConfig(txt)}"`)
+    //console.log(`"${md}"`)
+    chai.expect(addConfig(txt)).to.eql(md)
+    div.remove()
+  });
+}) 
+
+describe('Code: parsing & idempotency', function() {
+  let body = document.getElementById(b)
+  it('should create a code block and parse it again', function() {
+    const txt = "`[div] .wired .code id=1234 kind=javascript evalString={12+11} value={23}`"
+    parseIntoWrapper(addConfig(txt), body)
+    const div = body.querySelector(".wired.code")
+    chai.expect(div.classList).to.not.be.null
+    chai.expect(div.innerText).to.eql("23")
+    chai.expect(div.dataset.evalString).to.eql("12+11")
+    const md = toMarkdown(body)
+    console.log(`"${addConfig(txt)}"`)
+    console.log(`"${md}"`)
+    chai.expect(addConfig(txt)).to.eql(md)
+    div.remove()
+  });
+  it('should create a multiline code block and parse it again', function() {
+    const ev = 'function foo(x){\\n  return x + 42\\n}'
+    const txt = "`[div] .wired .code id=1234 kind=javascript "+`evalString={${ev}} value={${ev}}\``
+    console.log(txt)
+    parseIntoWrapper(addConfig(txt), body)
+    const div = body.querySelector(".wired.code")
+    chai.expect(div.classList).to.not.be.null
+    chai.expect(div.textContent).to.equal(ev)
+    chai.expect(div.dataset.evalString).to.equal(ev)
+    const md = toMarkdown(body)
+    console.log(`"${addConfig(txt)}"`)
+    console.log(`"${md}"`)
+    stringDiffer(addConfig(txt), md)
+    chai.expect(addConfig(txt)).to.eql(md)
+    div.remove()
+  });  
+
+  it('should handle braces inside code blocks', function() {
+    const txt = "`[div] .wired .code id=1234 kind=javascript evalString={a = (c) => {c+5}} value={a = (c) => {c+5}}`"
+    parseIntoWrapper(addConfig(txt), body)
+    const div = body.querySelector(".wired.code")
+    chai.expect(div.classList).to.not.be.null
+    chai.expect(div.innerText).to.eql("a = (c) => {c+5}")
+    chai.expect(div.dataset.evalString).to.eql("a = (c) => {c+5}")
+    const md = toMarkdown(body)
+    console.log(`"${addConfig(txt)}"`)
+    console.log(`"${md}"`)
+    chai.expect(addConfig(txt)).to.eql(md)
+    div.remove()
+  });
+
+}) 

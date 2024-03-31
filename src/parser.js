@@ -169,6 +169,8 @@ const linkStateMachine = (line, body) => {
 }
 
 const parseInto = (text, body) => {
+  console.log(`parseInto`)
+  console.log(text)
   const lines = text.split("\n");
   let codeBlock = false
   for (const line of lines) {
@@ -235,10 +237,10 @@ const parseInto = (text, body) => {
     }
     // Ignoring code blocks for now, this can go in parsediv
     const [simple, hasDiv] = parseTillTick(line);
-
+  console.log(`simple: ${simple}, hasDiv: ${hasDiv}`)
     if (!hasDiv) {
       if (simple === null) {
-        console.log(line);
+        console.log(`No div: ${line}`);
         // Here now I need to process links. Let's just inject a small state machine
         linkStateMachine(line, body)
         //const tn = document.createTextNode(line);
@@ -247,11 +249,13 @@ const parseInto = (text, body) => {
       }
     }
     if (hasDiv) {
+      console.log(`hasDiv: ${hasDiv}`)
       linkStateMachine(simple, body)
       //const tn = document.createTextNode(simple);
       //body.appendChild(tn);
       const [div, rest] = parseTillTick(hasDiv);
-      const divNode = parseDiv(div, body);
+      console.log(`div: ${div}, rest: ${rest}`)
+      const divNode = parseDiv(div);
       body.appendChild(divNode);
       parseInto(rest, body);
     }
@@ -259,6 +263,7 @@ const parseInto = (text, body) => {
 };
 
 const parseTillTick = (text) => {
+  console.log(`parseTillTick: ${text}`)
   const regex = /^(.*?)`(.*)$/s;
   const match = text.match(regex);
   if (!match) {
@@ -313,7 +318,7 @@ function iterateDOM(node, mode) {
     }
     if (child.classList.contains("wrap")) {
       const button = child.children[0];
-      const node = button.nodeName;
+      const node = button.nodeName.toLowerCase();
       const action = button.dataset.action;
       const text = button.innerText;
       const md = `\`[div] .wrap ${node} .alive ${action} ${text}\``;
@@ -406,12 +411,12 @@ function iterateDOM(node, mode) {
       generated.push(md);
       generated.push("\n");
     }
-    //<div class="wired code" data-eval_string="12+3" id="c1711130846912" data-kind="javascript">15</div>
+    //<div class="wired code" data-evalString="12+3" id="c1711130846912" data-kind="javascript">15</div>
     if (child.classList.contains("wired") && child.classList.contains("code")) {
       const kind = child.dataset.kind;
       const id = child.id;
-      const evalString = child.dataset.eval_string;
-      const value = child.innerText;
+      const evalString = child.dataset.evalString;
+      const value = child.textContent; // TODO extend to other cases of using textContent and not innerText
       const md = `\`[div] .wired .code id=${id} kind=${kind} evalString={${evalString}} value={${value}}\``;
       generated.push(md);
       continue;
@@ -423,6 +428,7 @@ function iterateDOM(node, mode) {
 const divBlock = "[div]";
 
 const parseDiv = (divData) => {
+  console.log(`Parsing div: ${divData}`)
   if (!divData.startsWith(divBlock)) {
     return divData; // This eventually should create a textNode for code blocks in Markdown
   }
@@ -458,16 +464,18 @@ const parseDiv = (divData) => {
     const rest = noHeaderSplits.slice(2).join(" ");
     // The rest need more work.
     const value = rest.slice(rest.lastIndexOf(veq) + veq.length, -1);
+    console.log(`Code, value: ${value}`)
     const evalString = rest
       .replace(" " + veq + value + "}", "")
       .replace(esq, "")
       .slice(0, -1);
+    console.log(`Code, evalString: ${evalString}`)
     const div = document.createElement("div");
     div.classList.add("wired");
     div.classList.add("code");
     div.id = id;
-    div.dataset.eval_string = evalString;
-    div.innerText = value;
+    div.dataset.evalString = evalString;
+    div.textContent = value; // TODO extend to the other cases
     div.dataset.kind = kind;
     return div;
   }

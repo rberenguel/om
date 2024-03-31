@@ -165,9 +165,9 @@ const wireEvalFromScratch = (kind) => {
   } else {
     range.deleteContents();
     range.insertNode(code);
-    code.dataset.eval_string = selectionText;
-    console.info("Setting data string to ", code.dataset.eval_string);
-    code.hover_title = code.dataset.eval_string;
+    code.dataset.evalString = selectionText;
+    console.info("Setting data string to ", code.dataset.evalString);
+    code.hover_title = code.dataset.evalString;
     code.id = "c" + Date.now();
     if (error) {
       code.appendChild(document.createTextNode(selectionText));
@@ -246,13 +246,13 @@ const wireEval = (code) => {
     src.classList.remove("dirty");
     src.classList.remove("error");
     if (!content) {
-      content = src.dataset.eval_string;
+      content = src.dataset.evalString;
     }
-    console.log("Have evaluation string set to", src.dataset.eval_string);
+    console.log("Have evaluation string set to", src.dataset.evalString);
     src.dataset.index = "[?]";
     // TODO(me) Should add the index already on construction as empty and
     // populate on iteration
-    src.hover_title = src.dataset.eval_string;
+    src.hover_title = src.dataset.evalString;
     let [assignment, rvalue, evaluation, error] = evalExpr(content, kind);
     if (error) {
       src.hover_title = error;
@@ -299,7 +299,7 @@ const wireEval = (code) => {
     if (src.classList.contains("wired")) {
       // I can't do HTML here: otherwise I lose all the event handlers
       src.oldText = src.innerText;
-      src.innerText = src.dataset.eval_string;
+      src.innerText = src.dataset.evalString;
       src.editing = true;
       console.info("Adding current id to stack, stack is");
       weave.internal.clickedId.unshift(code.id);
@@ -357,13 +357,13 @@ const reevaluate = (ev) => {
   console.log(`Invoking evaluation for ${src} for ${content}`);
   src.eval(content);
   console.log(`Updating internal evaluation string to ${content}`);
-  src.dataset.eval_string = content;
+  src.dataset.evalString = content;
   const codes = document.querySelectorAll(".code.wired");
   let i = 0;
   for (let cod of codes) {
     // TODO(me) This would look way better as an HTML hover
     cod.dataset.index = `[${i}]`;
-    cod.hover_title = `${cod.dataset.index} ${cod.dataset.eval_string}`;
+    cod.hover_title = `${cod.dataset.index} ${cod.dataset.evalString}`;
     i++;
     if (cod == src) {
       console.log("Skipping self");

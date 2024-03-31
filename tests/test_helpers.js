@@ -1,4 +1,16 @@
-export { addSelectedTextTo, createButton, events }
+export { addSelectedTextTo, createButton, events, stringDiffer }
+
+const stringDiffer = (s1, s2) => {
+  console.log(`Lengths: ${s1.length}, ${s2.length}`)
+  const mlen = Math.min(s1.length, s2.length)
+  for(let i=0;i<mlen; i++){
+    if(s1[i] === s2[i]){
+      continue
+    } else {
+      console.log(`First differing charatcter is at index ${i}, ${s1[i]} !=  ${s1[i]} `)
+    }
+  }
+}
 
 const addSelectedTextTo = (text, destination) => {
     let first, last

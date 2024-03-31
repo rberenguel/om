@@ -34,7 +34,7 @@ describe('eval - direct evaluation', function() {
         chai.expect(evaluated.innerText).to.equal('"42"')
     });
     it('should correctly assign the string to evaluate to the data container of the block', function() {
-        chai.expect(evaluated.dataset.eval_string).to.equal(evaluation);
+        chai.expect(evaluated.dataset.evalString).to.equal(evaluation);
         evaluated.remove()
     });
 });

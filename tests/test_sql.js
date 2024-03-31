@@ -39,7 +39,7 @@ describe('sql text / button', function(){
             chai.expect(eval(evaluated.id)).to.equal(1);
         });
         it('should correctly assign the string to evaluate to the data container of the block', function() {
-            chai.expect(evaluated.dataset.eval_string).to.equal(evaluation);
+            chai.expect(evaluated.dataset.evalString).to.equal(evaluation);
             addSelectedTextTo(drop, panelBody);
             evalButton.dispatchEvent(events.mousedown);
             panelBody.querySelector(".wired.code").remove()
@@ -71,7 +71,7 @@ describe('sql text / button', function(){
             chai.expect(eval(evaluated.id)).to.deep.equal([1, 4]);
         });
         it('should correctly assign the string to evaluate to the data container of the block', function() {
-            chai.expect(evaluated.dataset.eval_string).to.equal(evaluation);
+            chai.expect(evaluated.dataset.evalString).to.equal(evaluation);
         });
     });
     
