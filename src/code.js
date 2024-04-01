@@ -128,7 +128,7 @@ const wireEvalFromScratch = (kind) => {
   console.log(`Wiring eval, first time: ${selectionText}`);
   let [assignment, rvalue, return_text, error, evaluation] = evalExpr(
     selectionText,
-    kind
+    kind,
   );
   console.info(kind);
   console.info("A, R, R_T, Er, Ev:");
@@ -165,9 +165,9 @@ const wireEvalFromScratch = (kind) => {
   } else {
     range.deleteContents();
     range.insertNode(code);
-    code.dataset.evalString = selectionText;
+    code.dataset.evalString = selectionText.split("\n").join("\\n");
     console.info("Setting data string to ", code.dataset.evalString);
-    code.hover_title = code.dataset.evalString;
+    code.hover_title = code.dataset.evalString.replace("\\n", "\n");
     code.id = "c" + Date.now();
     if (error) {
       code.appendChild(document.createTextNode(selectionText));
@@ -236,23 +236,23 @@ const observer = new MutationObserver((mutations) => {
 });
 
 const wireEval = (code) => {
-  console.info("Wiring eval for node: ")
-  console.info(code)
+  console.info("Wiring eval for node: ");
+  console.info(code);
   code.eval = (content) => {
     const kind = code.dataset.kind;
     console.log("evaluating ", code);
-    console.log(kind)
+    console.log(kind);
     const src = code;
     src.classList.remove("dirty");
     src.classList.remove("error");
     if (!content) {
-      content = src.dataset.evalString;
+      content = src.dataset.evalString.replace("\\n", "\n");
     }
     console.log("Have evaluation string set to", src.dataset.evalString);
     src.dataset.index = "[?]";
     // TODO(me) Should add the index already on construction as empty and
     // populate on iteration
-    src.hover_title = src.dataset.evalString;
+    src.hover_title = src.dataset.evalString.replace("\\n", "\n");
     let [assignment, rvalue, evaluation, error] = evalExpr(content, kind);
     if (error) {
       src.hover_title = error;
@@ -299,7 +299,7 @@ const wireEval = (code) => {
     if (src.classList.contains("wired")) {
       // I can't do HTML here: otherwise I lose all the event handlers
       src.oldText = src.innerText;
-      src.innerText = src.dataset.evalString;
+      src.textContent = src.dataset.evalString.replace("\\n", "\n");
       src.editing = true;
       console.info("Adding current id to stack, stack is");
       weave.internal.clickedId.unshift(code.id);
@@ -342,7 +342,7 @@ const reevaluate = (ev) => {
     (node) =>
       node.nodeType === Node.ELEMENT_NODE &&
       node.tagName === "SPAN" &&
-      node.classList.contains("assignment")
+      node.classList.contains("assignment"),
   );
   if (hasAssignment) {
     content = src.innerText; // This still won't work going from single to multiple lines
@@ -357,13 +357,13 @@ const reevaluate = (ev) => {
   console.log(`Invoking evaluation for ${src} for ${content}`);
   src.eval(content);
   console.log(`Updating internal evaluation string to ${content}`);
-  src.dataset.evalString = content;
+  src.dataset.evalString = content.split("\n").join("\\n");
   const codes = document.querySelectorAll(".code.wired");
   let i = 0;
   for (let cod of codes) {
     // TODO(me) This would look way better as an HTML hover
     cod.dataset.index = `[${i}]`;
-    cod.hover_title = `${cod.dataset.index} ${cod.dataset.evalString}`;
+    cod.hover_title = `${cod.dataset.index} ${cod.dataset.evalString.replace("\\n", "\n")}`;
     i++;
     if (cod == src) {
       console.log("Skipping self");

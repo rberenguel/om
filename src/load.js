@@ -4,7 +4,7 @@ export {
   addGoogFont,
   setConfig,
   loadHash,
-  decodeSerializedData
+  decodeSerializedData,
 };
 
 import weave from "./weave.js";
@@ -45,19 +45,27 @@ const wireEverything = (buttons) => {
     for (let button of buttons) {
       // This could be sped up by reversing the indexing
       // TODO this is repeated with wiring buttons. Needs isolation
-      if (button.text && button.text.includes(aliveButton.dataset.action) && !aliveButton.alive ) {
+      if (
+        button.text &&
+        button.text.includes(aliveButton.dataset.action) &&
+        !aliveButton.alive
+      ) {
         aliveButton.onmousedown = button.action;
-        console.info(`Setting click on ${aliveButton.dataset.action}`)
-        aliveButton.alive = true
+        console.info(`Setting click on ${aliveButton.dataset.action}`);
+        aliveButton.alive = true;
         aliveButton.addEventListener("dblclick", (ev) => {
           console.debug("Preventing folding");
           weave.internal.preventFolding = true;
         });
       }
-      if(button.matcher && button.matcher.test(aliveButton.dataset.action) && !aliveButton.alive){
+      if (
+        button.matcher &&
+        button.matcher.test(aliveButton.dataset.action) &&
+        !aliveButton.alive
+      ) {
         aliveButton.onmousedown = button.action(aliveButton.dataset.action);
-        console.info(`Setting click on ${aliveButton.dataset.action}`)
-        aliveButton.alive = true
+        console.info(`Setting click on ${aliveButton.dataset.action}`);
+        aliveButton.alive = true;
         aliveButton.addEventListener("dblclick", (ev) => {
           console.debug("Preventing folding");
           weave.internal.preventFolding = true;
@@ -80,12 +88,12 @@ const decodeSerializedData = (data) => {
   const decodedHash = decodeURIComponent(data);
   let [configData, bodiesData] = decodedHash.split("\u2223");
   const parsedConfig = JSON.parse(configData);
-  if(bodies){
+  if (bodies) {
     let parsedDodiesData = JSON.parse(splitHash[1]);
-    return [parsedConfig, parsedDodiesData]
+    return [parsedConfig, parsedDodiesData];
   }
-  return [parsedConfig]
-}
+  return [parsedConfig];
+};
 
 const loadHash = (parentId) => {
   let config = weave.config;
@@ -93,12 +101,12 @@ const loadHash = (parentId) => {
   console.info("Loading for");
   console.debug(bodies);
   const currentHash = window.location.hash.substring(1);
-  let [loadedConfig, bodiesData] = decodeSerializedData(currentHash)
+  let [loadedConfig, bodiesData] = decodeSerializedData(currentHash);
   if (bodiesData) {
     for (let n = 1; n < bodiesData.length; n++) {
       createPanel(parentId, `b${n}`, weave.buttons(weave.root), weave);
     }
-    
+
     setConfig(config);
 
     for (let id in bodiesData) {

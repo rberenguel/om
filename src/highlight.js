@@ -1,4 +1,4 @@
-export { hilite }
+export { hilite };
 
 const pythonKeywords = [
   "False",
@@ -105,7 +105,7 @@ const hilite = () => {
     }
     text = text.replaceAll(
       /[^>]("[^"]*")[^>]/g,
-      "<span class='string'>$1</span>"
+      "<span class='string'>$1</span>",
     );
     //text = text.replaceAll(/[^>]({)[^>]/g, "<span class='brace'>$1</span>")
     //text = text.replaceAll(/[^>](})[^>|$]/g, "<span class='brace'>$1</span>")

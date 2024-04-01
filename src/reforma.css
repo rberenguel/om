@@ -1,19 +1,16 @@
 @font-face {
-    font-family: "Reforma1969";
-    src: url("./fonts/Reforma1969-Blanca.woff2")
-      format("woff2");
-  }
-  @font-face {
-    font-family: "Reforma1969";
-    src: url("./fonts/Reforma1969-Negra.woff")
-      format("woff2");
-    font-weight: bold;
-    font-style: normal;
-  }
-  @font-face {
-    font-family: "Reforma1969";
-    src: url("./fonts/Reforma1969-BlancaItalica.woff2")
-    format("woff2");
-    font-weight: normal;
-    font-style: italic;
-  }
+  font-family: "Reforma1969";
+  src: url("./fonts/Reforma1969-Blanca.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Reforma1969";
+  src: url("./fonts/Reforma1969-Negra.woff") format("woff2");
+  font-weight: bold;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Reforma1969";
+  src: url("./fonts/Reforma1969-BlancaItalica.woff2") format("woff2");
+  font-weight: normal;
+  font-style: italic;
+}

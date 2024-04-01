@@ -17,7 +17,7 @@ const parseIntoWrapper = (text, body) => {
   let rest = [];
   for (const line of lines) {
     if (processingProperties) {
-      console.log(`Parsing config line: ${line}`)
+      console.log(`Parsing config line: ${line}`);
       // Processing properties
       if (line.startsWith("<!--")) {
         continue;
@@ -41,220 +41,214 @@ const parseIntoWrapper = (text, body) => {
 
 const linkStateMachine = (line, body) => {
   let accum = [],
-          linkText = [],
-          linkHref = [],
-          reference = [];
-        let inLinkText = false,
-          inLinkHref = false,
-          inReference = false,
-          closedReference = 0;
-        for (let i = 0; i < line.length; i++) {
-          const c = line[i];
-          if (c == "[") {
-            if (inLinkText) {
-              // We started a link, but actually got a reference. Correct and continue
-              inReference = true;
-              inLinkText = false;
-            } else {
-              // We are starting a link: emit whatever text we had up until now.
-              // TODO Yes, this is preventing having naked brackets.
-              inLinkText = true;
-              const tn = document.createTextNode(accum.join(""));
-              accum = [];
-              body.appendChild(tn);
-            }
-            continue;
-          }
-          if (c == "]") {
-            if (inLinkText && linkText.length > 0) {
-              inLinkText = false;
-              // We have finished the link text. We still don't emit
-              // anything though, we need to finish the link.
-            } else {
-              closedReference += 1;
-              if (closedReference == 2) {
-                inReference = false; // Reference finished, emit it
-                closedReference = 0
-                const link = document.createElement("a");
-                const href = reference.join("");
-                link.href = href;
-                link.innerText = href;
-                link.dataset.internal = true;
-                reference = [];
-                body.appendChild(link);
-                // TODO repetition
-                link.addEventListener("click", (ev) => {
-                  ev.preventDefault(); // Prevent default navigation
-                  ev.stopPropagation()
-                  const href = ev.target.getAttribute("href"); // To avoid issues with no-protocol
-                  if (JSON.parse(link.dataset.internal)) {
-                    const n = weave.bodies().length;
-                    const bodyId = `b${n}`; // TODO NO, this is not good enough
-                    createPanel(
-                      weave.root,
-                      bodyId,
-                      weave.buttons(weave.root),
-                      weave
-                    );
-                    const body = document.getElementById(bodyId);
-                    console.log(link);
-                    iloadIntoBody(href, body);
-                    toTop(body);
-                  } else {
-                    window.open(href, "_blank");
-                  }
-                });
-              }
-            }
-            continue;
-          }
-          if (c == "(" && linkText.length > 0) {
-            inLinkHref = true;
-            continue;
-          }
-          if (c == ")" && linkText.length > 0) {
-            inLinkHref = false;
-            // We finished a link, emit it
-            const link = document.createElement("a");
-            const href = linkHref.join("");
-            link.href = href;
-            link.innerText = linkText.join("");
-            link.dataset.internal = false;
-            linkText = [];
-            linkHref = [];
-            body.appendChild(link);
-            // TODO repetition
-            link.addEventListener("click", (ev) => {
-              ev.preventDefault(); // Prevent default navigation
-              ev.stopPropagation()
-              const href = ev.target.getAttribute("href"); // To avoid issues with no-protocol
-              if (JSON.parse(link.dataset.internal)) {
-                const n = weave.bodies().length;
-                const bodyId = `b${n}`; // TODO NO, this is not good enough
-                createPanel(
-                  weave.root,
-                  bodyId,
-                  weave.buttons(weave.root),
-                  weave
-                );
-                const body = document.getElementById(bodyId);
-                console.log(link);
-                iloadIntoBody(href, body);
-                toTop(body);
-              } else {
-                window.open(href, "_blank");
-              }
-            });
-            continue;
-          }
-          if (inLinkText) {
-            linkText.push(c);
-            continue;
-          }
-          if (inLinkHref) {
-            linkHref.push(c);
-            continue;
-          }
-          if (inReference) {
-            reference.push(c);
-            continue;
-          }
-          accum.push(c);
-        }
-        console.log("The accumulator at the end is");
-        console.log(accum);
+    linkText = [],
+    linkHref = [],
+    reference = [];
+  let inLinkText = false,
+    inLinkHref = false,
+    inReference = false,
+    closedReference = 0;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c == "[") {
+      if (inLinkText) {
+        // We started a link, but actually got a reference. Correct and continue
+        inReference = true;
+        inLinkText = false;
+      } else {
+        // We are starting a link: emit whatever text we had up until now.
+        // TODO Yes, this is preventing having naked brackets.
+        inLinkText = true;
         const tn = document.createTextNode(accum.join(""));
         accum = [];
         body.appendChild(tn);
-}
+      }
+      continue;
+    }
+    if (c == "]") {
+      if (inLinkText && linkText.length > 0) {
+        inLinkText = false;
+        // We have finished the link text. We still don't emit
+        // anything though, we need to finish the link.
+      } else {
+        closedReference += 1;
+        if (closedReference == 2) {
+          inReference = false; // Reference finished, emit it
+          closedReference = 0;
+          const link = document.createElement("a");
+          const href = reference.join("");
+          link.href = href;
+          link.innerText = href;
+          link.dataset.internal = true;
+          reference = [];
+          body.appendChild(link);
+          // TODO repetition
+          link.addEventListener("click", (ev) => {
+            ev.preventDefault(); // Prevent default navigation
+            ev.stopPropagation();
+            const href = ev.target.getAttribute("href"); // To avoid issues with no-protocol
+            if (JSON.parse(link.dataset.internal)) {
+              const n = weave.bodies().length;
+              const bodyId = `b${n}`; // TODO NO, this is not good enough
+              createPanel(weave.root, bodyId, weave.buttons(weave.root), weave);
+              const body = document.getElementById(bodyId);
+              console.log(link);
+              iloadIntoBody(href, body);
+              toTop(body);
+            } else {
+              window.open(href, "_blank");
+            }
+          });
+        }
+      }
+      continue;
+    }
+    if (c == "(" && linkText.length > 0) {
+      inLinkHref = true;
+      continue;
+    }
+    if (c == ")" && linkText.length > 0) {
+      inLinkHref = false;
+      // We finished a link, emit it
+      const link = document.createElement("a");
+      const href = linkHref.join("");
+      link.href = href;
+      link.innerText = linkText.join("");
+      link.dataset.internal = false;
+      linkText = [];
+      linkHref = [];
+      body.appendChild(link);
+      // TODO repetition
+      link.addEventListener("click", (ev) => {
+        ev.preventDefault(); // Prevent default navigation
+        ev.stopPropagation();
+        const href = ev.target.getAttribute("href"); // To avoid issues with no-protocol
+        if (JSON.parse(link.dataset.internal)) {
+          const n = weave.bodies().length;
+          const bodyId = `b${n}`; // TODO NO, this is not good enough
+          createPanel(weave.root, bodyId, weave.buttons(weave.root), weave);
+          const body = document.getElementById(bodyId);
+          console.log(link);
+          iloadIntoBody(href, body);
+          toTop(body);
+        } else {
+          window.open(href, "_blank");
+        }
+      });
+      continue;
+    }
+    if (inLinkText) {
+      linkText.push(c);
+      continue;
+    }
+    if (inLinkHref) {
+      linkHref.push(c);
+      continue;
+    }
+    if (inReference) {
+      reference.push(c);
+      continue;
+    }
+    accum.push(c);
+  }
+  console.log("The accumulator at the end is");
+  console.log(accum);
+  const tn = document.createTextNode(accum.join(""));
+  accum = [];
+  body.appendChild(tn);
+};
 
 const parseInto = (text, body) => {
-  console.log(`parseInto`)
-  console.log(text)
+  console.log(`parseInto`);
+  console.log(text);
   const lines = text.split("\n");
-  let codeBlock = false
+  let codeBlock = false;
   for (const line of lines) {
-    console.log(`Parsing line: ${line}`)
+    console.log(`Parsing line: ${line}`);
     if (line == "<br/>") {
-      const div = document.createElement("div")
+      const div = document.createElement("div");
       div.appendChild(document.createElement("br"));
       body.appendChild(div);
       continue;
     }
-    if(codeBlock && !line.startsWith("```")){
-      const tn = document.createTextNode(line)
-      codeBlock.appendChild(tn)
-      codeBlock.appendChild(document.createElement("br"))
-      continue
+    if (codeBlock && !line.startsWith("```")) {
+      const tn = document.createTextNode(line);
+      codeBlock.appendChild(tn);
+      codeBlock.appendChild(document.createElement("br"));
+      continue;
     }
     if (line == "---") {
       body.appendChild(document.createElement("hr"));
       continue;
     }
-    if (line.startsWith("```")){
-      if(codeBlock){
-        body.appendChild(codeBlock)
-        codeBlock = false
+    if (line.startsWith("```")) {
+      if (codeBlock) {
+        body.appendChild(codeBlock);
+        codeBlock = false;
       } else {
-        codeBlock = document.createElement("pre")
+        codeBlock = document.createElement("pre");
       }
-      continue
+      continue;
     }
-    if(line.startsWith("- ")){
-      const li = document.createElement("li")
-      const rest = line.slice(2)
-      parseInto(rest, li)
-      body.appendChild(li)
-      continue
+    if (line.startsWith("- ")) {
+      const li = document.createElement("li");
+      const rest = line.slice(2);
+      parseInto(rest, li);
+      body.appendChild(li);
+      continue;
     }
-    if(line.startsWith("# ")){ // Ugly, but this forces out weird cases like lines of hashes
-      const h = document.createElement("h1")
-      const rest = line.slice(2)
-      parseInto(rest, h)
-      body.appendChild(h)
-      continue
+    if (line.startsWith("# ")) {
+      // Ugly, but this forces out weird cases like lines of hashes
+      const h = document.createElement("h1");
+      const rest = line.slice(2);
+      parseInto(rest, h);
+      body.appendChild(h);
+      continue;
     }
-    if(line.startsWith("## ")){ // Ugly, but this forces out weird cases like lines of hashes
-      const h = document.createElement("h2")
-      const rest = line.slice(3)
-      parseInto(rest, h)
-      body.appendChild(h)
-      continue
+    if (line.startsWith("## ")) {
+      // Ugly, but this forces out weird cases like lines of hashes
+      const h = document.createElement("h2");
+      const rest = line.slice(3);
+      parseInto(rest, h);
+      body.appendChild(h);
+      continue;
     }
-    if(line.startsWith("### ")){ // Ugly, but this forces out weird cases like lines of hashes
-      const h = document.createElement("h3")
-      const rest = line.slice(4)
-      parseInto(rest, h)
-      body.appendChild(h)
-      continue
+    if (line.startsWith("### ")) {
+      // Ugly, but this forces out weird cases like lines of hashes
+      const h = document.createElement("h3");
+      const rest = line.slice(4);
+      parseInto(rest, h);
+      body.appendChild(h);
+      continue;
     }
-    if(line.startsWith("#### ")){ // Ugly, but this forces out weird cases like lines of hashes
-      const h = document.createElement("h4")
-      const rest = line.slice(5)
-      parseInto(rest, h)
-      body.appendChild(h)
-      continue
+    if (line.startsWith("#### ")) {
+      // Ugly, but this forces out weird cases like lines of hashes
+      const h = document.createElement("h4");
+      const rest = line.slice(5);
+      parseInto(rest, h);
+      body.appendChild(h);
+      continue;
     }
     // Ignoring code blocks for now, this can go in parsediv
     const [simple, hasDiv] = parseTillTick(line);
-  console.log(`simple: ${simple}, hasDiv: ${hasDiv}`)
+    console.log(`simple: ${simple}, hasDiv: ${hasDiv}`);
     if (!hasDiv) {
       if (simple === null) {
         console.log(`No div: ${line}`);
         // Here now I need to process links. Let's just inject a small state machine
-        linkStateMachine(line, body)
+        linkStateMachine(line, body);
         //const tn = document.createTextNode(line);
         //body.appendChild(tn);
       } else {
       }
     }
     if (hasDiv) {
-      console.log(`hasDiv: ${hasDiv}`)
-      linkStateMachine(simple, body)
+      console.log(`hasDiv: ${hasDiv}`);
+      linkStateMachine(simple, body);
       //const tn = document.createTextNode(simple);
       //body.appendChild(tn);
       const [div, rest] = parseTillTick(hasDiv);
-      console.log(`div: ${div}, rest: ${rest}`)
+      console.log(`div: ${div}, rest: ${rest}`);
       const divNode = parseDiv(div);
       body.appendChild(divNode);
       parseInto(rest, body);
@@ -263,7 +257,7 @@ const parseInto = (text, body) => {
 };
 
 const parseTillTick = (text) => {
-  console.log(`parseTillTick: ${text}`)
+  console.log(`parseTillTick: ${text}`);
   const regex = /^(.*?)`(.*)$/s;
   const match = text.match(regex);
   if (!match) {
@@ -279,12 +273,12 @@ const parseTillTick = (text) => {
 };
 
 const toMarkdown = (element) => {
-  console.log("Parsing markdown on element")
-  console.log(element)
+  console.log("Parsing markdown on element");
+  console.log(element);
   const content = iterateDOM(element);
-  let saveable = []
-  if(element.classList.contains("body")){
-    const container = element.closest(".body-container")
+  let saveable = [];
+  if (element.classList.contains("body")) {
+    const container = element.closest(".body-container");
     saveable = ["<!--\n"];
     for (const prop of Object.values(panelFields)) {
       const value = manipulation.get(container, prop);
@@ -292,10 +286,10 @@ const toMarkdown = (element) => {
     }
     saveable.push("-->\n");
   }
-  const fixedContent = content.join("").trim()
-  console.log(fixedContent)
-  const fixedSaveable = saveable.join("")
-  const markdown = fixedSaveable + fixedContent
+  const fixedContent = content.join("").trim();
+  console.log(fixedContent);
+  const fixedSaveable = saveable.join("");
+  const markdown = fixedSaveable + fixedContent;
   console.info("Generated as markdown:");
   console.info(markdown);
   return markdown;
@@ -343,7 +337,8 @@ function iterateDOM(node, mode) {
       const md = iterateDOM(child);
       generated.push(md);
     }
-    if (child.nodeName === "A") { // Maybe I should just preserve <a>?
+    if (child.nodeName === "A") {
+      // Maybe I should just preserve <a>?
       if (JSON.parse(child.dataset.internal)) {
         const href = child.getAttribute("href");
         generated.push(`[[${href}]]`);
@@ -353,49 +348,49 @@ function iterateDOM(node, mode) {
         generated.push(`[${text}](${href})`);
       }
     }
-    if(child.nodeName === "LI"){
+    if (child.nodeName === "LI") {
       // TODO this is ignoring all possibly HTML inside lists
-      const text = child.innerText
-      let nl = "\n"
-      if(mode === "foldNL"){
-        nl = "\\n"
+      const text = child.innerText;
+      let nl = "\n";
+      if (mode === "foldNL") {
+        nl = "\\n";
       }
       if (child.nextSibling === null) {
-        nl = ""
+        nl = "";
       }
-      const md = `- ${text}${nl}`
-      generated.push(md)
+      const md = `- ${text}${nl}`;
+      generated.push(md);
     }
     if (child.nodeName === "H1") {
       // TODO this is ignoring all possibly HTML inside headers
-      const text = child.innerText
+      const text = child.innerText;
       generated.push(`# ${text}\n`);
     }
     if (child.nodeName === "H2") {
       // TODO this is ignoring all possibly HTML inside headers
-      const text = child.innerText
+      const text = child.innerText;
       generated.push(`## ${text}\n`);
     }
     if (child.nodeName === "H3") {
       // TODO this is ignoring all possibly HTML inside headers
-      const text = child.innerText
+      const text = child.innerText;
       generated.push(`### ${text}\n`);
     }
     if (child.nodeName === "H4") {
       // TODO this is ignoring all possibly HTML inside headers
-      const text = child.innerText
+      const text = child.innerText;
       generated.push(`#### ${text}\n`);
     }
     if (child.nodeName === "SPAN" && child.classList.length === 0) {
       const md = iterateDOM(child);
       generated.push(md);
     }
-    if (child.nodeName === "PRE"){
-      console.log("PRE")
-      const splits = child.innerText.split("\n").filter(l => l.length > 0)
-      console.log(splits)
-      const md = "\n```\n" + splits.join("\n<br/>\n") + "\n```\n"
-      generated.push(md)
+    if (child.nodeName === "PRE") {
+      console.log("PRE");
+      const splits = child.innerText.split("\n").filter((l) => l.length > 0);
+      console.log(splits);
+      const md = "\n```\n" + splits.join("\n<br/>\n") + "\n```\n";
+      generated.push(md);
     }
     if (child.classList.contains("dynamic-div")) {
       // const text = child.innerText;
@@ -403,20 +398,20 @@ function iterateDOM(node, mode) {
         .filter((c) => c != "dynamic-div")
         .map((c) => `.${c}`)
         .join(" ");
-      const inner = iterateDOM(child, "foldNL").join("")
-      console.log(inner)
-      const toAdd = [allClasses, inner].join(" ").trim()
-      console.log(toAdd)
+      const inner = iterateDOM(child, "foldNL").join("");
+      console.log(inner);
+      const toAdd = [allClasses, inner].join(" ").trim();
+      console.log(toAdd);
       const md = `\`[div] .dynamic-div ${toAdd}\``;
       generated.push(md);
-      generated.push("\n");
+      //generated.push("\n");
     }
     //<div class="wired code" data-evalString="12+3" id="c1711130846912" data-kind="javascript">15</div>
     if (child.classList.contains("wired") && child.classList.contains("code")) {
       const kind = child.dataset.kind;
       const id = child.id;
-      const evalString = child.dataset.evalString;
-      const value = child.textContent; // TODO extend to other cases of using textContent and not innerText
+      const evalString = child.dataset.evalString.split("\n").join("\\n"); // TODO This needs a test itself
+      const value = child.textContent.split("\n").join("\\n"); // TODO This needs a test itself; TODO extend to other cases of using textContent and not innerText
       const md = `\`[div] .wired .code id=${id} kind=${kind} evalString={${evalString}} value={${value}}\``;
       generated.push(md);
       continue;
@@ -428,7 +423,7 @@ function iterateDOM(node, mode) {
 const divBlock = "[div]";
 
 const parseDiv = (divData) => {
-  console.log(`Parsing div: ${divData}`)
+  console.log(`Parsing div: ${divData}`);
   if (!divData.startsWith(divBlock)) {
     return divData; // This eventually should create a textNode for code blocks in Markdown
   }
@@ -464,12 +459,12 @@ const parseDiv = (divData) => {
     const rest = noHeaderSplits.slice(2).join(" ");
     // The rest need more work.
     const value = rest.slice(rest.lastIndexOf(veq) + veq.length, -1);
-    console.log(`Code, value: ${value}`)
+    console.log(`Code, value: ${value}`);
     const evalString = rest
       .replace(" " + veq + value + "}", "")
       .replace(esq, "")
       .slice(0, -1);
-    console.log(`Code, evalString: ${evalString}`)
+    console.log(`Code, evalString: ${evalString}`);
     const div = document.createElement("div");
     div.classList.add("wired");
     div.classList.add("code");

@@ -36,29 +36,29 @@ const draggy = (div) => {
     },
     listeners: {
       start: (event) => {
-        document.isDragging = true
+        document.isDragging = true;
         event.preventDefault();
         draggedElement = event.target;
-        const rect = draggedElement.getBoundingClientRect()
-        
+        const rect = draggedElement.getBoundingClientRect();
+
         draggedElement.dataset.x = rect.x;
         draggedElement.dataset.y = rect.y;
         console.log("Doing stuff with");
         console.log(draggedElement);
         draggedElement.parentNode.removeChild(draggedElement);
-        draggedElement.classList.add("dragging")
+        draggedElement.classList.add("dragging");
         document.getElementById(weave.root).appendChild(draggedElement);
       },
       enter: (ev) => {
         event.preventDefault();
-        console.log("ev entered")
+        console.log("ev entered");
         console.log(ev.target);
       },
       move: dragMoveListener,
       end: (ev) => {
-        console.log("ev end")
+        console.log("ev end");
         console.log(ev.target);
-      }
+      },
     },
   });
 };

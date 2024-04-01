@@ -15,7 +15,7 @@ const rawPane = (body, container) => {
   body.innerText = md;
   container.raw = true;
   container.style.minHeight = "fit-content";
-  container.style.height = ""
+  container.style.height = "";
 };
 
 const raw = {

@@ -1,33 +1,33 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>All weave tests</title>
     <style>
-        body {
-            margin: 5%; /* Remove default margins */
-            display: grid;
-            grid-template-columns: 40% 40%;  /* Two equal-width columns */
-            /*grid-template-rows: 60% 60%;   /* Two equal-height rows */
-            height: 400vh; /* Make it take up full viewport height */
-            background: black;
-            grid-gap: 5%;
-        }
+      body {
+        margin: 5%; /* Remove default margins */
+        display: grid;
+        grid-template-columns: 40% 40%; /* Two equal-width columns */
+        /*grid-template-rows: 60% 60%;   /* Two equal-height rows */
+        height: 200vh; /* Make it take up full viewport height */
+        background: black;
+        grid-gap: 5%;
+      }
 
-        iframe {
-            width: 100%; 
-            height: 100%;
-            border: 0; /* Remove iframe borders */
-        }
+      iframe {
+        width: 100%;
+        height: 100%;
+        border: 0; /* Remove iframe borders */
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <iframe src="test_panel.html"></iframe>
     <iframe src="test_formatters.html"></iframe>
     <iframe src="test_eval.html"></iframe>
     <iframe src="test_sql.html"></iframe>
     <iframe src="test_saving.html"></iframe>
     <iframe src="test_parser.html"></iframe>
-</body>
+  </body>
 </html>

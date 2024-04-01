@@ -10,16 +10,16 @@ const hookBodies = (buttons) => {
   for (let body of weave.bodies()) {
     if (!body.clickAttached) {
       body.addEventListener("click", (ev) => {
-        console.log("Click handler on body")
-        console.log(ev.target)
-        if(ev.target.classList.contains("alive")){
-          return
+        console.log("Click handler on body");
+        console.log(ev.target);
+        if (ev.target.classList.contains("alive")) {
+          return;
         }
-        reset()
+        reset();
         weave.internal.clickedId.unshift(body.id);
-        console.log(body.closest(".body-container").classList)
+        console.log(body.closest(".body-container").classList);
         Array.from(
-          document.getElementsByClassName("mildly-highlighted")
+          document.getElementsByClassName("mildly-highlighted"),
         ).forEach((e) => e.classList.remove("mildly-highlighted"));
         weave.internal.clickedId.length = 2;
         if (weave.internal.grouping) {
@@ -57,7 +57,7 @@ const hookBodies = (buttons) => {
     }
     if (!body.dblClickAttached) {
       body.parentElement.addEventListener("dblclick", (ev) => {
-        const container = body.closest(".body-container")
+        const container = body.closest(".body-container");
         if (ev.target === body || body.contains(ev.target)) {
           // This should be the body proper only
           return;
@@ -68,13 +68,13 @@ const hookBodies = (buttons) => {
           .replace(/\s+/g, "").length;
         if (selection.length > 0) {
           console.log(
-            `You have selected something ('${selection}'), not folding`
+            `You have selected something ('${selection}'), not folding`,
           );
           return;
         } else {
-          if(container.raw){
-            unrawPane(body, container)
-            return
+          if (container.raw) {
+            unrawPane(body, container);
+            return;
           }
           if (!weave.internal.preventFolding) {
             body.classList.toggle("folded");
@@ -82,19 +82,21 @@ const hookBodies = (buttons) => {
             container.classList.toggle("folded-bc");
             if (body.classList.contains("folded")) {
               // Just folded everything. Need to preserve the height of the container before folding
-              body.dataset.unfoldedHeight =
-              container.style.height;
+              body.dataset.unfoldedHeight = container.style.height;
               container.style.height = "";
-              interact(container).resizable({
-                edges: { top: false, left: true, bottom: false, right: true },
-              }).draggable({autoscroll: false});
+              interact(container)
+                .resizable({
+                  edges: { top: false, left: true, bottom: false, right: true },
+                })
+                .draggable({ autoscroll: false });
               //body.style.height = "1.5em";
             } else {
-              container.style.height =
-                body.dataset.unfoldedHeight;
-              interact(container).resizable({
-                edges: { top: true, left: true, bottom: true, right: true },
-              }).draggable({autoscroll: true});
+              container.style.height = body.dataset.unfoldedHeight;
+              interact(container)
+                .resizable({
+                  edges: { top: true, left: true, bottom: true, right: true },
+                })
+                .draggable({ autoscroll: true });
             }
           } else {
             weave.internal.preventFolding = false;
@@ -105,9 +107,9 @@ const hookBodies = (buttons) => {
     }
 
     body.addEventListener("contextmenu", wireButtons(buttons));
-    interact(body).on("hold", ev => {
-      ev.preventDefault()
-      wireButtons(buttons)(ev)
+    interact(body).on("hold", (ev) => {
+      ev.preventDefault();
+      wireButtons(buttons)(ev);
     });
     body.addEventListener("paste", (event) => {
       // Paste takes a slight bit to modify the DOM, if I trigger
@@ -134,7 +136,7 @@ const wireButtons = (buttons) => (event) => {
   let node, result;
   console.log(buttons);
   for (let button of buttons) {
-    if(button.matcher && button.matcher.test(selectedText)){
+    if (button.matcher && button.matcher.test(selectedText)) {
       if (button.creator) {
         event.preventDefault();
         // An override to have autoformatted selections
@@ -166,12 +168,12 @@ const wireButtons = (buttons) => (event) => {
     let div = document.createElement("div");
     node.innerHTML = `${selectedText}`.trim();
     div.contentEditable = false;
-    if(result.matcher){
+    if (result.matcher) {
       div.addEventListener("mousedown", result.action(selectedText));
     } else {
       div.addEventListener("mousedown", result.action);
     }
-    
+
     div.alive = true;
     node.alive = true;
     // TODO I don't have all this prevention when I rewire everything?
@@ -194,7 +196,6 @@ const wireButtons = (buttons) => (event) => {
     event.preventDefault();
   }
 };
-
 
 /*
 

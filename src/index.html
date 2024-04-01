@@ -1,18 +1,17 @@
 <head>
   <meta charset="UTF-8" />
-  <link rel="manifest" href="./manifest.json">
-  <link rel="icon" type="image/png" href="./media/icon.png"> 
-  <link href="./style.css" rel="stylesheet"></link>
-  <link href="./weave_style.css" rel="stylesheet"></link>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/png" href="./media/icon.png" />
+  <link href="./style.css" rel="stylesheet" />
+  <link href="./weave_style.css" rel="stylesheet" />
 </head>
 <body id="weave" class="outer-dark">
   <div id="content">
     <div class="code-info"></div>
     <div id="info"></div>
-    <div id="modal" class="dark" style="display: none;">
-    </div>
+    <div id="modal" class="dark" style="display: none"></div>
   </div>
-  <input type="file" id="filePicker" accept=".db" style="display: none;"> 
+  <input type="file" id="filePicker" accept=".db" style="display: none" />
   <div id="help" class="dark serif" style="display: none">
     <p style="font-size: 130%">
       This is <i class="highlight">Weave</i>, a text "editor" inspired by
@@ -23,8 +22,8 @@
     <div style="padding-left: 1em">
       <p>If you need a command, just write it.</p>
       <p>
-        Need to <b>bold</b> a piece of text? Just type <b>bold</b> or
-        <b>b</b>, select that and right click to convert it into a <b>bold</b> button. 
+        Need to <b>bold</b> a piece of text? Just type <b>bold</b> or <b>b</b>,
+        select that and right click to convert it into a <b>bold</b> button.
       </p>
       <p>It will become your bold button.</p>
       <p>
@@ -73,16 +72,17 @@
       Fonts used:
       <a
         href="https://larsenwork.com/monoid/"
-        style="font-family: 'monoidregular'"
+        style="font-family: &quot;monoidregular&quot;"
         >Monoid</a
       >
-      <a href="https://pampatype.com/reforma" style="font-family: 'Reforma1969'"
+      <a
+        href="https://pampatype.com/reforma"
+        style="font-family: &quot;Reforma1969&quot;"
         >Reforma 1969</a
       >
     </p>
     Click to dismiss
   </div>
-</div>
 </body>
 <script type="module" src="./weave.js"></script>
 <script src="libs/interact.min.js"></script>
@@ -93,6 +93,5 @@
 <script type="module" src="./commands.js?v=1"></script>
 <script type="module" src="./load.js?v=12345"></script>
 <script type="module" src="./main.js?v=1"></script>
-<link rel="stylesheet" href="monoid.css"></link>
-<link rel="stylesheet" href="reforma.css"></link>
-</style>
+<link rel="stylesheet" href="monoid.css" />
+<link rel="stylesheet" href="reforma.css" />

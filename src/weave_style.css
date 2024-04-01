@@ -144,13 +144,15 @@ a[data-internal="false"]::after {
 }
 
 .selected {
-  box-shadow: 0 0 10px 2px #cccc66cc,
+  box-shadow:
+    0 0 10px 2px #cccc66cc,
     /* Smaller, brighter inner glow */ 0 0 30px 10px #cccc6644,
     /* Larger, softer outer glow */ 0 0 50px 20px #cccc6611; /* Even larger, faint glow */
 }
 
 .highlighted {
-  box-shadow: 0 0 10px 2px #cc6600cc,
+  box-shadow:
+    0 0 10px 2px #cc6600cc,
     /* Smaller, brighter inner glow */ 0 0 30px 10px #cc660044,
     /* Larger, softer outer glow */ 0 0 50px 20px #cc660011; /* Even larger, faint glow */
 }

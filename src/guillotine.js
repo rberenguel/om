@@ -1,4 +1,4 @@
-export { GuillotineJS }
+export { GuillotineJS };
 
 const GuillotineJS = (start) => {
   let generated = false;
@@ -20,10 +20,11 @@ const GuillotineJS = (start) => {
 
   const videoSelectorElement = document.createElement("select");
   videoSelectorElement.id = "guillotine-selector";
-  const lower = "font-size: 14px !important; position: absolute; font-family: monoidregular;";
+  const lower =
+    "font-size: 14px !important; position: absolute; font-family: monoidregular;";
   let helpP = document.createElement("p");
   let helpText = document.createTextNode(
-    "Tap on dotted frame to give it focus and press h for help"
+    "Tap on dotted frame to give it focus and press h for help",
   );
   helpP.appendChild(helpText);
   helpP.style = lower + "right: 5px; bottom: 0px;";
@@ -59,7 +60,8 @@ const GuillotineJS = (start) => {
 
   modalElement.id = "guillotine-modal";
   modalElement.style =
-    "left: 0px; top: 0px; position: fixed; border: 2px solid #c60; border-radius: 5px; height: 630px; width: 810px; color: #fdf6e3; background-color: #002b36;; z-index: 5000; visibility: hidden;" + lower;
+    "left: 0px; top: 0px; position: fixed; border: 2px solid #c60; border-radius: 5px; height: 630px; width: 810px; color: #fdf6e3; background-color: #002b36;; z-index: 5000; visibility: hidden;" +
+    lower;
 
   let helpElement = document.createElement("div");
   helpElement.style =
@@ -141,7 +143,7 @@ const GuillotineJS = (start) => {
         y: y,
         scale: 1 / coverTransform.scale,
       },
-      true
+      true,
     );
     coverTransform.borderType = "px solid #c60";
     coverElement.style.border =
@@ -326,7 +328,7 @@ const GuillotineJS = (start) => {
         largerFrame();
       }
       if (e.key == "h") {
-        console.log("Help showing")
+        console.log("Help showing");
         let vis = helpElement.style.visibility;
         if (vis == "visible") {
           helpElement.style.visibility = "hidden";
@@ -418,7 +420,7 @@ const GuillotineJS = (start) => {
     });
     configureDrag("#guillotine-cover");
   };
-  if(start){
-    init()
+  if (start) {
+    init();
   }
 };

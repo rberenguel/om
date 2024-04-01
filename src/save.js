@@ -116,7 +116,7 @@ const setFilenameInBodyDataset = (body, fileContainer) => {
         }
         body.dataset.filename = filenameFromModal;
         resolve([filenameFromModal, body]);
-      }
+      },
     );
   });
 };
@@ -199,7 +199,7 @@ function processFiles() {
       set("weave:last-session", "g:" + allFiles.join("|"))
         .then(() => console.log("Last session data saved in IndexedDB"))
         .catch((err) =>
-          console.log("Last session data saving in IndexedDB failed", err)
+          console.log("Last session data saving in IndexedDB failed", err),
         );
     }
     return allFiles;
@@ -235,7 +235,7 @@ const gsave = {
             .catch((err) => console.log("Saving in IndexedDb failed", err));
           info.innerHTML = "&#x1F4BE;";
           info.classList.add("fades");
-        }
+        },
       );
     });
   },
@@ -294,7 +294,7 @@ const serializeSaveData = (bodies, config) => {
 
   const currentConfig = JSON.stringify(config);
   const encodedBodiesContent = encodeURIComponent(
-    `${currentConfig}\u2223${JSON.stringify(savedata)}`
+    `${currentConfig}\u2223${JSON.stringify(savedata)}`,
   );
   return encodedBodiesContent;
 };

@@ -152,10 +152,10 @@ const lists = {
       const htmlContainer = document.createElement("div");
       htmlContainer.appendChild(selection.getRangeAt(0).cloneContents());
       const div = document.createElement("div");
-      const newContent = toMarkdown(htmlContainer).replace(/^- /gm, "")
-      const fixed = newContent.split("\n").join("\n<br/>\n")
-      console.log(fixed)
-      parseInto(fixed, div)
+      const newContent = toMarkdown(htmlContainer).replace(/^- /gm, "");
+      const fixed = newContent.split("\n").join("\n<br/>\n");
+      console.log(fixed);
+      parseInto(fixed, div);
       let range = selection.getRangeAt(0);
       range.deleteContents();
       range.insertNode(div);
@@ -268,7 +268,7 @@ const link = {
               window.open(href, "_blank");
             }
           });
-        }
+        },
       );
     });
 
@@ -307,7 +307,7 @@ const grouping = {
     if (weave.internal.grouping) {
       weave.internal.grouping = false;
       Array.from(document.getElementsByClassName("selected")).forEach((e) =>
-        e.classList.remove("selected")
+        e.classList.remove("selected"),
       );
 
       info.innerHTML = "grouped";
@@ -456,7 +456,7 @@ const newSession = {
       return;
     }
     Array.from(document.getElementsByClassName("body-container")).map((e) =>
-      e.remove()
+      e.remove(),
     );
     weave.createPanel(weave.root, "b0", weave.buttons(weave.root), weave);
   },
@@ -650,7 +650,7 @@ filePicker.addEventListener("change", (event) => {
       set(filename, data)
         .then(() => console.log(`Data for ${filename} stored in IndexedDb`))
         .catch((err) =>
-          console.log(`Saving in IndexedDb failed for ${filename}`, err)
+          console.log(`Saving in IndexedDb failed for ${filename}`, err),
         );
     }
   };

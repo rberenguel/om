@@ -82,12 +82,17 @@ const gload = {
       presentFiles(files, fileContainer);
       const hr = document.createElement("hr");
       modal.appendChild(hr);
-      showModalAndGetFilename("group name?", fileContainer, "name:", (groupname) => {
-        if (!groupname) {
-          return;
-        }
-        loadAllFromGroup(groupname);
-      });
+      showModalAndGetFilename(
+        "group name?",
+        fileContainer,
+        "name:",
+        (groupname) => {
+          if (!groupname) {
+            return;
+          }
+          loadAllFromGroup(groupname);
+        },
+      );
     });
     ev.target.closest(".body-container").remove();
   },

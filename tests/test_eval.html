@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -10,7 +10,7 @@
     <script src="../src/libs/Tone.js"></script>
     <script type="module" src="../src/commands.js?v=1"></script>
   </head>
-  <body style="font-size: 110%;">
+  <body style="font-size: 110%">
     <script src="chai.js"></script>
     <script src="mocha.js"></script>
     <div id="mocha"></div>
@@ -18,11 +18,14 @@
       mocha.setup("bdd");
     </script>
     <script type="module" src="test_eval.js"></script>
-    <div id="weave-target" style="position: absolute; top:0; z-index: -1; opacity: 0;"></div>
+    <div
+      id="weave-target"
+      style="position: absolute; top: 0; z-index: -1; opacity: 0"
+    ></div>
     <div id="help" class="dark serif" style="display: none">
       <table id="commands" class="dark serif"></table>
     </div>
-    <input type="file" id="filePicker" accept=".json" style="display: none;"> 
+    <input type="file" id="filePicker" accept=".json" style="display: none" />
     <div class="code-info"></div>
     <div id="info"></div>
   </body>

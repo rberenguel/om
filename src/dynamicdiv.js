@@ -63,7 +63,7 @@ const dynamicDiv = (text) => {
     div.appendChild(label);
     const check = (doIt) => {
       // I'm not using toggle here because it behaves weirdly with how I load divs
-      if(doIt){
+      if (doIt) {
         label.classList.add("checked");
         label.closest(".dynamic-div").classList.add("checked");
       } else {
@@ -80,9 +80,9 @@ const dynamicDiv = (text) => {
       ev.stopPropagation();
     });
   }
-  const cleanText = splits.slice(i).join(" ").replaceAll("\\n", "\n")
-  console.log(`Text ready to be parsed into a div: ${cleanText}`)
-  parseInto(cleanText, div)
+  const cleanText = splits.slice(i).join(" ").replaceAll("\\n", "\n");
+  console.log(`Text ready to be parsed into a div: ${cleanText}`);
+  parseInto(cleanText, div);
   //const tn = document.createTextNode(cleanText);
   //div.appendChild(tn);
   draggy(div);

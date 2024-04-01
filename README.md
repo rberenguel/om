@@ -3,12 +3,11 @@
 > [!CAUTION]
 > Some functionality around saving is currently in a broken state.
 
-This is **Weave**, a text "editor" inspired by [Plan9's Acme](https://en.wikipedia.org/wiki/Acme_(text_editor)).
+This is **Weave**, a text "editor" inspired by [Plan9's Acme](<https://en.wikipedia.org/wiki/Acme_(text_editor)>).
 
 Below you can see an example of things you might do with it.
 
 https://github.com/rberenguel/weave/assets/2410938/bf6bef3c-1c37-435d-b83c-d8a3d04d7f0c
-
 
 <img src="media/light.png" width=300> <img src="media/dark.png" width=300>|
 
@@ -27,12 +26,13 @@ Ideally the whole editor would live in a bookmarklet, as a `data:text/html` URI.
 ---
 
 <!-- vscode-markdown-toc -->
-* [Rough areas](#Roughareas)
-* [Planned features?](#Plannedfeatures)
-* [The commands available (so far) are the following](#Thecommandsavailablesofararethefollowing)
-* [Name?](#Name)
-* [Why?](#Why)
-* [Tests](#Tests)
+
+- [Rough areas](#Roughareas)
+- [Planned features?](#Plannedfeatures)
+- [The commands available (so far) are the following](#Thecommandsavailablesofararethefollowing)
+- [Name?](#Name)
+- [Why?](#Why)
+- [Tests](#Tests)
 
 <!-- vscode-markdown-toc-config
 	numbering=false
@@ -43,11 +43,13 @@ Ideally the whole editor would live in a bookmarklet, as a `data:text/html` URI.
 ---
 
 ### <a name='Roughareas'></a>Rough areas
+
 - Creating lists by writing a dash and a space in a new line works, but can behave somewhat weirdly.
 - Font size and width are stored in pixels, which can be a pain if the window is resized (particularly width).
 - Print preview looks bad, but when printing it actually works. It also prints the "buttons". I'm still unsure if I want to fix this.
 
 ### <a name='Plannedfeatures'></a>Planned features?
+
 - [x] ~~Creating headings by typing hashes at the beginning of the line.~~
 - [ ] Checkboxes.
 - [ ] Code cleanup, there is a lot of repetition (particularly in how I handle and rewrite selection ranges).
@@ -57,7 +59,7 @@ Ideally the whole editor would live in a bookmarklet, as a `data:text/html` URI.
 ### <a name='Thecommandsavailablesofararethefollowing'></a>The commands available (so far) are the following **outdated**
 
 | Command     | Description                                                                    |
-|-------------|--------------------------------------------------------------------------------|
+| ----------- | ------------------------------------------------------------------------------ |
 | mono        | Switch to a monospace font (Monoid) (stored in config)                         |
 | serif       | Switch to a serif font (Reforma1969) (stored in config)                        |
 | fontup      | Increase the document font by 2 pixels (stored in config)                      |

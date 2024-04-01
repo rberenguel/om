@@ -1,4 +1,13 @@
-export { createPanel, zwsr, pad, wrap, prefix, postfix, divWithDraggableHandle, toTop };
+export {
+  createPanel,
+  zwsr,
+  pad,
+  wrap,
+  prefix,
+  postfix,
+  divWithDraggableHandle,
+  toTop,
+};
 import { hookBodies } from "./internal.js";
 import { manipulation } from "./panel.js";
 import { dndDynamicDiv } from "./dynamicdiv.js";
@@ -22,7 +31,6 @@ const prefix = (node) => {
   node.insertAdjacentHTML("beforebegin", "&thinsp;");
 };
 
-
 const postfix = (node) => {
   node.insertAdjacentHTML("afterend", "&thinsp;");
 };
@@ -37,12 +45,16 @@ const divWithDraggableHandle = () => {
 };
 
 const toTop = (b) => () => {
-  const arr = Array.from(weave.containers()).map(o => parseFloat(o.style.zIndex || 0));
-  const withZ = arr.filter(z => z > 0)
+  const arr = Array.from(weave.containers()).map((o) =>
+    parseFloat(o.style.zIndex || 0),
+  );
+  const withZ = arr.filter((z) => z > 0);
   const maxZ = Math.max(...withZ, 1);
   const minZ = Math.min(...withZ, maxZ);
   b.style.zIndex = maxZ + 1;
-  Array.from(weave.containers()).forEach(b => b.style.zIndex = Math.max(0, (b.style.zIndex || minZ) - minZ ))
+  Array.from(weave.containers()).forEach(
+    (b) => (b.style.zIndex = Math.max(0, (b.style.zIndex || minZ) - minZ)),
+  );
 };
 
 const createPanel = (parentId, id, buttons, weave) => {
@@ -50,34 +62,42 @@ const createPanel = (parentId, id, buttons, weave) => {
   bodyContainer.classList.add("body-container");
   bodyContainer.classList.add("unfit");
   bodyContainer.parentId = parentId;
-  bodyContainer.addEventListener("keydown", ev => {
+  bodyContainer.addEventListener("keydown", (ev) => {
     // This auto-fits height as we type
-    bodyContainer.classList.add("unfit")
-  })
+    bodyContainer.classList.add("unfit");
+  });
   interact(bodyContainer).resizable({
     edges: { left: true, right: true, bottom: true, top: true },
     // TODO There is something failing in resize
     listeners: {
       move(event) {
-        const f = 1/(document.body.dataset.scale || 1)
-        const bx = document.body.dataset.x
-        const by = document.body.dataset.y
+        const f = 1 / (document.body.dataset.scale || 1);
+        const bx = document.body.dataset.x;
+        const by = document.body.dataset.y;
         // TODO Uhm, strange I don't need to use these
         // TODO use accessors also for body moves
-        bodyContainer.classList.remove("unfit") // This allows full resizability
+        bodyContainer.classList.remove("unfit"); // This allows full resizability
         let target = event.target;
-        toTop(target)()
-        let x = manipulation.get(target, manipulation.fields.kX)
-        let y = manipulation.get(target, manipulation.fields.kY)
-        manipulation.set(target, manipulation.fields.kWidth, f*event.rect.width)
-        manipulation.set(target, manipulation.fields.kHeight, f*event.rect.height)
-        manipulation.resize(target)
+        toTop(target)();
+        let x = manipulation.get(target, manipulation.fields.kX);
+        let y = manipulation.get(target, manipulation.fields.kY);
+        manipulation.set(
+          target,
+          manipulation.fields.kWidth,
+          f * event.rect.width,
+        );
+        manipulation.set(
+          target,
+          manipulation.fields.kHeight,
+          f * event.rect.height,
+        );
+        manipulation.resize(target);
         // translate when resizing from top or left edges
         x += event.deltaRect.left;
         y += event.deltaRect.top;
-        manipulation.set(target, manipulation.fields.kX, x)
-        manipulation.set(target, manipulation.fields.kY, y)
-        manipulation.reposition(target)
+        manipulation.set(target, manipulation.fields.kX, x);
+        manipulation.set(target, manipulation.fields.kY, y);
+        manipulation.reposition(target);
       },
     },
     modifiers: [
@@ -92,14 +112,12 @@ const createPanel = (parentId, id, buttons, weave) => {
       .getElementById("b" + (weave.bodies().length - 1))
       .closest(".body-container");
     // TODO with datasets
-    let x = manipulation.get(prevContainer, manipulation.fields.kX)
-    let y = manipulation.get(prevContainer, manipulation.fields.kY)
-    manipulation.set(bodyContainer, manipulation.fields.kX, x + 10)
-    manipulation.set(bodyContainer, manipulation.fields.kY, y + 10)
-    manipulation.reposition(bodyContainer)
-
+    let x = manipulation.get(prevContainer, manipulation.fields.kX);
+    let y = manipulation.get(prevContainer, manipulation.fields.kY);
+    manipulation.set(bodyContainer, manipulation.fields.kX, x + 10);
+    manipulation.set(bodyContainer, manipulation.fields.kY, y + 10);
+    manipulation.reposition(bodyContainer);
   } else {
-    
   }
   const betterHandle = document.createElement("div");
   betterHandle.classList.add("better-handle");
@@ -121,12 +139,10 @@ const createPanel = (parentId, id, buttons, weave) => {
 
   interact(bodyContainer).dropzone({
     ondropmove: (ev) => {
-      let placeholder = document.querySelector(
-        ".div-dnd-placeholder"
-      );
+      let placeholder = document.querySelector(".div-dnd-placeholder");
       const draggedElement = document.querySelector(".dragging");
-      if(!draggedElement){
-        return
+      if (!draggedElement) {
+        return;
       }
       if (!placeholder && draggedElement) {
         placeholder = document.createElement("div");
@@ -141,34 +157,32 @@ const createPanel = (parentId, id, buttons, weave) => {
         }
       }
       // here
-      if(placeholder && placeholder.parentNode){
+      if (placeholder && placeholder.parentNode) {
         placeholder.parentNode.removeChild(placeholder);
       }
-      const dropX = ev.dragEvent.client.x
-      const dropY = ev.dragEvent.client.y
-      dndDynamicDiv(placeholder, ev.target.querySelector(".body"), dropY)
+      const dropX = ev.dragEvent.client.x;
+      const dropY = ev.dragEvent.client.y;
+      dndDynamicDiv(placeholder, ev.target.querySelector(".body"), dropY);
     },
     // TODO all this d-n-d shenanigans needs tests
     ondrop: (ev) => {
       // TODO this code should be more equivalent to the placeholder drop, otherwise it behaves weirdly
       // Dropping for divs
-      let placeholder = document.querySelector(
-        ".div-dnd-placeholder"
-      );
+      let placeholder = document.querySelector(".div-dnd-placeholder");
       if (placeholder) {
         placeholder.remove();
       }
       // TODO use the accept option of interact.js
       if (ev.relatedTarget.classList.contains("dynamic-div")) {
-        console.info("Dropping a magical div")
-        const dropX = ev.dragEvent.client.x
-        const dropY = ev.dragEvent.client.y
-        const targetBody = ev.target.querySelector(".body")
-        const target = ev.relatedTarget
-        dndDynamicDiv(target, targetBody, dropY)
-      } 
+        console.info("Dropping a magical div");
+        const dropX = ev.dragEvent.client.x;
+        const dropY = ev.dragEvent.client.y;
+        const targetBody = ev.target.querySelector(".body");
+        const target = ev.relatedTarget;
+        dndDynamicDiv(target, targetBody, dropY);
+      }
     },
-  })
+  });
 
   interact(bodyContainer).draggable({
     allowFrom: betterHandle,
@@ -176,18 +190,15 @@ const createPanel = (parentId, id, buttons, weave) => {
     inertia: true,
     autoscroll: true,
     listeners: {
-
-      leave: (ev) => {
-      },
+      leave: (ev) => {},
       move(event) {
-
-        let x = manipulation.get(bodyContainer, manipulation.fields.kX)
-        let y = manipulation.get(bodyContainer, manipulation.fields.kY)
+        let x = manipulation.get(bodyContainer, manipulation.fields.kX);
+        let y = manipulation.get(bodyContainer, manipulation.fields.kY);
         x += event.dx;
         y += event.dy;
-        manipulation.set(bodyContainer, manipulation.fields.kX, x)
-        manipulation.set(bodyContainer, manipulation.fields.kY, y)
-        manipulation.reposition(bodyContainer)
+        manipulation.set(bodyContainer, manipulation.fields.kX, x);
+        manipulation.set(bodyContainer, manipulation.fields.kY, y);
+        manipulation.reposition(bodyContainer);
       },
     },
   });
@@ -195,8 +206,8 @@ const createPanel = (parentId, id, buttons, weave) => {
   betterHandle.addEventListener("click", toTop(bodyContainer));
   bodyContainer.addEventListener("click", toTop(bodyContainer));
   document.getElementById(parentId).appendChild(bodyContainer);
-  hookBodies(buttons); // TODO fix this This wires all buttons 
-  manipulation.forcePositionToReality(bodyContainer)
+  hookBodies(buttons); // TODO fix this This wires all buttons
+  manipulation.forcePositionToReality(bodyContainer);
 };
 
 // Uh, this may screw moving divs, actually… Let's try to disable it
