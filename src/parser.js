@@ -350,7 +350,8 @@ function iterateDOM(node, mode) {
     }
     if (child.nodeName === "LI") {
       // TODO this is ignoring all possibly HTML inside lists
-      const text = child.innerText;
+      const inner = iterateDOM(child).join("");
+      //const text = child.innerText;
       let nl = "\n";
       if (mode === "foldNL") {
         nl = "\\n";
@@ -358,7 +359,7 @@ function iterateDOM(node, mode) {
       if (child.nextSibling === null) {
         nl = "";
       }
-      const md = `- ${text}${nl}`;
+      const md = `- ${inner}${nl}`;
       generated.push(md);
     }
     if (child.nodeName === "H1") {

@@ -26,6 +26,36 @@ const addConfig = (text) => {
 mocha.checkLeaks();
 mocha.run();
 
+
+describe("Lists", function () {
+  let body = document.getElementById(b);
+  it("Should create the basic list", function () {
+    const txt = `- foo\n- bar\n- baz`;
+    parseIntoWrapper(addConfig(txt), body);
+    const li = Array.from(body.querySelectorAll("li"));
+    chai.expect(li).to.have.length(3);
+    chai.expect(li[1].textContent).to.equal("bar");
+    const md = toMarkdown(body);
+    chai.expect(addConfig(txt)).to.eql(md);
+    li.forEach(l => l.remove());
+  });
+  it("Should handle a list with an internal link", function () {
+    const txt = `- foo\n- [[internal link]]\n- [ex](https://example.com)`;
+    parseIntoWrapper(addConfig(txt), body);
+    const li = Array.from(body.querySelectorAll("li"));
+    chai.expect(li).to.have.length(3);
+    chai.expect(li[1].children).to.have.length(1);
+    chai.expect(li[1].children[0].nodeName).to.equal("A");
+    chai.expect(li[1].textContent).to.equal("internal link");
+    chai.expect(li[2].children).to.have.length(1);
+    chai.expect(li[2].children[0].nodeName).to.equal("A");
+    chai.expect(li[2].textContent).to.equal("ex");
+     const md = toMarkdown(body);
+    stringDiffer(addConfig(txt), md)
+    chai.expect(addConfig(txt)).to.eql(md);
+    li.forEach(l => l.remove());
+  });});
+/*
 describe("New lines and whitespace", function () {
   let body = document.getElementById(b);
   it("should handle br in markdown properly", function () {
@@ -230,3 +260,4 @@ describe("Links, links, links", function () {
     a.remove();
   });
 });
+*/

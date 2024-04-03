@@ -17,7 +17,7 @@ const stringDiffer = (s1, s2) => {
       continue;
     } else {
       console.log(
-        `First differing charatcter is at index ${i}, ${s1[i]} !=  ${s1[i]} `,
+        `First differing charatcter is at index ${i}, ${s1[i]} !=  ${s2[i]} `,
       );
       diff = true;
     }
