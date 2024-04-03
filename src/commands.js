@@ -135,12 +135,21 @@ const lists = {
       // We have selected several nodes, and the base node parent
       // is not a list: we
       const div = document.createElement("div");
-      for (const line of lines) {
+      const cont = document.createElement("div");
+      let range = selection.getRangeAt(0);
+      const frag = range.cloneContents()
+      cont.appendChild(frag)
+      console.log(cont.textContent)
+      console.log("All:")
+      console.log(cont.children)
+      console.log(cont.childNodes)
+      for (const child of Array.from(cont.childNodes)) {
+        console.log("Child")
+        console.log(child)
         const li = document.createElement("li");
-        li.innerText = line; // This might need tweaking due to nested crap
+        li.appendChild(child); // This might need tweaking due to nested crap
         div.appendChild(li);
       }
-      let range = selection.getRangeAt(0);
       range.deleteContents();
       range.insertNode(div);
       return;

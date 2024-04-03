@@ -165,10 +165,15 @@ describe("list text / button", function () {
       button = panelBody.querySelector(".wrap"); // TODO beware these wraps
       addSelectedTextTo(text, panelBody);
       button.dispatchEvent(events.mousedown);
+      /*const sel = document.getSelection()
+      const div = document.createElement("div")
+      const frag = sel.getRangeAt(0).cloneContents()
+      div.appendChild(frag)
+      console.log(div.childNodes)*/
       const li = panelBody.querySelectorAll("li");
       chai.expect(li).to.have.length(3);
       chai.expect(li[1].innerText).to.equal("bar");
-      panelBody.innerHTML = "";
+      //panelBody.innerHTML = "";
     });
   });
 });
