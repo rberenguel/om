@@ -320,8 +320,7 @@ function iterateDOM(node, mode) {
       continue;
     }
     if (child.nodeName === "BR") {
-      continue;
-      generated.push("\n"); // This might be a stretch
+      //generated.push("\n"); // This might be a stretch
       generated.push("<br/>");
       generated.push("\n"); // This might be a stretch
     }
@@ -332,8 +331,8 @@ function iterateDOM(node, mode) {
     }
     if (child.nodeName === "DIV" && child.classList.length === 0) {
       generated.push("\n");
-      generated.push("<br/>");
-      generated.push("\n");
+      //generated.push("<br b/>");
+      //generated.push("\n");
       const md = iterateDOM(child);
       generated.push(md);
     }
@@ -390,7 +389,7 @@ function iterateDOM(node, mode) {
       console.log("PRE");
       const splits = child.innerText.split("\n").filter((l) => l.length > 0);
       console.log(splits);
-      const md = "\n```\n" + splits.join("\n<br/>\n") + "\n```\n";
+      const md = "\n```\n" + splits.join("\n<br c/>\n") + "\n```\n";
       generated.push(md);
     }
     if (child.classList.contains("dynamic-div")) {

@@ -101,7 +101,7 @@ const manipulation = {
     let y = Math.floor(parseFloat(container.dataset.y) || current.y);
     container.dataset.x = x;
     container.dataset.y = y;
-    container.style.transform = `translate(${x}px, ${y}px)`;
+    container.style.transform = `translate(${x}px, ${y}px)`;  
   },
   resize(container) {
     const current = container.getBoundingClientRect();

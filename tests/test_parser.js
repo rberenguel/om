@@ -55,7 +55,7 @@ describe("Lists", function () {
     chai.expect(addConfig(txt)).to.eql(md);
     li.forEach(l => l.remove());
   });});
-/*
+
 describe("New lines and whitespace", function () {
   let body = document.getElementById(b);
   it("should handle br in markdown properly", function () {
@@ -260,4 +260,4 @@ describe("Links, links, links", function () {
     a.remove();
   });
 });
-*/
+

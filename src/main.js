@@ -62,10 +62,12 @@ interact(document.body).draggable({
   ignoreFrom: ".body-container",
   listeners: {
     move(event) {
-      const body = document.body;
+  // TODO: to get this really working, the transforms should apply to 
+  // the containers themselves, since the drag event only works properly
+  // on the body      const body = document.body;
       let x = parseFloat(body.dataset.x || 0);
       let y = parseFloat(body.dataset.y || 0);
-      let scale = parseFloat(document.body.dataset.scale || 1);
+      let scale = parseFloat(body.dataset.scale || 1);
       x += event.dx;
       y += event.dy;
       body.dataset.x = Math.floor(x);

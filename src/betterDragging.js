@@ -15,6 +15,7 @@ function dragMoveListener(event) {
   // update the position attributes
   target.setAttribute("data-x", x);
   target.setAttribute("data-y", y);
+
 }
 
 const draggy = (div) => {

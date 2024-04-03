@@ -68,6 +68,7 @@ body {
   margin:0;
   background-color: var(--mocha-bg-color);
   color: var(--mocha-color);
+  overflow: scroll !important;
 }
 
 #mocha {

@@ -124,7 +124,11 @@ const lists = {
       const parent = selection.anchorNode.parentNode;
       const div = document.createElement("div");
       const granny = parent.parentNode;
-      div.innerText = selection.anchorNode.textContent;
+      let txt = selection.anchorNode.textContent
+      if(text.length == 0){
+        txt = " foo "
+      }
+      div.textContent = txt
       console.log(selection.anchorNode);
       granny.insertBefore(div, parent.nextSibling);
       parent.remove();
