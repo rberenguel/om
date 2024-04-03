@@ -144,10 +144,14 @@ const lists = {
       console.log(cont.children)
       console.log(cont.childNodes)
       for (const child of Array.from(cont.childNodes)) {
-        console.log("Child")
-        console.log(child)
         const li = document.createElement("li");
-        li.appendChild(child); // This might need tweaking due to nested crap
+        if(child.nodeName === "DIV" && child.classList.length == 0){
+          const span = document.createElement("span")
+          Array.from(child.childNodes).forEach(c => span.appendChild(c))
+          li.appendChild(span) 
+        }else {
+          li.appendChild(child); // This might need tweaking due to nested crap
+        }
         div.appendChild(li);
       }
       range.deleteContents();

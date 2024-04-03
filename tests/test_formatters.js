@@ -1,5 +1,6 @@
 import weave from "../src/weave.js";
 import { addSelectedTextTo, createButton, events } from "./test_helpers.js";
+import { parseInto } from "../src/parser.js";
 
 weave.root = "weave-target";
 weave.createPanel(weave.root, "b0", weave.buttons(weave.root), weave);
@@ -165,15 +166,16 @@ describe("list text / button", function () {
       button = panelBody.querySelector(".wrap"); // TODO beware these wraps
       addSelectedTextTo(text, panelBody);
       button.dispatchEvent(events.mousedown);
-      /*const sel = document.getSelection()
-      const div = document.createElement("div")
-      const frag = sel.getRangeAt(0).cloneContents()
-      div.appendChild(frag)
-      console.log(div.childNodes)*/
       const li = panelBody.querySelectorAll("li");
       chai.expect(li).to.have.length(3);
+      chai.expect(li[1].children[0].nodeName).to.equal("SPAN")
       chai.expect(li[1].innerText).to.equal("bar");
-      //panelBody.innerHTML = "";
+      panelBody.innerHTML = "";
+    });
+    // with link
+  it("should create a list with a link, preserving it", function () {
+    const txt = `foo\n<br/>\n[[internal link]]\n<br/>\n[ex](https://example.com)`;
+    parseInto(txt, panelBody);
     });
   });
 });

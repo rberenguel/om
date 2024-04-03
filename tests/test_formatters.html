@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <title>Format button tests</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="https://unpkg.com/mocha/mocha.css" />
+    <link rel="stylesheet" href="mocha.css" />
     <link href="../src/weave_style.css" rel="stylesheet" />
     <script src="../src/libs/interact.min.js"></script>
     <script src="../src/libs/alasql.min.js"></script>
@@ -22,7 +22,10 @@
     <div
       id="weave-target"
       style="position: absolute; top: 0; z-index: -1; opacity: 0"
-    ></div>
+    >
+
+    <div id="modal" class="dark" style="display: none"></div>
+    </div>
     <div id="help" class="dark serif" style="display: none">
       <table id="commands" class="dark serif"></table>
     </div>
