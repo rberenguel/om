@@ -145,3 +145,32 @@ describe("gfont text / button", function () {
     });
   });
 });
+
+describe("list text / button", function () {
+  const panelBody = document.getElementById(weave.root).querySelector(".body");
+  it("should become a button on right click", function () {
+    createButton("list", panelBody);
+    const evalButton = panelBody.querySelector(".wrap");
+    chai.expect(evalButton.innerText).to.eql("list");
+    const buttonNode = evalButton.children[0];
+    chai.expect(buttonNode.dataset.action).to.eql("list");
+  });
+  describe("create a list", function () {
+    const text = "foo\nbar\nbaz"
+    const panelBody = document
+      .getElementById(weave.root)
+      .querySelector(".body");
+    let button;
+    it("should create a list with three elements", function () {
+      button = panelBody.querySelector(".wrap"); // TODO beware these wraps
+      addSelectedTextTo(text, panelBody);
+      button.dispatchEvent(events.mousedown);
+      const li = panelBody.querySelectorAll("li");
+      chai.expect(li).to.have.length(3);
+      chai.expect(li[1].innerText).to.equal("bar");
+      panelBody.innerHTML = "";
+    });
+  });
+});
+
+
