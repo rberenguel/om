@@ -5,6 +5,7 @@ import weave from "./weave.js";
 import { createPanel } from "./doms.js";
 import { iloadIntoBody } from "./loadymcloadface.js";
 import { entries } from "./libs/idb-keyval.js";
+import { manipulation } from "./panel.js";
 // Globals that are used everywhere
 
 // Helper for inline code
@@ -61,38 +62,55 @@ interact(document.body).draggable({
   inertia: true,
   ignoreFrom: ".body-container",
   listeners: {
+    start(event){
+      const containers = document.getElementsByClassName("body-container")
+      for(const container of containers){
+        container.classList.add("no-select")
+      }
+    },
     move(event) {
-  // TODO: to get this really working, the transforms should apply to 
-  // the containers themselves, since the drag event only works properly
-  // on the body      const body = document.body;
-      let x = parseFloat(body.dataset.x || 0);
-      let y = parseFloat(body.dataset.y || 0);
+      event.preventDefault()
+      event.stopPropagation()
+      const body = document.body;
+      const containers = document.getElementsByClassName("body-container")
       let scale = parseFloat(body.dataset.scale || 1);
-      x += event.dx;
-      y += event.dy;
-      body.dataset.x = Math.floor(x);
-      body.dataset.y = Math.floor(y);
-      body.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+      for(const container of containers){
+        let x = manipulation.get(container, manipulation.fields.kX)
+        let y = manipulation.get(container, manipulation.fields.kY)
+        x += Math.floor(event.dx*scale*2);
+        y += Math.floor(event.dy*scale*2);
+        manipulation.set(container, manipulation.fields.kX, x)
+        manipulation.set(container, manipulation.fields.kY, y)
+        manipulation.reposition(container)
+      }
+    },
+    end(event){
+      const containers = document.getElementsByClassName("body-container")
+      for(const container of containers){
+        container.classList.remove("no-select")
+      }
     },
   },
 });
 
 document.body.addEventListener("wheel", (event) => {
-  const body = document.body;
-  if (event.target.id != "content") {
+  const body = document.getElementById(weave.root);
+  if (event.target.classList.contains("body")) {
     return;
   }
+  event.preventDefault()
   let x = parseFloat(body.dataset.x || 0);
   let y = parseFloat(body.dataset.y || 0);
-  const zoomDelta = 0.01;
   const sign = Math.sign(event.deltaY);
-  const transformed = Math.log(Math.abs(event.deltaY)) * zoomDelta;
+  
   let scale = parseFloat(body.dataset.scale || 1);
+  const zoomDelta = scale/50;
+  const transformed = Math.log(Math.abs(event.deltaY)) * zoomDelta;
   if (sign < 1) {
-    scale = scale + transformed;
+    scale = Math.abs(scale + transformed);
     body.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
   } else {
-    scale = scale - transformed;
+    scale = Math.abs(scale - transformed);
     body.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
   }
   body.dataset.scale = scale;

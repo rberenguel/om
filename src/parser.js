@@ -389,7 +389,7 @@ function iterateDOM(node, mode) {
       console.log("PRE");
       const splits = child.innerText.split("\n").filter((l) => l.length > 0);
       console.log(splits);
-      const md = "\n```\n" + splits.join("\n<br c/>\n") + "\n```\n";
+      const md = "\n```\n" + splits.join("\n<br/>\n") + "\n```\n";
       generated.push(md);
     }
     if (child.classList.contains("dynamic-div")) {

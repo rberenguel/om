@@ -9,8 +9,6 @@ const div = {
     const selection = window.getSelection();
     const htmlContainer = document.createElement("div");
     htmlContainer.appendChild(selection.getRangeAt(0).cloneContents());
-    // TODO by how I process parsing, I don't allow nested divs
-    //const text = selection + "";
     const div = dynamicDiv(toMarkdown(htmlContainer));
     let range = selection.getRangeAt(0);
     //const [div, handle] = divWithDraggableHandle();
@@ -38,7 +36,6 @@ const div = {
 
 const dynamicDiv = (text) => {
   const div = document.createElement("div");
-  div.classList.add("dynamic-div");
   // First extract the classes present
   const splits = text.split(" ");
   console.log(splits);
@@ -56,6 +53,7 @@ const dynamicDiv = (text) => {
       div.classList.add(klass);
     }
   }
+  div.classList.add("dynamic-div");
   if (div.classList.contains("task")) {
     const label = document.createElement("label");
     label.for = "fakeCheckbox";

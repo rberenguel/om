@@ -15,19 +15,13 @@ h4 {
 #content {
   min-width: 100%;
   min-height: 100%;
-  overflow: auto;
+  padding: 0.2em;
 }
 
 body {
   margin: 0;
   /* TODO Hidden looks better as Chrome web app, but fails at scrolling */
   overflow: hidden;
-}
-
-/* This touch-action should be in code */
-
-#content {
-  padding: 0.2em;
 }
 
 .outer-light {
@@ -448,7 +442,7 @@ div.wrap {
   filter: blur(3px);
 }
 
-.body > pre {
+.body  pre {
   font-family: "monoidregular";
   padding-left: 2em;
   font-size: 60%;
@@ -464,6 +458,27 @@ div.wrap {
   white-space: pre-wrap;
   text-indent: -1em each-line;
   font-weight: 100;
+}
+
+.tt {
+  font-family: "monoidregular";
+  padding-left: 2em;
+  font-size: 60%;
+  line-height: 1.1em;
+  background-color: #00000022;
+  padding-right: 0.8em;
+  padding-top: 0.8em;
+  padding-left: 1.6em;
+  padding-bottom: 0.8em;
+  padding-bottom: 0.4em;
+  display: inline-block;
+  border: 1px solid var(--bright-blue);
+  border-radius: 5px;
+  white-space: pre-wrap;
+  text-indent: -1em each-line;
+  font-weight: 100;
+  min-width: fit-content;
+  width: fit-content;
 }
 
 .code.wired {
@@ -542,4 +557,10 @@ div.wrap {
   padding: 1em;
   border: 2px solid var(--bright-orange);
   border-radius: 5px;
+}
+
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
 }

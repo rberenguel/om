@@ -88,10 +88,10 @@ const manipulation = {
         addGoogFont(value);
         break;
       case panelFields.kX:
-        container.dataset.x = parseFloat(value);
+        container.dataset.x = Math.floor(parseFloat(value));
         break;
       case panelFields.kY:
-        container.dataset.y = parseFloat(value);
+        container.dataset.y = Math.floor(parseFloat(value));
         break;
     }
   },

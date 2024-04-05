@@ -165,6 +165,8 @@ const wireButtons = (buttons) => (event) => {
   }
 
   if (node) {
+    // The event needs to be stopped _if_ we successfully generated a button
+    event.preventDefault()
     let div = document.createElement("div");
     node.innerHTML = `${selectedText}`.trim();
     div.contentEditable = false;
@@ -193,7 +195,6 @@ const wireButtons = (buttons) => (event) => {
     range.insertNode(div);
     div.insertAdjacentHTML("beforebegin", "&thinsp;");
     div.insertAdjacentHTML("afterend", "&thinsp;");
-    event.preventDefault();
   }
 };
 
