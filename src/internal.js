@@ -1,10 +1,24 @@
 import weave from "./weave.js";
 import { wireEverything } from "./load.js";
-export { hookBodies };
+export { hookBodies, enableSelectionOnAll, disableSelectionOnAll };
 import { reset } from "./commands_base.js";
 import { saveAll } from "./save.js";
 import { zwsr } from "./doms.js";
 import { unrawPane } from "./raw.js";
+
+const enableSelectionOnAll = () => {
+  const containers = document.getElementsByClassName("body-container");
+  for (const container of containers) {
+    container.classList.remove("no-select");
+  }
+};
+
+const disableSelectionOnAll = () => {
+  const containers = document.getElementsByClassName("body-container");
+  for (const container of containers) {
+    container.classList.add("no-select");
+  }
+};
 
 const hookBodies = (buttons) => {
   for (let body of weave.bodies()) {
@@ -19,7 +33,7 @@ const hookBodies = (buttons) => {
         weave.internal.clickedId.unshift(body.id);
         console.log(body.closest(".body-container").classList);
         Array.from(
-          document.getElementsByClassName("mildly-highlighted"),
+          document.getElementsByClassName("mildly-highlighted")
         ).forEach((e) => e.classList.remove("mildly-highlighted"));
         weave.internal.clickedId.length = 2;
         if (weave.internal.grouping) {
@@ -68,7 +82,7 @@ const hookBodies = (buttons) => {
           .replace(/\s+/g, "").length;
         if (selection.length > 0) {
           console.log(
-            `You have selected something ('${selection}'), not folding`,
+            `You have selected something ('${selection}'), not folding`
           );
           return;
         } else {
@@ -88,7 +102,17 @@ const hookBodies = (buttons) => {
                 .resizable({
                   edges: { top: false, left: true, bottom: false, right: true },
                 })
-                .draggable({ autoscroll: false });
+                .draggable({
+                  autoscroll: false,
+                  listeners: {
+                    start(event) {
+                      disableSelectionOnAll();
+                    },
+                    end(event) {
+                      enableSelectionOnAll();
+                    },
+                  },
+                });
               //body.style.height = "1.5em";
             } else {
               container.style.height = body.dataset.unfoldedHeight;
@@ -96,7 +120,17 @@ const hookBodies = (buttons) => {
                 .resizable({
                   edges: { top: true, left: true, bottom: true, right: true },
                 })
-                .draggable({ autoscroll: true });
+                .draggable({
+                  autoscroll: false,
+                  listeners: {
+                    start(event) {
+                      disableSelectionOnAll();
+                    },
+                    end(event) {
+                      enableSelectionOnAll();
+                    },
+                  },
+                });
             }
           } else {
             weave.internal.preventFolding = false;
@@ -166,7 +200,7 @@ const wireButtons = (buttons) => (event) => {
 
   if (node) {
     // The event needs to be stopped _if_ we successfully generated a button
-    event.preventDefault()
+    event.preventDefault();
     let div = document.createElement("div");
     node.innerHTML = `${selectedText}`.trim();
     div.contentEditable = false;

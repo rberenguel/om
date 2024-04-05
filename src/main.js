@@ -6,6 +6,7 @@ import { createPanel } from "./doms.js";
 import { iloadIntoBody } from "./loadymcloadface.js";
 import { entries } from "./libs/idb-keyval.js";
 import { manipulation } from "./panel.js";
+import { enableSelectionOnAll, disableSelectionOnAll } from "./internal.js";
 // Globals that are used everywhere
 
 // Helper for inline code
@@ -38,6 +39,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const gloadParam = urlParams.get("gload");
 const iloadParam = urlParams.get("iload");
 
+
 entries().then((entries) => {
   let docs = [];
   for (const [filename, value] of entries) {
@@ -63,10 +65,7 @@ interact(document.body).draggable({
   ignoreFrom: ".body-container",
   listeners: {
     start(event){
-      const containers = document.getElementsByClassName("body-container")
-      for(const container of containers){
-        container.classList.add("no-select")
-      }
+      disableSelectionOnAll()
     },
     move(event) {
       event.preventDefault()
@@ -85,10 +84,7 @@ interact(document.body).draggable({
       }
     },
     end(event){
-      const containers = document.getElementsByClassName("body-container")
-      for(const container of containers){
-        container.classList.remove("no-select")
-      }
+      enableSelectionOnAll()
     },
   },
 });
