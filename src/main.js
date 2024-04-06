@@ -92,8 +92,52 @@ interact(document.body).draggable({
   },
 });
 
+let gestureScale
+interact(document.body)
+  .gesturable({
+    listeners: {
+      move (ev) {
+        const body = document.getElementById(weave.root);
+        console.log("pinch")
+        if (ev.target.classList.contains("body")) {
+          return;
+        }
+        if(body.dataset.sticky > 0){
+          body.dataset.sticky -= 1
+          return
+        }
+        ev.preventDefault()
+        ev.stopPropagation()
+        let x = parseFloat(body.dataset.x || 0);
+        let y = parseFloat(body.dataset.y || 0);
+        const sign = Math.sign(Math.log(ev.scale));
+
+        let scale = parseFloat(body.dataset.scale || 1);
+        if(Math.abs(scale-1) < 1e-8 && Math.abs(ev.distance) < 150){
+          return
+        }
+        const zoomDelta = scale/80;
+        const transformed = Math.log(Math.abs(ev.scale)) * zoomDelta;
+        const prev = scale
+        scale = Math.abs(scale + transformed);
+        console.log((1-scale)*(1-prev) )
+        if((1-scale)*(1-prev) < 0){
+          console.log("Fixing")
+          scale = 1
+          body.dataset.sticky = 80
+        }
+        body.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+        body.dataset.scale = scale;
+      },
+      end (ev) {
+        //gestureScale.scale = gestureScale.scale * ev.scale
+      }
+    }
+  })
+
 document.body.addEventListener("wheel", (event) => {
   const body = document.getElementById(weave.root);
+  console.log("wheel")
   if (event.target.classList.contains("body")) {
     return;
   }
@@ -101,8 +145,11 @@ document.body.addEventListener("wheel", (event) => {
   let x = parseFloat(body.dataset.x || 0);
   let y = parseFloat(body.dataset.y || 0);
   const sign = Math.sign(event.deltaY);
-  
+
   let scale = parseFloat(body.dataset.scale || 1);
+  if(scale == 1 && Math.abs(event.deltaY) < 10){
+    return
+  }
   const zoomDelta = scale/50;
   const transformed = Math.log(Math.abs(event.deltaY)) * zoomDelta;
   if (sign < 1) {

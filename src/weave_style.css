@@ -22,6 +22,7 @@ body {
   margin: 0;
   /* TODO Hidden looks better as Chrome web app, but fails at scrolling */
   overflow: hidden;
+  touch-action: none;
 }
 
 /** Admonition DIV **/
