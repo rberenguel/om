@@ -6,6 +6,7 @@ function dragMoveListener(event) {
   event.preventDefault();
   var target = event.target;
   // keep the dragged position in the data-x/data-y attributes
+  console.log("dragMoveListener fired")
   var x = (parseFloat(target.getAttribute("data-x")) || 0) + event.dx;
   var y = (parseFloat(target.getAttribute("data-y")) || 0) + event.dy;
 
@@ -51,7 +52,7 @@ const draggy = (div) => {
         document.getElementById(weave.root).appendChild(draggedElement);
       },
       enter: (ev) => {
-        event.preventDefault();
+        ev.preventDefault();
         console.log("ev entered");
         console.log(ev.target);
       },

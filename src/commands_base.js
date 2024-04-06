@@ -14,6 +14,10 @@ const reset = () => {
   info.classList.remove("fades");
   info.innerText = "";
   console.info("Resetted styles on info");
+  const hl = document.getElementById("horizontal-line");
+  hl.style.display = "none";
+  const vl = document.getElementById("vertical-line");
+  vl.style.display = "none";
 };
 
 const common = (ev, held) => {

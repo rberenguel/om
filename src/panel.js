@@ -46,9 +46,18 @@ const manipulation = {
       case panelFields.kGFont:
         return body.dataset.gfont;
       case panelFields.kX:
-        return parseFloat(container.dataset.x) || Math.floor(currentRect.x);
+        if(container.dataset.x){
+          return parseFloat(container.dataset.x)
+        } else {
+          return Math.floor(currentRect.x);
+        }
+
       case panelFields.kY:
-        return parseFloat(container.dataset.y) || Math.floor(currentRect.y);
+        if(container.dataset.y){
+          return parseFloat(container.dataset.y)
+        } else {
+          return Math.floor(currentRect.y);
+        }
     }
   },
   set(container, prop, value) {
@@ -99,7 +108,9 @@ const manipulation = {
         addGoogFont(value);
         break;
       case panelFields.kX:
+        console.log(Math.floor(parseFloat(value)))
         container.dataset.x = Math.floor(parseFloat(value));
+        console.log(container.dataset.x)
         break;
       case panelFields.kY:
         container.dataset.y = Math.floor(parseFloat(value));
@@ -107,12 +118,13 @@ const manipulation = {
     }
   },
   reposition(container) {
-    const current = container.getBoundingClientRect();
-    let x = Math.floor(parseFloat(container.dataset.x) || current.x);
-    let y = Math.floor(parseFloat(container.dataset.y) || current.y);
+    let x = this.get(container, panelFields.kX)
+    let y = this.get(container, panelFields.kY)
+    console.log(`Reposition ${x}, ${y}`)
     container.dataset.x = x;
     container.dataset.y = y;
-    container.style.transform = `translate(${x}px, ${y}px)`;  
+    const transform = `translate(${x}px, ${y}px)`;
+    container.style.transform = transform;  
   },
   resize(container) {
     const current = container.getBoundingClientRect();
@@ -127,12 +139,13 @@ const manipulation = {
     const current = container.getBoundingClientRect();
     let w = current.width;
     let h = current.height;
-    container.dataset.x = w;
-    container.dataset.y = h;
+    container.dataset.w = w;
+    container.dataset.h = h;
     container.style.width = w + "px";
     container.style.height = h + "px";
   },
   forcePositionToReality(container) {
+    console.log("Forcing to reality!")
     const body = container.querySelector(".body");
     const current = container.getBoundingClientRect();
     let x = current.x;

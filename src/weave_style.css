@@ -452,6 +452,24 @@ svg {
   outline: none;
 }
 
+#vertical-line {
+  position: fixed; 
+  top: 0;
+  height: 100vh;
+  background-color:var(--bright-yellow);
+  display: none;
+  z-index: 10000;
+}
+
+#horizontal-line {
+  position: fixed; 
+  left: 0;
+  width: 100vh;
+  background-color:var(--bright-yellow);
+  display: none;
+  z-index: 10000;
+}
+
 .dark {
   background: var(--dark-background) !important;
   color: var(--gray-text) !important;

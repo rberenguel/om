@@ -192,10 +192,12 @@ const createPanel = (parentId, id, buttons, weave) => {
     listeners: {
       leave: (ev) => {},
       move(event) {
+        console.log(bodyContainer.dataset.x, event.dx)
         let x = manipulation.get(bodyContainer, manipulation.fields.kX);
         let y = manipulation.get(bodyContainer, manipulation.fields.kY);
         x += event.dx;
         y += event.dy;
+        console.log(x, y)
         manipulation.set(bodyContainer, manipulation.fields.kX, x);
         manipulation.set(bodyContainer, manipulation.fields.kY, y);
         manipulation.reposition(bodyContainer);
