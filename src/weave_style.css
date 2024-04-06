@@ -125,6 +125,11 @@ body {
   margin: 0.5em;
 }
 
+.better-handle {
+  height: 100%;
+  box-shadow: 0 0 1.5em 1.5em #cc660008; /* Subtle glow */
+}
+
 .body-container {
   position: fixed;
   touch-action: none;

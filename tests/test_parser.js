@@ -11,6 +11,7 @@ const config = `<!--
 - height: 529
 - fontSize: 
 - fontFamily: 
+- mono: false
 - filename: foo
 - folded: false
 - gfont: undefined
@@ -109,8 +110,6 @@ describe("Dynamic div: parsing & idempotency", function () {
     chai.expect(lis).to.have.length(3);
     chai.expect(lis[2].textContent).to.eql("baz");
     const md = toMarkdown(body);
-    //console.log(`"${addConfig(txt)}"`)
-    //console.log(`"${md}"`)
     chai.expect(addConfig(txt)).to.eql(md);
     div.remove();
   });
@@ -127,12 +126,21 @@ describe("Button: parsing & idempotency", function () {
     chai.expect(div.innerText).to.eql("raw");
     chai.expect(inner.dataset.action).to.eql("raw");
     const md = toMarkdown(body);
-    //console.log(`"${addConfig(txt)}"`)
-    //console.log(`"${md}"`)
     chai.expect(addConfig(txt)).to.eql(md);
     div.remove();
   });
+  it("should create buttons in line", function(){
+    const txt = "`[div] .wrap span .alive div div`   `[div] .wrap u .alive raw raw`   `[div] .wrap span .alive div div`"
+    parseIntoWrapper(addConfig(txt), body);
+    const divs = body.querySelectorAll(".wrap");
+    chai.expect(divs[0].classList).to.not.be.null;
+    chai.expect(divs).to.have.length(3)
+    const md = toMarkdown(body);
+    stringDiffer(addConfig(txt), md)
+    chai.expect(addConfig(txt)).to.eql(md);
+    })
 });
+
 
 describe("Code: parsing & idempotency", function () {
   let body = document.getElementById(b);
@@ -256,4 +264,3 @@ describe("Links, links, links", function () {
     a.remove();
   });
 });
-

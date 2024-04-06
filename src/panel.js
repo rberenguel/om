@@ -6,6 +6,7 @@ const panelFields = Object.freeze({
   kHeight: "height",
   kFontSize: "fontSize",
   kFontFamily: "fontFamily",
+  kMono: "mono",
   kFilename: "filename",
   kFolded: "folded",
   kGFont: "gfont",
@@ -37,6 +38,10 @@ const manipulation = {
         return (
           body.classList.contains("folded") &&
           container.classList.contains("folded-bc")
+        );
+      case panelFields.kMono:
+        return (
+          body.classList.contains("mono")
         );
       case panelFields.kGFont:
         return body.dataset.gfont;
@@ -78,6 +83,12 @@ const manipulation = {
         } else {
           body.classList.remove("folded");
           container.classList.remove("folded-bc");
+        }
+        break;
+      case panelFields.kMono:
+        if(JSON.parse(value)){
+          body.classList.add("mono")
+          body.classList.remove("serif")
         }
         break;
       case panelFields.kGFont:

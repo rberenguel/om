@@ -162,6 +162,9 @@ const hookBodies = (buttons) => {
 
 const wireButtons = (buttons) => (event) => {
   const selection = window.getSelection();
+  if(!selection){
+    return
+  }
   const selectedText = selection.toString().toLowerCase();
   console.info(`Wiring button for ${selectedText}`);
   const range = selection.getRangeAt(0);

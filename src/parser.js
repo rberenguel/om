@@ -158,13 +158,14 @@ const linkStateMachine = (line, body) => {
     accum.push(c);
   }
   console.debug("The accumulator at the end is");
-  console.debug(`"${accum}"`);
+  console.debug(`"${accum.join("").trim()}"`);
+  const accumed = accum.join("")
+  console.log(`Trimmed "${accumed.trim().length}"`)
   if(accum.length > 0){
-    const accumed = accum.join("")
     const tn = document.createTextNode(accumed);
     accum = [];
-    if(accumed == line){
-      console.debug("Adding accumulator div");
+    if(accumed == line && accumed.trim().length > 0){
+      console.debug(`Adding accumulator div with "${accumed}"`);
       const div = document.createElement("div")
       div.appendChild(tn)
       body.appendChild(div)
@@ -184,7 +185,7 @@ const parseInto = (text, body) => {
   let codeBlock = false;
   for (const line of lines) {
     console.debug(`Parsing line: ${line}`);
-    if (line == "<br/>") {
+    if (line.startsWith("<br")) {
       const br = document.createElement("br")
       //const div = document.createElement("div");
       //div.appendChild(document.createElement("br"));
@@ -343,7 +344,7 @@ function iterateDOM(node, mode) {
     }
     if (child.nodeName === "BR") {
       //generated.push("\n"); // This might be a stretch
-      generated.push("<br/>");
+      generated.push("\n<br id='nodename-br'/>");
       //generated.push("\n"); // This might be a stretch
     }
     if (child.nodeName === "HR") {
@@ -413,7 +414,7 @@ function iterateDOM(node, mode) {
       console.debug("PRE");
       const splits = child.innerText.split("\n").filter((l) => l.length > 0);
       console.debug(splits);
-      const md = "\n```\n" + splits.join("\n<br/>\n") + "\n```\n";
+      const md = "\n```\n" + splits.join("\n<br id='br-pre'/>\n") + "\n```\n";
       generated.push(md);
     }
     if (child.classList.contains("dynamic-div")) {
