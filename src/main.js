@@ -18,6 +18,9 @@ let $ = {
   qs: (s) => document.querySelector(s),
 };
 
+console.log("wtf")
+console.log(weave)
+
 weave.root = "content";
 
 document.isDragging = false;

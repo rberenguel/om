@@ -8,24 +8,30 @@ export {
 import weave from "../src/weave.js";
 import { parseIntoWrapper, toMarkdown } from "../src/parser.js";
 import { wireEverything } from "../src/load.js";
+
 const stringDiffer = (s1, s2) => {
-  console.log(`Lengths: ${s1.length}, ${s2.length}`);
+  console.info(`Lengths: ${s1.length}, ${s2.length}`);
   const mlen = Math.min(s1.length, s2.length);
   let diff = false;
   for (let i = 0; i < mlen; i++) {
     if (s1[i] === s2[i]) {
       continue;
     } else {
-      console.log(
-        `First differing charatcter is at index ${i}, ${s1[i]} !=  ${s2[i]} `,
+      console.info(
+        `First differing character is at index ${i}, ${s1[i]} !=  ${s2[i]} `,
       );
       diff = true;
     }
   }
-
+  
   if (diff) {
     console.log(s1);
     console.log(s2);
+  }
+  if(!diff && s1.length != s2.length){
+    console.info(s1);
+    console.info(s2);
+    console.info("Diff found at the extra characters")
   }
 };
 

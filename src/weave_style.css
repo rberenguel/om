@@ -24,6 +24,83 @@ body {
   overflow: hidden;
 }
 
+/** Admonition DIV **/
+
+.dynamic-div.ad {
+  padding-left: 1.8em;
+}
+
+.ad {
+  position: relative;
+}
+
+.ad::before {
+  font-family: "Font Awesome 6 Free";
+  display: inline-block;
+  margin-right: 10px; 
+  font-size: 1.2em; 
+  position: absolute;
+  left: 0.3em;
+  top: 50%;
+  transform: translateY(-50%); 
+}
+
+.ad.note {
+  border: 1px solid #06c;
+}
+
+.ad.note::before {
+  content: "\f05a";  
+  color: #06c;
+}
+
+.ad.attn {
+  border: 1px solid #c60;
+}
+
+.ad.attn::before {
+  content: "\f071"; 
+  color: #c60; 
+}
+
+.ad.tip {
+  border: 1px solid #6c6; 
+}
+
+.ad.tip::before {
+  content: "\f0eb"; /* Lightbulb icon */
+  color: #6c6; 
+}
+
+.ad.impo {
+  border: 1px solid #cc0; /* Slightly darker yellow */
+}
+
+.ad.impo::before {
+  content: "\f06a"; /* Exclamation point inside a circle */
+  color: #cc0; 
+}
+
+.ad.warn {
+  border: 1px solid #c93; /* Deeper orange */
+}
+
+.ad.warn::before {
+  content: "\f071"; /* Same warning triangle icon */
+  color: #c93; 
+}
+
+.ad.dngr {
+  border: 1px solid #c00;
+}
+
+.ad.dngr::before {
+  content: "\f057"; /* Exclamation point inside a triangle */
+  color: #c00; 
+}
+
+/** Admonition DIV **/
+
 .outer-light {
   background: var(--subtly-light-background) !important;
 }
@@ -158,7 +235,18 @@ a[data-internal="false"]::after {
 .folded-bc {
   border: 2px dashed var(--bright-orange);
   border-radius: 8px;
+  max-height: fit-content;
+  height: fit-content;
 }
+
+.body.folded {
+  max-height: 1.5em;
+  overflow: hidden;
+  display: -webkit-box; /* Essential for line-clamp */
+  -webkit-line-clamp: 1; /* Number of lines to show */
+  -webkit-box-orient: vertical;
+}
+
 
 .body-container.light {
   border: 2px solid var(--bright-orange);
@@ -232,7 +320,7 @@ a[data-internal="false"]::after {
 }
 
 .important {
-  border: thick double var(--bright-red);
+  border: thick double var(--very-bright-red);
 }
 
 /* Style the label to look like an unchecked checkbox */
@@ -300,16 +388,6 @@ svg {
   stroke: var(--wired-code); /* Default line color */
   stroke-width: 4; /* Adjust line thickness as needed */
   opacity: 0.5;
-}
-
-.body.folded {
-  /*height: 1em;
-    min-height: 1em;*/
-  max-height: 1.5em;
-  overflow: hidden;
-  display: -webkit-box; /* Essential for line-clamp */
-  -webkit-line-clamp: 1; /* Number of lines to show */
-  -webkit-box-orient: vertical;
 }
 
 .body-container::-webkit-scrollbar {
@@ -504,7 +582,7 @@ div.wrap {
 }
 
 .code.error {
-  border: 2px solid var(--bright-red) !important;
+  border: 2px solid var(--very-bright-red) !important;
 }
 
 .code-info {

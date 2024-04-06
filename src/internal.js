@@ -23,12 +23,14 @@ const disableSelectionOnAll = () => {
 const hookBodies = (buttons) => {
   for (let body of weave.bodies()) {
     if (!body.clickAttached) {
+      //body.addEventListener("mousedown", ())
       body.addEventListener("click", (ev) => {
         console.log("Click handler on body");
         console.log(ev.target);
         if (ev.target.classList.contains("alive")) {
           return;
         }
+        weave.internal.held = false;
         reset();
         weave.internal.clickedId.unshift(body.id);
         console.log(body.closest(".body-container").classList);
@@ -70,7 +72,7 @@ const hookBodies = (buttons) => {
       body.clickAttached = true;
     }
     if (!body.dblClickAttached) {
-      body.parentElement.addEventListener("dblclick", (ev) => {
+      interact(body.parentElement).on("doubletap", (ev) => {
         const container = body.closest(".body-container");
         if (ev.target === body || body.contains(ev.target)) {
           // This should be the body proper only
@@ -94,6 +96,7 @@ const hookBodies = (buttons) => {
             body.classList.toggle("folded");
             // TODO All these should be part of a method that is then reused when loading the folded state
             container.classList.toggle("folded-bc");
+            container.classList.toggle("unfit");
             if (body.classList.contains("folded")) {
               // Just folded everything. Need to preserve the height of the container before folding
               body.dataset.unfoldedHeight = container.style.height;
@@ -142,8 +145,9 @@ const hookBodies = (buttons) => {
 
     body.addEventListener("contextmenu", wireButtons(buttons));
     interact(body).on("hold", (ev) => {
-      ev.preventDefault();
+      weave.internal.held = true
       wireButtons(buttons)(ev);
+      window.getSelection().removeAllRanges();
     });
     body.addEventListener("paste", (event) => {
       // Paste takes a slight bit to modify the DOM, if I trigger

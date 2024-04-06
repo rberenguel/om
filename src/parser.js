@@ -8,8 +8,8 @@ import { toTop } from "./doms.js";
 import { dynamicDiv } from "./dynamicdiv.js";
 
 const parseIntoWrapper = (text, body) => {
-  console.info("Parsing: ");
-  console.info(text);
+  console.debug("Parsing: ");
+  console.debug(text);
   body.innerHTML = "";
   const container = body.closest(".body-container");
   const lines = text.split("\n");
@@ -17,7 +17,7 @@ const parseIntoWrapper = (text, body) => {
   let rest = [];
   for (const line of lines) {
     if (processingProperties) {
-      console.log(`Parsing config line: ${line}`);
+      console.debug(`Parsing config line: ${line}`);
       // Processing properties
       if (line.startsWith("<!--")) {
         continue;
@@ -59,9 +59,13 @@ const linkStateMachine = (line, body) => {
         // We are starting a link: emit whatever text we had up until now.
         // TODO Yes, this is preventing having naked brackets.
         inLinkText = true;
-        const tn = document.createTextNode(accum.join(""));
-        accum = [];
-        body.appendChild(tn);
+        console.debug("The accumulator at the middle is");
+        console.debug(`"${accum}"`);
+        if(accum.length > 0){
+          const tn = document.createTextNode(accum.join(""));
+          accum = [];
+          body.appendChild(tn);
+        }
       }
       continue;
     }
@@ -81,6 +85,7 @@ const linkStateMachine = (line, body) => {
           link.innerText = href;
           link.dataset.internal = true;
           reference = [];
+          console.info(`Appending link for ${link}`)
           body.appendChild(link);
           // TODO repetition
           link.addEventListener("click", (ev) => {
@@ -92,7 +97,7 @@ const linkStateMachine = (line, body) => {
               const bodyId = `b${n}`; // TODO NO, this is not good enough
               createPanel(weave.root, bodyId, weave.buttons(weave.root), weave);
               const body = document.getElementById(bodyId);
-              console.log(link);
+              console.debug(link);
               iloadIntoBody(href, body);
               toTop(body);
             } else {
@@ -118,6 +123,7 @@ const linkStateMachine = (line, body) => {
       linkText = [];
       linkHref = [];
       body.appendChild(link);
+      console.info(`Appending link for ${link}`)
       // TODO repetition
       link.addEventListener("click", (ev) => {
         ev.preventDefault(); // Prevent default navigation
@@ -128,7 +134,7 @@ const linkStateMachine = (line, body) => {
           const bodyId = `b${n}`; // TODO NO, this is not good enough
           createPanel(weave.root, bodyId, weave.buttons(weave.root), weave);
           const body = document.getElementById(bodyId);
-          console.log(link);
+          console.debug(link);
           iloadIntoBody(href, body);
           toTop(body);
         } else {
@@ -151,24 +157,38 @@ const linkStateMachine = (line, body) => {
     }
     accum.push(c);
   }
-  console.log("The accumulator at the end is");
-  console.log(accum);
-  const tn = document.createTextNode(accum.join(""));
-  accum = [];
-  body.appendChild(tn);
+  console.debug("The accumulator at the end is");
+  console.debug(`"${accum}"`);
+  if(accum.length > 0){
+    const accumed = accum.join("")
+    const tn = document.createTextNode(accumed);
+    accum = [];
+    if(accumed == line){
+      console.debug("Adding accumulator div");
+      const div = document.createElement("div")
+      div.appendChild(tn)
+      body.appendChild(div)
+    } else {
+      body.appendChild(tn);
+    }
+  }
 };
 
 const parseInto = (text, body) => {
-  console.log(`parseInto`);
-  console.log(text);
+  if(text.length == 0){
+    return
+  }
+  console.debug(`parseInto`);
+  console.debug(`"${text}"`);
   const lines = text.split("\n");
   let codeBlock = false;
   for (const line of lines) {
-    console.log(`Parsing line: ${line}`);
+    console.debug(`Parsing line: ${line}`);
     if (line == "<br/>") {
-      const div = document.createElement("div");
-      div.appendChild(document.createElement("br"));
-      body.appendChild(div);
+      const br = document.createElement("br")
+      //const div = document.createElement("div");
+      //div.appendChild(document.createElement("br"));
+      body.appendChild(br);
       continue;
     }
     if (codeBlock && !line.startsWith("```")) {
@@ -231,10 +251,10 @@ const parseInto = (text, body) => {
     }
     // Ignoring code blocks for now, this can go in parsediv
     const [simple, hasDiv] = parseTillTick(line);
-    console.log(`simple: ${simple}, hasDiv: ${hasDiv}`);
+    console.debug(`simple: ${simple}, hasDiv: ${hasDiv}`);
     if (!hasDiv) {
       if (simple === null) {
-        console.log(`No div: ${line}`);
+        console.debug(`No div: ${line}`);
         // Here now I need to process links. Let's just inject a small state machine
         linkStateMachine(line, body);
         //const tn = document.createTextNode(line);
@@ -243,12 +263,12 @@ const parseInto = (text, body) => {
       }
     }
     if (hasDiv) {
-      console.log(`hasDiv: ${hasDiv}`);
+      console.debug(`hasDiv: ${hasDiv}`);
       linkStateMachine(simple, body);
       //const tn = document.createTextNode(simple);
       //body.appendChild(tn);
       const [div, rest] = parseTillTick(hasDiv);
-      console.log(`div: ${div}, rest: ${rest}`);
+      console.debug(`div: ${div}, rest: ${rest}`);
       const divNode = parseDiv(div);
       body.appendChild(divNode);
       parseInto(rest, body);
@@ -257,7 +277,7 @@ const parseInto = (text, body) => {
 };
 
 const parseTillTick = (text) => {
-  console.log(`parseTillTick: ${text}`);
+  console.debug(`parseTillTick: ${text}`);
   const regex = /^(.*?)`(.*)$/s;
   const match = text.match(regex);
   if (!match) {
@@ -273,8 +293,8 @@ const parseTillTick = (text) => {
 };
 
 const toMarkdown = (element) => {
-  console.log("Parsing markdown on element");
-  console.log(element);
+  console.debug("Parsing markdown on element");
+  console.debug(element);
   const content = iterateDOM(element);
   let saveable = [];
   if (element.classList.contains("body")) {
@@ -287,16 +307,17 @@ const toMarkdown = (element) => {
     saveable.push("-->\n");
   }
   const fixedContent = content.join("").trim();
-  console.log(fixedContent);
+  console.debug(fixedContent);
   const fixedSaveable = saveable.join("");
   const markdown = fixedSaveable + fixedContent;
   console.info("Generated as markdown:");
   console.info(markdown);
-  return markdown;
+  return markdown + "\n"; // Always add a new line at the end
 };
 
 function iterateDOM(node, mode) {
   // If mode == foldNL it will convert new lines into \n
+  // If mode == noNL no new lines will be added to naked divs
   // The generated structures are never more than 2 levels deep, seems, for now
   let generated = [];
   for (const child of node.childNodes) {
@@ -307,6 +328,7 @@ function iterateDOM(node, mode) {
       //  continue
       //} else {
       generated.push(text);
+      //generated.push("\n")
       //}
       continue;
     }
@@ -322,7 +344,7 @@ function iterateDOM(node, mode) {
     if (child.nodeName === "BR") {
       //generated.push("\n"); // This might be a stretch
       generated.push("<br/>");
-      generated.push("\n"); // This might be a stretch
+      //generated.push("\n"); // This might be a stretch
     }
     if (child.nodeName === "HR") {
       generated.push("\n"); // This might be a stretch
@@ -330,9 +352,11 @@ function iterateDOM(node, mode) {
       generated.push("\n"); // This might be a stretch
     }
     if (child.nodeName === "DIV" && child.classList.length === 0) {
-      generated.push("\n");
+      //generated.push("<br/>");
       //generated.push("<br b/>");
-      //generated.push("\n");
+      if(child.parentNode.nodeName != "LI" && mode != "noNL"){
+        generated.push("\n");
+      }
       const md = iterateDOM(child);
       generated.push(md);
     }
@@ -386,9 +410,9 @@ function iterateDOM(node, mode) {
       generated.push(md);
     }
     if (child.nodeName === "PRE") {
-      console.log("PRE");
+      console.debug("PRE");
       const splits = child.innerText.split("\n").filter((l) => l.length > 0);
-      console.log(splits);
+      console.debug(splits);
       const md = "\n```\n" + splits.join("\n<br/>\n") + "\n```\n";
       generated.push(md);
     }
@@ -398,10 +422,10 @@ function iterateDOM(node, mode) {
         .filter((c) => c != "dynamic-div")
         .map((c) => `.${c}`)
         .join(" ");
-      const inner = iterateDOM(child, "foldNL").join("");
-      console.log(inner);
+      const inner = iterateDOM(child, "foldNL").join("").trim();
+      console.debug(`Inner: ${inner}`);
       const toAdd = [allClasses, inner].join(" ").trim();
-      console.log(toAdd);
+      console.debug(toAdd);
       const md = `\`[div] .dynamic-div ${toAdd}\``;
       generated.push(md);
       //generated.push("\n");
@@ -423,7 +447,7 @@ function iterateDOM(node, mode) {
 const divBlock = "[div]";
 
 const parseDiv = (divData) => {
-  console.log(`Parsing div: ${divData}`);
+  console.debug(`Parsing div: ${divData}`);
   if (!divData.startsWith(divBlock)) {
     return divData; // This eventually should create a textNode for code blocks in Markdown
   }
@@ -459,12 +483,12 @@ const parseDiv = (divData) => {
     const rest = noHeaderSplits.slice(2).join(" ");
     // The rest need more work.
     const value = rest.slice(rest.lastIndexOf(veq) + veq.length, -1);
-    console.log(`Code, value: ${value}`);
+    console.debug(`Code, value: ${value}`);
     const evalString = rest
       .replace(" " + veq + value + "}", "")
       .replace(esq, "")
       .slice(0, -1);
-    console.log(`Code, evalString: ${evalString}`);
+    console.debug(`Code, evalString: ${evalString}`);
     const div = document.createElement("div");
     div.classList.add("wired");
     div.classList.add("code");

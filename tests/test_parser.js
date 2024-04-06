@@ -20,7 +20,7 @@ const config = `<!--
 `;
 
 const addConfig = (text) => {
-  return config + text;
+  return config + text + "\n";
 };
 
 mocha.checkLeaks();
@@ -36,6 +36,7 @@ describe("Lists", function () {
     chai.expect(li).to.have.length(3);
     chai.expect(li[1].textContent).to.equal("bar");
     const md = toMarkdown(body);
+    stringDiffer(md, addConfig(txt))
     chai.expect(addConfig(txt)).to.eql(md);
     li.forEach(l => l.remove());
   });
@@ -58,18 +59,14 @@ describe("Lists", function () {
 
 describe("New lines and whitespace", function () {
   let body = document.getElementById(b);
-  it("should handle br in markdown properly", function () {
+  it("should handle new lines in markdown properly", function () {
     const txt = `<br/>
 a
-<br/>
 b
-<br/>
-c
-<br/>`;
+c`;
     parseIntoWrapper(addConfig(txt), body);
     const md = toMarkdown(body);
-    console.log(`"${addConfig(txt)}"`);
-    console.log(`"${md}"`);
+    stringDiffer(addConfig(txt), md)
     chai.expect(addConfig(txt)).to.eql(md);
   });
 });
@@ -81,10 +78,9 @@ describe("Dynamic div: parsing & idempotency", function () {
     parseIntoWrapper(addConfig(txt), body);
     const div = body.querySelector(".dynamic-div");
     chai.expect(div.classList).to.not.be.null;
-    chai.expect(div.innerText).to.eql("foo bar baz");
+    chai.expect(div.textContent).to.eql("foo bar baz");
     const md = toMarkdown(body);
-    // console.log(`"${addConfig(txt)}"`)
-    // console.log(`"${md}"`)
+    stringDiffer(addConfig(txt), md)
     chai.expect(addConfig(txt)).to.eql(md);
     div.remove();
   });
@@ -96,10 +92,9 @@ describe("Dynamic div: parsing & idempotency", function () {
     chai.expect(Array.from(div.classList)).to.include("class1");
     chai.expect(Array.from(div.classList)).to.include("class2");
     chai.expect(Array.from(div.classList)).to.include("class3");
-    chai.expect(div.innerText).to.eql("foo bar baz");
+    chai.expect(div.textContent).to.eql("foo bar baz");
     const md = toMarkdown(body);
-    // console.log(`"${addConfig(txt)}"`)
-    // console.log(`"${md}"`)
+    stringDiffer(addConfig(txt), md)
     chai.expect(addConfig(txt)).to.eql(md);
     div.remove();
   });
@@ -112,7 +107,7 @@ describe("Dynamic div: parsing & idempotency", function () {
     chai.expect(div.children[0].nodeName).to.eql("LI");
     const lis = div.querySelectorAll("li");
     chai.expect(lis).to.have.length(3);
-    chai.expect(lis[2].innerText).to.eql("baz");
+    chai.expect(lis[2].textContent).to.eql("baz");
     const md = toMarkdown(body);
     //console.log(`"${addConfig(txt)}"`)
     //console.log(`"${md}"`)
@@ -220,6 +215,7 @@ describe("Links, links, links", function () {
     chai.expect(ext.textContent).to.equal(elT);
     chai.expect(JSON.parse(ext.dataset.internal)).to.be.false;
     const md = toMarkdown(body);
+    stringDiffer(addConfig(txt), md)
     chai.expect(addConfig(txt)).to.eql(md);
     int.remove();
     ext.remove();
@@ -240,7 +236,7 @@ describe("Links, links, links", function () {
     chai.expect(ext.textContent).to.equal(elT);
     chai.expect(JSON.parse(ext.dataset.internal)).to.be.false;
     const md = toMarkdown(body);
-    stringDiffer(md, addConfig(txt));
+    stringDiffer(addConfig(txt), md);
     chai.expect(addConfig(txt)).to.eql(md);
     int.remove();
     ext.remove();

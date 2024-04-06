@@ -16,7 +16,7 @@ const reset = () => {
   console.info("Resetted styles on info");
 };
 
-const common = (ev) => {
+const common = (ev, held) => {
   reset();
-  return ev.button !== 0;
+  return ev.button !== 0 || held;
 };

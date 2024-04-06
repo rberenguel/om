@@ -28,6 +28,7 @@ const getClosestBodyContainer = (element) => {
 
 const wireEverything = (buttons) => {
   // We have loaded stuff. Let's wire the code blocks:
+  console.info("Wiring")
   const codes = document.querySelectorAll(".code.wired");
   let i = 0;
   for (let cod of codes) {

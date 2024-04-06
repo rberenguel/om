@@ -16,6 +16,7 @@ const weave = {
     // TODO(me): API on top of this "click history"
     bodyClicks: ["b0", "b0"],
     clickedId: ["b0", "b0"],
+    held: false,
   },
   lastBodyClickId: function () {
     console.log(this);
@@ -23,7 +24,7 @@ const weave = {
     return this.internal.bodyClicks[0];
   },
   lastClickId: () => {
-    this.internal.clickedId[0];
+    return this.internal.clickedId[0];
   },
   createPanel: createPanel,
   root: null,

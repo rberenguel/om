@@ -15,8 +15,14 @@ const iloadIntoBody = (filename, body) => {
     console.log(filecontent);
     console.log(atob(filecontent));
     console.log(decodeURIComponent(atob(filecontent)));
+    console.info("About to parse")
     parseIntoWrapper(decodeURIComponent(atob(filecontent)), body);
+    console.info("About to wire")
     wireEverything(weave.buttons(weave.root));
+  }).catch((err) => {
+    console.log("There was an unexpected error in loading")
+    console.log(err)
+    throw err;
   });
 };
 

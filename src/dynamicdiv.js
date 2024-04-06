@@ -1,11 +1,21 @@
 export { div, dndDynamicDiv, dynamicDiv };
 
+import weave from "./weave.js";
 import { draggy } from "./betterDragging.js";
 import { parseInto, toMarkdown } from "./parser.js";
+
+import { common } from "./commands_base.js";
+import { postfix } from "./doms.js";
 
 const div = {
   text: ["div"],
   action: (ev) => {
+    if(weave.internal.held === undefined){
+    return
+    }
+    if (common(ev, weave.internal.held)) {
+      return;
+    }
     const selection = window.getSelection();
     const htmlContainer = document.createElement("div");
     htmlContainer.appendChild(selection.getRangeAt(0).cloneContents());
@@ -14,7 +24,6 @@ const div = {
     //const [div, handle] = divWithDraggableHandle();
     //div.classList.add("dynamic-div");
     //div.innerHTML = selectedHTML;
-
     draggy(div);
     // The following is to remove the phantom divs that can appear when editing in a contenteditable.
     // I mighta s well do this anywhere I manupulate selections too
@@ -35,6 +44,7 @@ const div = {
 };
 
 const dynamicDiv = (text) => {
+  console.info(`Preparing dynamic div with "${text}"`)
   const div = document.createElement("div");
   // First extract the classes present
   const splits = text.split(" ");
