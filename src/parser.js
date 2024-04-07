@@ -307,8 +307,22 @@ const toMarkdown = (element) => {
     }
     saveable.push("-->\n");
   }
-  const fixedContent = content.join("").trim();
-  console.debug(fixedContent);
+  let fixedContent = []
+  console.log(content)
+  fixedContent.push(content[0])
+  for(let i = 0;i< content.length-1;i++){
+    const prev = content[i]
+    const curr = content[i+1]
+    /*if(prev == "\n" && curr == "\n"){
+      continue
+    }*/
+    if(prev.startsWith("<br") && curr == "\n"){
+      continue
+    }
+    fixedContent.push(curr)
+  }
+
+  fixedContent = fixedContent.join("").trim();
   const fixedSaveable = saveable.join("");
   const markdown = fixedSaveable + fixedContent;
   console.info("Generated as markdown:");
@@ -344,7 +358,9 @@ function iterateDOM(node, mode) {
     }
     if (child.nodeName === "BR") {
       //generated.push("\n"); // This might be a stretch
-      generated.push("\n<br id='nodename-br'/>");
+      generated.push("\n")
+      generated.push("<br id='nodename-br'/>");
+      generated.push("\n")
       //generated.push("\n"); // This might be a stretch
     }
     if (child.nodeName === "HR") {

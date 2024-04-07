@@ -61,7 +61,7 @@ describe("Lists", function () {
 describe("New lines and whitespace", function () {
   let body = document.getElementById(b);
   it("should handle new lines in markdown properly", function () {
-    const txt = `<br/>
+    const txt = `<br id='nodename-br'/>
 a
 b
 c`;

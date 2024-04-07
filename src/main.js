@@ -169,7 +169,7 @@ document.body.addEventListener("wheel", (event) => {
   const content = document.getElementById(weave.root);
   console.log("wheel");
   console.log(event);
-  if (event.target.classList.contains("body")) {
+  if (event.target.id != weave.root) {
     console.log("Skipping wheel");
     return;
   }

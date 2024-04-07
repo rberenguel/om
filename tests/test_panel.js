@@ -10,15 +10,14 @@ mocha.run();
 describe("createPanel", function () {
   const root = document.getElementById(weave.root);
   it("should create a new panel", function () {
-    const panel = root.children;
+    const panel = root.querySelectorAll(".body-container");
     chai.expect(panel).to.not.be.empty;
     chai.expect(panel).to.have.length(1);
   });
   it("should have created a panel with two elements (handle wrapping body)", function () {
-    const panelElements = root.children[0].children;
+    const panelElements = root.querySelector(".body-container").children;
     chai.expect(panelElements).to.not.be.empty;
     chai.expect(panelElements).to.have.length(1);
-    console.info(panelElements);
     chai.expect(panelElements[0].classList.contains("better-handle")).to.be
       .true;
     chai.expect(panelElements[0].children[0].classList.contains("body")).to.be
@@ -45,7 +44,6 @@ describe("split text / button", function () {
     it("should create two new panels when clicking twice", function () {
       const panels = () => document.getElementsByClassName("body-container");
       chai.expect(panels()).to.have.length(1);
-      console.log(splitButton());
       splitButton().dispatchEvent(events.mousedown);
       splitButton().dispatchEvent(events.mousedown);
       chai.expect(panels()).to.have.length(3);
@@ -61,7 +59,6 @@ describe("clear text / button", function () {
     thirdPanelBody = document
       .getElementById(weave.root)
       .querySelectorAll(".body")[2];
-    console.log(thirdPanelBody);
     createButton("clear", thirdPanelBody);
     button = thirdPanelBody.querySelector(".wrap");
     chai.expect(button.innerText).to.eql("clear");
@@ -86,7 +83,6 @@ describe("close text / button", function () {
     secondPanelBody = document
       .getElementById(weave.root)
       .querySelectorAll(".body")[1];
-    console.log(secondPanelBody);
     createButton("close", secondPanelBody);
     button = secondPanelBody.querySelector(".wrap");
     chai.expect(button.innerText).to.eql("close");

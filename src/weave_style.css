@@ -25,20 +25,112 @@ body {
   touch-action: none;
 }
 
-/** Admonition DIV **/
+/**
+Dynamic div:
+Draggable div useful for "anything", technically
+**/
+
+
+.dynamic-div {
+  border: 1px solid var(--bright-yellow);
+  border-radius: 5px;
+  /*white-space: pre-wrap;*/
+  overflow: visible;
+  display: inline-block; /* To accomodate multiline and single-line */
+  /*width: fit-content;*/
+  min-width: 85%;
+  max-width: 85%;
+  margin: 0.1em;
+  padding-right: 0.1em;
+  padding-top: 0.1em;
+  padding-bottom: 0.1em;
+  padding-left: 0.2em;
+}
+
+
+.div-dnd-placeholder {
+  /* Same properties as dynamic-div */
+  border: 2px solid var(--bright-yellow);
+  border-radius: 5px;
+  overflow: visible;
+  display: inline-block;
+  min-width: 85%;
+  max-width: 85%;
+  margin: 0.1em;
+  padding-right: 0.1em;
+  padding-top: 0.1em;
+  padding-bottom: 0.1em;
+}
+
+
+/** 
+Dynamic div: task
+Uses font-awesome for styling, but requires also a label for it so it can be checked.
+**/
+
+.dynamic-div.checked {
+  text-decoration: line-through;
+}
+
+.important {
+  border: thick double var(--very-bright-red);
+}
+
+.task {
+  position: relative;
+}
+
+.dynamic-div.task {
+  padding-left: 1.8em;
+  min-width: calc(85% - 1.8em);
+  max-width: calc(85% - 1.8em);
+}
+
+.task-label::before {
+  font-family: "Font Awesome 6 Free Regular";
+  display: inline-block;
+  margin-right: 10px; 
+  font-size: 1.2em; 
+  position: absolute;
+  left: 0.3em;
+  top: 50%;
+  transform: translateY(-50%);
+  content: "\f0c8";
+  color: #c60;
+}
+
+.task-label.checked::before {
+  content: "\f14a";
+  color: #c60;
+}
+
+/** Admonition dynamic div **/
 
 .dynamic-div.ad {
   padding-left: 1.8em;
+  min-width: calc(85% - 1.8em);
+  max-width: calc(85% - 1.8em);
+}
+
+.dynamic-div.ad.task {
+  /* combined padding */
+  padding-left: 3.2em;
+  min-width: calc(85% - 3.2em);
+  max-width: calc(85% - 3.2em);
 }
 
 .ad {
   position: relative;
 }
 
+.ad.task::before {
+  margin-left: 1.1em;;
+}
+
 .ad::before {
-  font-family: "Font Awesome 6 Free";
+  font-family: "Font Awesome 6 Free Solid";
   display: inline-block;
-  margin-right: 10px; 
+  margin-right: 0.3em; 
   font-size: 1.2em; 
   position: absolute;
   left: 0.3em;
@@ -258,19 +350,6 @@ a[data-internal="false"]::after {
   border: 2px solid var(--bright-orange);
 }
 
-.div-dnd-placeholder {
-  /* Same properties as dynamic-div */
-  border: 2px solid var(--bright-yellow);
-  border-radius: 5px;
-  overflow: visible;
-  display: inline-block;
-  min-width: 85%;
-  max-width: 85%;
-  margin: 0.1em;
-  padding-right: 0.1em;
-  padding-top: 0.1em;
-  padding-bottom: 0.1em;
-}
 
 /* For panels */
 .dragging {
@@ -288,86 +367,6 @@ a[data-internal="false"]::after {
   min-height: fit-content !important;
   border-radius: 5px !important;
   border: 2px solid var(--bright-yellow) !important;
-}
-
-/* TODO This can go to trash */
-.dynamic-handle {
-  position: relative;
-  bottom: 0.8em;
-  left: calc(100% - 0.4em);
-  width: 6px;
-  height: 6px;
-  border-radius: 5px;
-  background-color: var(--subtly-transparent);
-  cursor: grab;
-  z-index: 1;
-  display: inline-block;
-  user-select: none;
-}
-
-.dynamic-div {
-  border: 1px solid var(--bright-yellow);
-  border-radius: 5px;
-  /*white-space: pre-wrap;*/
-  overflow: visible;
-  display: inline-block; /* To accomodate multiline and single-line */
-  /*width: fit-content;*/
-  min-width: 85%;
-  max-width: 85%;
-  margin: 0.1em;
-  padding-right: 0.1em;
-  padding-top: 0.1em;
-  padding-bottom: 0.1em;
-  padding-left: 0.2em;
-}
-
-.dynamic-div.checked {
-  text-decoration: line-through;
-}
-
-.important {
-  border: thick double var(--very-bright-red);
-}
-
-/* Style the label to look like an unchecked checkbox */
-.task-label {
-  color: #c60;
-  padding: 0.2em 0.2em;
-  border-radius: 20px;
-  display: inline-block;
-  cursor: pointer;
-}
-
-/* Styles for the 'checked' state - add a fake checkbox */
-.task-label::before {
-  content: "";
-  display: inline-block;
-  width: 1em;
-  height: 1em;
-  margin-right: 0 0.5em;
-  border: 2px solid #c60;
-  border-radius: 3px;
-  vertical-align: middle;
-}
-
-/* Styles when checked */
-.task-label.checked::before {
-  background-color: var(--bright-orange); /* Example: Green background */
-  color: white;
-}
-
-.panel-handle {
-  position: relative;
-  left: 100%;
-  top: -0.2em;
-  width: 6px;
-  height: 6px;
-  border-radius: 5px;
-  background-color: var(--bright-orange);
-  cursor: grab;
-  z-index: 1;
-  display: inline-block;
-  user-select: none;
 }
 
 #svgContainer {

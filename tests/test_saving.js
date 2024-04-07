@@ -11,7 +11,7 @@ mocha.run();
 describe("createPanel", function () {
   const root = document.getElementById(weave.root);
   it("should serialize and deserialize basic stuff", function () {
-    const panel = root.children;
+    const panel = root.querySelectorAll(".body-container");
     chai.expect(panel).to.not.be.empty;
     chai.expect(panel).to.have.length(1);
   });

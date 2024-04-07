@@ -9,5 +9,5 @@ endif
 all: dist/weave.html
 
 serve:
-> echo "http://127.0.0.1:8000/dist/weave.html"
+> echo "http://127.0.0.1:8000/src/"
 > python3 -m http.server 8000
