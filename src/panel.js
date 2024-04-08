@@ -12,6 +12,7 @@ const panelFields = Object.freeze({
   kGFont: "gfont",
   kX: "x",
   kY: "y",
+  kKind: "kind"
 });
 
 const manipulation = {
@@ -20,6 +21,8 @@ const manipulation = {
     const body = container.querySelector(".body");
     const currentRect = container.getBoundingClientRect();
     switch (prop) {
+      case panelFields.kKind:
+        return container.dataset.kind || "text"
       case panelFields.kWidth:
         return (
           parseFloat(container.dataset.width) || Math.floor(currentRect.width)
@@ -63,6 +66,9 @@ const manipulation = {
   set(container, prop, value) {
     const body = container.querySelector(".body");
     switch (prop) {
+      case panelFields.kKind:
+        container.dataset.kind = value
+        break;
       case panelFields.kWidth:
         container.dataset.width = parseFloat(value);
         break;

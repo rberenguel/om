@@ -47,7 +47,7 @@ const dynamicDiv = (text) => {
   console.info(`Preparing dynamic div with "${text}"`)
   const div = document.createElement("div");
   // First extract the classes present
-  const splits = text.split(" ");
+  const splits = text.split(/\s+/);
   console.log(splits);
   let i = 0,
     classes = [];

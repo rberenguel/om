@@ -17,6 +17,7 @@ const config = `<!--
 - gfont: undefined
 - x: 455
 - y: 554
+- kind: text
 -->
 `;
 

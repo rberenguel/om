@@ -313,12 +313,13 @@ const toMarkdown = (element) => {
   for(let i = 0;i< content.length-1;i++){
     const prev = content[i]
     const curr = content[i+1]
-    /*if(prev == "\n" && curr == "\n"){
-      continue
-    }*/
-    if(prev.startsWith("<br") && curr == "\n"){
+    if(prev == "\n" && curr == "\n"){
       continue
     }
+    // This is not good
+    /*if(prev.startsWith("<br") && curr == "\n"){
+      continue
+    }*/
     fixedContent.push(curr)
   }
 

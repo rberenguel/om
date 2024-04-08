@@ -1,3 +1,17 @@
+:root {
+  --dynamic-div-width: 98%;
+}
+
+div {
+  /* Defaulting to inline-block seems to play better to lone textnodes */
+  /* It needs overrides for any other div, though */
+  display: inline-block;
+}
+
+div.body {
+  display: block;
+}
+
 h1 {
   font-size: 120%;
 }
@@ -38,13 +52,13 @@ Draggable div useful for "anything", technically
   overflow: visible;
   display: inline-block; /* To accomodate multiline and single-line */
   /*width: fit-content;*/
-  min-width: 85%;
-  max-width: 85%;
+  min-width: var(--dynamic-div-width);
+  max-width: var(--dynamic-div-width);
   margin: 0.1em;
   padding-right: 0.1em;
   padding-top: 0.1em;
   padding-bottom: 0.1em;
-  padding-left: 0.2em;
+  padding-left: 0.3em;
 }
 
 
@@ -54,8 +68,8 @@ Draggable div useful for "anything", technically
   border-radius: 5px;
   overflow: visible;
   display: inline-block;
-  min-width: 85%;
-  max-width: 85%;
+  min-width: var(--dynamic-div-width);
+  max-width: var(--dynamic-div-width);
   margin: 0.1em;
   padding-right: 0.1em;
   padding-top: 0.1em;
@@ -82,8 +96,8 @@ Uses font-awesome for styling, but requires also a label for it so it can be che
 
 .dynamic-div.task {
   padding-left: 1.8em;
-  min-width: calc(85% - 1.8em);
-  max-width: calc(85% - 1.8em);
+  min-width: calc(var(--dynamic-div-width) - 1.8em);
+  max-width: calc(var(--dynamic-div-width) - 1.8em);
 }
 
 .task-label::before {
@@ -108,15 +122,15 @@ Uses font-awesome for styling, but requires also a label for it so it can be che
 
 .dynamic-div.ad {
   padding-left: 1.8em;
-  min-width: calc(85% - 1.8em);
-  max-width: calc(85% - 1.8em);
+  min-width: calc(var(--dynamic-div-width) - 1.8em);
+  max-width: calc(var(--dynamic-div-width) - 1.8em);
 }
 
 .dynamic-div.ad.task {
   /* combined padding */
   padding-left: 3.2em;
-  min-width: calc(85% - 3.2em);
-  max-width: calc(85% - 3.2em);
+  min-width: calc(var(--dynamic-div-width) - 3.2em);
+  max-width: calc(var(--dynamic-div-width) - 3.2em);
 }
 
 .ad {
@@ -166,12 +180,12 @@ Uses font-awesome for styling, but requires also a label for it so it can be che
 }
 
 .ad.impo {
-  border: 1px solid #cc0; /* Slightly darker yellow */
+  border: 1px solid var(--very-bright-red); /* Slightly darker yellow */
 }
 
 .ad.impo::before {
   content: "\f06a"; /* Exclamation point inside a circle */
-  color: #cc0; 
+  color: var(--very-bright-red);
 }
 
 .ad.warn {
