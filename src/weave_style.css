@@ -5,10 +5,23 @@
 div {
   /* Defaulting to inline-block seems to play better to lone textnodes */
   /* It needs overrides for any other div, though */
+  /* It does not work well with newlines in contenteditable, sadly… */
+  /*display: inline-block;*/
+}
+
+div.wrap {
   display: inline-block;
 }
 
 div.body {
+  display: block;
+}
+
+div.code {
+  display: block;
+}
+
+div.code > div {
   display: block;
 }
 

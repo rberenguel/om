@@ -68,7 +68,6 @@ b
 c`;
     parseIntoWrapper(addConfig(txt), body);
     const md = toMarkdown(body);
-    stringDiffer(addConfig(txt), md)
     chai.expect(addConfig(txt)).to.eql(md);
   });
 });

@@ -39,7 +39,7 @@ const parseIntoWrapper = (text, body) => {
   parseInto(rest.join("\n"), body);
 };
 
-const linkStateMachine = (line, body) => {
+const linkStateMachine = (line, body, longerLine) => {
   let accum = [],
     linkText = [],
     linkHref = [],
@@ -164,11 +164,17 @@ const linkStateMachine = (line, body) => {
   if(accum.length > 0){
     const tn = document.createTextNode(accumed);
     accum = [];
+    if(longerLine){
+      console.log("LOOOOOOOONGEEEEEEEEER LIIIIIIINE")
+      body.appendChild(tn);
+      return
+    }
     if(accumed == line && accumed.trim().length > 0){
       console.debug(`Adding accumulator div with "${accumed}"`);
       const div = document.createElement("div")
       div.appendChild(tn)
       body.appendChild(div)
+      //body.appendChild(tn)
     } else {
       body.appendChild(tn);
     }
@@ -265,7 +271,7 @@ const parseInto = (text, body) => {
     }
     if (hasDiv) {
       console.debug(`hasDiv: ${hasDiv}`);
-      linkStateMachine(simple, body);
+      linkStateMachine(simple, body, "longer");
       //const tn = document.createTextNode(simple);
       //body.appendChild(tn);
       const [div, rest] = parseTillTick(hasDiv);
