@@ -17,6 +17,7 @@ const weave = {
     bodyClicks: ["b0", "b0"],
     clickedId: ["b0", "b0"],
     held: false,
+    arrows: [],
   },
   lastBodyClickId: function () {
     console.log(this);

@@ -11,6 +11,7 @@ export {
 import { hookBodies } from "./internal.js";
 import { manipulation } from "./panel.js";
 import { dndDynamicDiv } from "./dynamicdiv.js";
+import { createOrMoveArrowBetweenDivs } from "./arrow.js";
 // TODO: I think I want to be able to move panels instead of drag-and-drop.
 
 // I use this separator in many places
@@ -192,15 +193,16 @@ const createPanel = (parentId, id, buttons, weave) => {
     listeners: {
       leave: (ev) => {},
       move(event) {
-        console.log(bodyContainer.dataset.x, event.dx)
         let x = manipulation.get(bodyContainer, manipulation.fields.kX);
         let y = manipulation.get(bodyContainer, manipulation.fields.kY);
         x += event.dx;
         y += event.dy;
-        console.log(x, y)
         manipulation.set(bodyContainer, manipulation.fields.kX, x);
         manipulation.set(bodyContainer, manipulation.fields.kY, y);
         manipulation.reposition(bodyContainer);
+        for(const arrow of weave.internal.arrows){
+          createOrMoveArrowBetweenDivs(arrow)
+        }
       },
     },
   });

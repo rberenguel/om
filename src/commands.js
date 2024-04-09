@@ -8,7 +8,7 @@ import { wireEverything } from "./load.js";
 import { manipulation } from "./panel.js";
 import { parseIntoWrapper, parseInto, toMarkdown } from "./parser.js";
 import { get, keys, del, set, entries } from "./libs/idb-keyval.js";
-import { enterKeyDownEvent } from "./commands_base.js";
+import { createOrMoveArrowBetweenDivs } from "./arrow.js";
 import { toTop } from "./doms.js";
 import { iload, iloadIntoBody, gload } from "./loadymcloadface.js";
 import { presentFiles } from "./loadymcloadface.js";
@@ -60,6 +60,22 @@ weave.internal.triggerNotif = requestAndTriggerNotification
 document.body.onclick = w.internal.triggerNotif
 
 */
+
+const arrow = {
+  text: ["arrow"],
+  action: (ev) => {
+    if (common(ev)) {
+      return;
+    }
+    const srcb = weave.internal.bodyClicks[1]
+    const dstb = weave.internal.bodyClicks[0]
+    //createArrowBetweenDivs(src, dst)
+    weave.internal.arrows.push(`${srcb}-${dstb}`)
+    createOrMoveArrowBetweenDivs(weave.internal.arrows[0])
+  },
+  description: "Reparses the current panel through a fake markdown conversion",
+  el: "u",
+}
 
 const headers = {
   matcher: /h[1-4]/,
@@ -827,6 +843,7 @@ const buttons = (parentId) => {
     headers,
     code,
     lists,
+    arrow
   ];
 };
 

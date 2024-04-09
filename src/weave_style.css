@@ -396,13 +396,20 @@ a[data-internal="false"]::after {
   border: 2px solid var(--bright-yellow) !important;
 }
 
-#svgContainer {
+#canvas {
   width: 100%;
   height: 100%;
   position: fixed;
   z-index: -1;
-  opacity: 0;
+  opacity: 0.8;
   transition: opacity 0.3s ease-in-out;
+}
+
+.arrow-line {
+  stroke: var(--bright-yellow);
+  fill: var(--bright-yellow); 
+  stroke-width: 2;
+  marker-end: url(#arrowhead); /* Keep marker reference */
 }
 
 #svgContainer.show {

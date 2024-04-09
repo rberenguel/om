@@ -114,9 +114,7 @@ const manipulation = {
         addGoogFont(value);
         break;
       case panelFields.kX:
-        console.log(Math.floor(parseFloat(value)))
         container.dataset.x = Math.floor(parseFloat(value));
-        console.log(container.dataset.x)
         break;
       case panelFields.kY:
         container.dataset.y = Math.floor(parseFloat(value));
@@ -126,7 +124,6 @@ const manipulation = {
   reposition(container) {
     let x = this.get(container, panelFields.kX)
     let y = this.get(container, panelFields.kY)
-    console.log(`Reposition ${x}, ${y}`)
     container.dataset.x = x;
     container.dataset.y = y;
     const transform = `translate(${x}px, ${y}px)`;
