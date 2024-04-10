@@ -74,30 +74,13 @@ document.body.onclick = w.internal.triggerNotif
               console.log("Clipboard permission denied");
             }
           });*/
-              navigator.clipboard.writeText("foo")
-              return
               entries().then((entries) => {
                 let lines = [];
                 for (const [key, value] of entries) {
                   lines.push(`- ${key}: ${value}`);
                 }
-                console.log(lines)
-                const foo = () => {
-                  const copyText = lines
-                  return new Promise(async (resolve) => {
-                    resolve(new Blob([copyText]))
-                  })
-                }
-                const clipboardItem = new ClipboardItem({
-                  'text/plain': foo})
-                // Now, we can write to the clipboard in Safari
-                navigator.clipboard.write([clipboardItem]).then(() => {
-                  console.log('Text copied to clipboard');
-                })
-                  .catch((err) => {
-                    console.error('Failed to copy: ', err);
-                  });
-                /*navigator.clipboard.writeText(lines.join("\n"))*/
+                alert(lines)
+                navigator.clipboard.writeText(lines.join("\n"))
 
               });
         },
