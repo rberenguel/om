@@ -169,8 +169,7 @@ navigator.clipboard.write([text])
           for (const [key, value] of entries) {
             lines.push(`- ${key}: ${value}`);
           }
-          const joined = lines.join("")
-          console.log("aaaa")
+          const joined = lines.join("\n")
           console.log(joined)
           return joined
         }
