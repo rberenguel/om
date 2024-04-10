@@ -74,6 +74,8 @@ document.body.onclick = w.internal.triggerNotif
               console.log("Clipboard permission denied");
             }
           });*/
+              navigator.clipboard.writeText("foo")
+              return
               entries().then((entries) => {
                 let lines = [];
                 for (const [key, value] of entries) {
