@@ -65,7 +65,7 @@ document.body.onclick = w.internal.triggerNotif
       const getAllThingsAsStrings = {
         text: ["pbcopy"],
         action: (ev) => {
-          navigator.permissions.query({ name: "clipboard-write" }).then((result) => {
+          /*navigator.permissions.query({ name: "clipboard-write" }).then((result) => {
             if (result.state === "granted" || result.state === "prompt") {
               // Permission granted or will be prompted, you can copy
               copyTextToClipboard("Your text here"); 
@@ -73,20 +73,31 @@ document.body.onclick = w.internal.triggerNotif
               // Permission denied, handle this case
               console.log("Clipboard permission denied");
             }
-          });
-          entries().then((entries) => {
-            let lines = [];
-            for (const [key, value] of entries) {
-              lines.push(`- ${key}: ${value}`);
-            }
-            console.log(lines)
-            navigator.clipboard.writeText(lines.join("\n")).then(() => {
-              console.log('Text copied to clipboard');
-            })
-              .catch((err) => {
-                console.error('Failed to copy: ', err);
+          });*/
+              entries().then((entries) => {
+                let lines = [];
+                for (const [key, value] of entries) {
+                  lines.push(`- ${key}: ${value}`);
+                }
+                console.log(lines)
+                const foo = () => {
+                  const copyText = lines
+                  return new Promise(async (resolve) => {
+                    resolve(new Blob([copyText]))
+                  })
+                }
+                const clipboardItem = new ClipboardItem({
+                  'text/plain': foo})
+                // Now, we can write to the clipboard in Safari
+                navigator.clipboard.write([clipboardItem]).then(() => {
+                  console.log('Text copied to clipboard');
+                })
+                  .catch((err) => {
+                    console.error('Failed to copy: ', err);
+                  });
+                /*navigator.clipboard.writeText(lines.join("\n"))*/
+
               });
-          });
         },
         description: "Copy whole database to clipboard",
         el: "u",
