@@ -22,6 +22,7 @@ console.log("wtf");
 console.log(weave);
 
 weave.root = "content";
+weave.canvas = "canvas"
 
 document.isDragging = false;
 
@@ -114,7 +115,8 @@ interact(document.body).draggable({
 
       manipulation.set(body, manipulation.fields.kX, nx);
       manipulation.set(body, manipulation.fields.kY, ny);
-
+      
+      // Translate all panels according to the current drag of the body
       for (const container of containers) {
         let x = manipulation.get(container, manipulation.fields.kX);
         let y = manipulation.get(container, manipulation.fields.kY);
@@ -123,6 +125,26 @@ interact(document.body).draggable({
         manipulation.set(container, manipulation.fields.kX, x);
         manipulation.set(container, manipulation.fields.kY, y);
         manipulation.reposition(container);
+      }
+      // Translate all arrows likewise
+      for(const arrow of weave.internal.arrows){
+        const arr = document.getElementById(arrow)
+        let x, y
+        if(arr.dataset.x){
+          x= parseFloat(arr.dataset.x)
+        } else {
+          x = 0
+        }
+        if(arr.dataset.y){
+          y= parseFloat(arr.dataset.y)
+        } else {
+          y = 0
+        }
+        x += deltaX;
+        y += deltaY;
+        manipulation.set(arr, manipulation.fields.kX, x);
+        manipulation.set(arr, manipulation.fields.kY, y);
+        manipulation.reposition(arr);
       }
     },
     end(event) {
@@ -135,7 +157,8 @@ interact(document.body).gesturable({
   listeners: {
     move(ev) {
       const body = document.getElementById(weave.root);
-      if (ev.target.classList.contains("body")) {
+      if (event.target.id != weave.root && event.target.id != weave.canvas) {
+        console.log(`Skipping pinch on ${event.target.id}`);
         return;
       }
       if (body.dataset.sticky > 0) {
@@ -156,7 +179,7 @@ interact(document.body).gesturable({
       if ((1 - scale) * (1 - prev) < 0) {
         console.log("Fixing");
         scale = 1;
-        body.dataset.sticky = 80;
+        body.dataset.sticky = 150;
       }
       body.style.transform = `scale(${scale})`;
       body.dataset.scale = scale;
@@ -169,7 +192,7 @@ document.body.addEventListener("wheel", (event) => {
   const content = document.getElementById(weave.root);
   console.log("wheel");
   console.log(event);
-  if (event.target.id != weave.root) {
+  if (event.target.id != weave.root || event.target.id != weave.canvas) {
     console.log("Skipping wheel");
     return;
   }
