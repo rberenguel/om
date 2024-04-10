@@ -61,94 +61,124 @@ weave.internal.triggerNotif = requestAndTriggerNotification
 document.body.onclick = w.internal.triggerNotif
 
 */
-
-      function ccopy(text) {
+      const arf = (text) => {
         console.log(text)
-        return new Promise((resolve, reject) => {
-          if (typeof navigator !== "undefined" && typeof navigator.clipboard !== "undefined" && navigator.permissions !== "undefined") {
-            console.log("Copying")
-            const type = "text/plain";
-            const blob = new Blob([text], { type });
-            const data = [new ClipboardItem({ [type]: blob })];
-            navigator.permissions.query({name: "clipboard-write"}).then((permission) => {
-              if (permission.state === "granted" || permission.state === "prompt") {
-                console.log("Copying")
-                navigator.clipboard.write(data).then(resolve, reject).catch(reject);
-              }
-              else {
-                console.log("Rejecting")
-                reject(new Error("Permission not granted!"));
-              }
-            });
-          }
-          else if (document.queryCommandSupported && document.queryCommandSupported("copy")) {
-            console.log("Fallback case")
-            var textarea = document.createElement("textarea");
-            textarea.textContent = text;
-            textarea.style.position = "fixed";
-            textarea.style.width = '2em';
-            textarea.style.height = '2em';
-            textarea.style.padding = 0;
-            textarea.style.border = 'none';
-            textarea.style.outline = 'none';
-            textarea.style.boxShadow = 'none';
-            textarea.style.background = 'transparent';
-            document.body.appendChild(textarea);
-            textarea.focus();
-            textarea.select();
-            try {
-              document.execCommand("copy");
-              document.body.removeChild(textarea);
-              resolve();
-            }
-            catch (e) {
-              document.body.removeChild(textarea);
-              reject(e);
-            }
-          }
-          else {
-            console.log("Fully rejecting")
-            reject(new Error("None of copying methods are supported by this browser!"));
-          }
-        });
-
+        let textarea = document.createElement("textarea");
+        textarea.textContent = "text";
+        textarea.style.position = "fixed";
+        textarea.style.width = '2em';
+        textarea.style.height = '2em';
+        textarea.style.padding = 0;
+        textarea.style.border = 'none';
+        textarea.style.outline = 'none';
+        textarea.style.boxShadow = 'none';
+        textarea.style.background = 'transparent';
+        return textarea
       }
+
+const barf = (textarea) => {
+  console.log(textarea)
+  document.body.appendChild(textarea);
+  return Promise.resolve(textarea)
+}
+
+const bbarf = (textarea) => {
+  textarea.focus();
+  textarea.select();
+  console.log("Trying")
+  document.execCommand("copy");
+  console.log("Copied")
+  //document.body.removeChild(textarea);
+  console.log("Removed")
+}
+
+function ccopy(text) {
+  console.log(text)
+  return new Promise((resolve, reject) => {
+    //if (typeof navigator !== "undefined" && typeof navigator.clipboard !== "undefined" && navigator.permissions !== "undefined") {
+    if(false){
+      console.log("Copying")
+      const type = "text/plain";
+      const blob = new Blob([text], { type });
+      const data = [new ClipboardItem({ [type]: blob })];
+      navigator.permissions.query({name: "clipboard-write"}).then((permission) => {
+        if (permission.state === "granted" || permission.state === "prompt") {
+          console.log("Copying")
+          navigator.clipboard.write(data).then(resolve, reject).catch(reject);
+        }
+        else {
+          console.log("Rejecting")
+          reject(new Error("Permission not granted!"));
+        }
+      });
+    }
+    else if (document.queryCommandSupported && document.queryCommandSupported("copy")) {
+      console.log("Fallback case")
+      let textarea = document.createElement("textarea");
+      textarea.textContent = text;
+      textarea.style.position = "fixed";
+      textarea.style.width = '2em';
+      textarea.style.height = '2em';
+      textarea.style.padding = 0;
+      textarea.style.border = 'none';
+      textarea.style.outline = 'none';
+      textarea.style.boxShadow = 'none';
+      textarea.style.background = 'transparent';
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      try {
+        console.log("Trying")
+        document.execCommand("copy");
+        console.log("Copied")
+        document.body.removeChild(textarea);
+        console.log("Removed")
+        resolve();
+      }
+      catch (e) {
+        console.log(e)
+        document.body.removeChild(textarea);
+        reject(e);
+      }
+    }
+    else {
+      console.log("Fully rejecting")
+      reject(new Error("None of copying methods are supported by this browser!"));
+    }
+  });
+
+}
 
 const getAllThingsAsStrings = {
   text: ["pbcopy"],
   action: (ev) => {
-    /*navigator.permissions.query({ name: "clipboard-write" }).then((result) => {
-            if (result.state === "granted" || result.state === "prompt") {
-              // Permission granted or will be prompted, you can copy
-              copyTextToClipboard("Your text here"); 
-            } else {
-              // Permission denied, handle this case
-              console.log("Clipboard permission denied");
-            }
-          });*/
-              //navigator.clipboard.writeText("foo\nbar")
-              ccopy("foo")
-              entries().then((entries) => {
-                //return new Promise((resolve, reject) => {
-                let lines = [];
-                for (const [key, value] of entries) {
-                  lines.push(`- ${key}: ${value}`);
-                }
-                ccopy(lines.join("\n")).then(() => console.log(success)).catch(err => console.error(err))
-                //alert(lines.join("\n"))
-                //resolve(lines.join("\n"))
-              }
-              )
-    //                })
-    /*.then(text => {
-                  console.log(text)
-                  navigator.clipboard.writeText(text)
-                }).then(() => {
-                  console.log("successfully copied");
-                })
-            .catch((err) => {
-              console.error(err);
-            });*/
+    console.log("A")
+    let lines = [];
+    /*
+const text = new ClipboardItem({
+  "text/plain": fetch(this.sourceUrlValue)
+    .then(response => response.text())
+    .then(text => new Blob([text], { type: "text/plain" }))
+})
+navigator.clipboard.write([text])
+*/
+    const text = new ClipboardItem({
+      "text/plain": entries()
+      .then(
+        ((entries) => {
+          for (const [key, value] of entries) {
+            lines.push(`- ${key}: ${value}`);
+          }
+          const joined = lines.join("")
+          console.log("aaaa")
+          console.log(joined)
+          return joined
+        }
+        )
+      )
+      .then(text => new Blob([text], { type: "text/plain" }))
+    })
+    navigator.clipboard.write([text])
   },
   description: "Copy whole database to clipboard",
   el: "u",
