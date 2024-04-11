@@ -7,6 +7,7 @@ export {
   postfix,
   divWithDraggableHandle,
   toTop,
+  placeTitle
 };
 import { hookBodies } from "./internal.js";
 import { manipulation } from "./panel.js";
@@ -53,16 +54,61 @@ const toTop = (b) => () => {
   const maxZ = Math.max(...withZ, 1);
   const minZ = Math.min(...withZ, maxZ);
   b.style.zIndex = maxZ + 1;
+  b.titleDiv.style.zIndex = maxZ + 1;
+  console.log(b.titleDiv)
   Array.from(weave.containers()).forEach(
-    (b) => (b.style.zIndex = Math.max(0, (b.style.zIndex || minZ) - minZ)),
+    (b) => {
+      b.style.zIndex = Math.max(0, (b.style.zIndex || minZ) - minZ)
+      b.titleDiv.style.zIndex = Math.max(0, (b.style.zIndex || minZ) - minZ)
+    },
   );
 };
 
+const toggleTitling = (container) => {
+  Array.from(weave.containers()).forEach(c => {
+    c.titleDiv.classList.remove("show")
+  })
+  const title = manipulation.get(container, manipulation.fields.kTitle)
+  if(title){
+    placeTitle(container);
+    container.titleDiv.textContent = title
+    container.titleDiv.classList.add("show")
+    setTimeout(function() {
+      container.titleDiv.classList.remove('show');
+    }, 2000)
+  }
+}
+
+const placeTitle = (container) => {
+  const title = container.titleDiv
+  const tr = title.getBoundingClientRect()
+  const x = manipulation.get(container, manipulation.fields.kX);
+  const y = manipulation.get(container, manipulation.fields.kY);
+  const w = manipulation.get(container, manipulation.fields.kWidth)
+  manipulation.set(
+    title,
+    manipulation.fields.kWidth,
+    w,
+  );
+  manipulation.set(title, manipulation.fields.kX, x);
+  manipulation.set(title, manipulation.fields.kY, y-1.1*tr.height);
+  manipulation.reposition(title);
+  manipulation.resize(title);
+}
+
 const createPanel = (parentId, id, buttons, weave) => {
   const bodyContainer = document.createElement("div");
+  const title = document.createElement("div")
   bodyContainer.classList.add("body-container");
   bodyContainer.classList.add("unfit");
+  title.textContent = "foo"
+  title.classList.add("panel-title")
+  title.id = `title-$id`
+  bodyContainer.titleDiv = title
   bodyContainer.parentId = parentId;
+  const d = new Date();
+  const seconds = d.getTime()
+  console.log(`Seconds: ${seconds}`)
   bodyContainer.addEventListener("keydown", (ev) => {
     // This auto-fits height as we type
     bodyContainer.classList.add("unfit");
@@ -99,6 +145,7 @@ const createPanel = (parentId, id, buttons, weave) => {
         manipulation.set(target, manipulation.fields.kX, x);
         manipulation.set(target, manipulation.fields.kY, y);
         manipulation.reposition(target);
+        placeTitle(target);
       },
     },
     modifiers: [
@@ -108,16 +155,18 @@ const createPanel = (parentId, id, buttons, weave) => {
     ],
     inertia: false,
   });
+  manipulation.set(bodyContainer, manipulation.fields.kFilename, `f${seconds}`)
   if (id != "b0") {
     const prevContainer = document
       .getElementById("b" + (weave.bodies().length - 1))
       .closest(".body-container");
     // TODO with datasets
-    let x = manipulation.get(prevContainer, manipulation.fields.kX);
-    let y = manipulation.get(prevContainer, manipulation.fields.kY);
-    manipulation.set(bodyContainer, manipulation.fields.kX, x + 10);
-    manipulation.set(bodyContainer, manipulation.fields.kY, y + 10);
+    let x = manipulation.get(prevContainer, manipulation.fields.kX)+10;
+    let y = manipulation.get(prevContainer, manipulation.fields.kY)+10;
+    manipulation.set(bodyContainer, manipulation.fields.kX, x);
+    manipulation.set(bodyContainer, manipulation.fields.kY, y);
     manipulation.reposition(bodyContainer);
+    placeTitle(bodyContainer);
   } else {
   }
   const betterHandle = document.createElement("div");
@@ -192,6 +241,9 @@ const createPanel = (parentId, id, buttons, weave) => {
     autoscroll: true,
     listeners: {
       leave: (ev) => {},
+      start(event) {
+        toTop(bodyContainer)
+      },
       move(event) {
         let x = manipulation.get(bodyContainer, manipulation.fields.kX);
         let y = manipulation.get(bodyContainer, manipulation.fields.kY);
@@ -200,18 +252,27 @@ const createPanel = (parentId, id, buttons, weave) => {
         manipulation.set(bodyContainer, manipulation.fields.kX, x);
         manipulation.set(bodyContainer, manipulation.fields.kY, y);
         manipulation.reposition(bodyContainer);
-        for(const arrow of weave.internal.arrows){
+        placeTitle(bodyContainer);
+         for(const arrow of weave.internal.arrows){
           createOrMoveArrowBetweenDivs(arrow)
         }
       },
     },
   });
   // TODO: this might be better in weave directly
-  betterHandle.addEventListener("click", toTop(bodyContainer));
-  bodyContainer.addEventListener("click", toTop(bodyContainer));
+  betterHandle.addEventListener("click", () => {
+    toggleTitling(bodyContainer)
+    toTop(bodyContainer)
+  });
+  bodyContainer.addEventListener("click", () => {
+    toggleTitling(bodyContainer)
+    toTop(bodyContainer)
+  });
   document.getElementById(parentId).appendChild(bodyContainer);
+  document.getElementById(parentId).appendChild(title);
   hookBodies(buttons); // TODO fix this This wires all buttons
   manipulation.forcePositionToReality(bodyContainer);
+  placeTitle(bodyContainer);
 };
 
 // Uh, this may screw moving divs, actually… Let's try to disable it

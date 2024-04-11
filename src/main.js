@@ -18,7 +18,6 @@ let $ = {
   qs: (s) => document.querySelector(s),
 };
 
-console.log("wtf");
 console.log(weave);
 
 weave.root = "content";
@@ -192,7 +191,7 @@ document.body.addEventListener("wheel", (event) => {
   const content = document.getElementById(weave.root);
   console.log("wheel");
   console.log(event);
-  if (event.target.id != weave.root || event.target.id != weave.canvas) {
+  if (event.target.id != weave.root && event.target.id != weave.canvas) {
     console.log("Skipping wheel");
     return;
   }

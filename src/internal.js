@@ -2,7 +2,6 @@ import weave from "./weave.js";
 import { wireEverything } from "./load.js";
 export { hookBodies, enableSelectionOnAll, disableSelectionOnAll };
 import { reset } from "./commands_base.js";
-import { saveAll } from "./save.js";
 import { zwsr } from "./doms.js";
 import { unrawPane } from "./raw.js";
 

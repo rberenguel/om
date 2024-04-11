@@ -2,6 +2,28 @@
   --dynamic-div-width: 98%;
 }
 
+.panel-title {
+  /*background: var(--dark-background) !important;*/
+  margin: 1em;
+  position: fixed;
+  /*border: 1px solid var(--bright-yellow);*/
+  z-index: 1;
+  color: var(--bright-orange) !important;
+  text-shadow: var(--bright-yellow) 1px 0 10px;
+  padding-top: 0.1em;
+  padding-bottom: 0.1em;
+  border-radius: 5px;
+  text-align: center;
+  height: 1.5em !important;
+  opacity: 0;
+  transition: opacity 0.9s ease-in-out;
+}
+
+.panel-title.show {
+  opacity: 1;
+  transition: opacity 0.2 0.9s ease-out-in;
+}
+
 div {
   /* Defaulting to inline-block seems to play better to lone textnodes */
   /* It needs overrides for any other div, though */

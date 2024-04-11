@@ -2,7 +2,7 @@ export { parseIntoWrapper, parseInto, iterateDOM, toMarkdown };
 
 import { manipulation, panelFields } from "./panel.js";
 import weave from "./weave.js";
-import { createPanel } from "./doms.js";
+import { createPanel, placeTitle } from "./doms.js";
 import { iloadIntoBody } from "./loadymcloadface.js";
 import { toTop } from "./doms.js";
 import { dynamicDiv } from "./dynamicdiv.js";
@@ -29,11 +29,13 @@ const parseIntoWrapper = (text, body) => {
       const split = line.split(" ");
       const property = split[1].replace(":", "");
       const value = split[2];
+      console.info(`Setting "${property}" to "${value}"`)
       manipulation.set(container, property, value);
       continue;
     }
     manipulation.reposition(container);
     manipulation.resize(container);
+    placeTitle(container);
     rest.push(line);
   }
   parseInto(rest.join("\n"), body);

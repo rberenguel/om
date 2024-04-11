@@ -8,6 +8,7 @@ const panelFields = Object.freeze({
   kFontFamily: "fontFamily",
   kMono: "mono",
   kFilename: "filename",
+  kTitle: "title",
   kFolded: "folded",
   kGFont: "gfont",
   kX: "x",
@@ -36,8 +37,15 @@ const manipulation = {
       case panelFields.kFontFamily:
         return body.style.fontFamily; // TODO a better getter
       case panelFields.kFilename:
-        return body.dataset.filename || ""; // TODO :shrug:
-      case panelFields.kFolded:
+        return container.dataset.filename || ""; // TODO :shrug:
+      case panelFields.kTitle:
+        console.log("***********************************")
+        console.log(container.dataset.title)
+        if(container.dataset.title === undefined){
+          return ""
+        }
+        return container.dataset.title
+       case panelFields.kFolded:
         return (
           body.classList.contains("folded") &&
           container.classList.contains("folded-bc")
@@ -88,7 +96,14 @@ const manipulation = {
         body.style.fontFamily = value;
         break;
       case panelFields.kFilename:
-        body.dataset.filename = value;
+        container.dataset.filename = value;
+        break;
+      case panelFields.kTitle:
+        if(value === undefined){
+          container.dataset.title = "";
+        } else {
+          container.dataset.title = value;
+        }
         break;
       case panelFields.kFolded:
         // Toggle classes based on the desired 'folded' state

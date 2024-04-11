@@ -1,10 +1,9 @@
 export {
   gsave,
   isave,
+  ititle,
   save,
-  saveAll,
   saveAll_,
-  serializeSaveData,
   showModalAndGetFilename,
 };
 
@@ -13,6 +12,7 @@ import { common, enterKeyDownEvent } from "./commands_base.js";
 import { set } from "./libs/idb-keyval.js";
 import { toMarkdown } from "./parser.js";
 import { presentFiles } from "./loadymcloadface.js";
+import { manipulation } from "./panel.js";
 
 const saveAll_ = {
   text: ["saveall"],
@@ -21,32 +21,17 @@ const saveAll_ = {
       return;
     }
     processFiles();
-    //saveAll();
   },
   description:
     "Save the current changes and config in the URL, so it survives browser crashes",
   el: "u",
 };
 
-const getBasicSaveString = (body) => {
-  let b = {};
-  b["data"] = body.innerHTML;
-  b["width"] = body.parentElement.style.width;
-  b["height"] = body.parentElement.style.height;
-  b["x"] = body.parentElement.dataset.x;
-  b["y"] = body.parentElement.dataset.y;
-  b["folded"] = body.parentElement.classList.contains("folded");
-  b["fontSize"] = body.style.fontSize;
-  b["fontFamily"] = body.style.fontFamily;
-  b["gfont"] = body.dataset.gfont;
-  b["filename"] = body.dataset.filename;
-  const savedata = JSON.stringify(b);
-  console.log("Generated save data");
-  return btoa(encodeURIComponent(savedata));
-};
-
 // TODO: this is now preventing save!
+// TODO: the modal should be showable without searching for
+// stuff in the files (should be optional)
 function showModalAndGetFilename(placeholder, fileContainer, prefix, callback) {
+  // prefix is for search field for lunr
   const inp = document.createElement("input");
   inp.classList.add("dark");
   inp.classList.add("search");
@@ -98,9 +83,9 @@ function showModalAndGetFilename(placeholder, fileContainer, prefix, callback) {
 // This is for saving
 
 const setFilenameInBodyDataset = (body, fileContainer) => {
-  if (body.dataset.filename) {
-    const filename = body.dataset.filename;
-    body.dataset.filename = filename;
+  const container = body.closest(".body-container")
+  if (manipulation.get(container, manipulation.fields.kFilename)) {
+    const filename = manipulation.get(container, manipulation.fields.kFilename)
     return Promise.resolve([filename, body]);
   }
 
@@ -114,12 +99,61 @@ const setFilenameInBodyDataset = (body, fileContainer) => {
         if (!filenameFromModal) {
           return;
         }
-        body.dataset.filename = filenameFromModal;
+        manipulation.set(container, manipulation.fields.kFilename, filenameFromModal)
         resolve([filenameFromModal, body]);
       },
     );
   });
 };
+
+// TODO combine all these
+
+const setTitleInBodyDataset = (body, fileContainer) => {
+  const container = body.closest(".body-container")
+  if (manipulation.get(container, manipulation.fields.kTitle)) {
+    const title = manipulation.get(container, manipulation.fields.kTitle)
+    return Promise.resolve([title, body]);
+  }
+
+  // Need filename from modal
+  return new Promise((resolve) => {
+    showModalAndGetFilename(
+      "title?",
+      fileContainer,
+      "name:",
+      function (titleFromModal) {
+        if (!titleFromModal) {
+          return;
+        }
+        manipulation.set(container, manipulation.fields.kTitle, titleFromModal)
+        resolve([titleFromModal, body]);
+      },
+    );
+  });
+};
+
+
+const titleToSelectedBodyFromSelection = () => {
+  const selection = window.getSelection() + "";
+
+  if (selection.length > 0) {
+    // Selection exists, proceed (synchronous)
+    const title = selection;
+    const body = document.getElementById(weave.internal.bodyClicks[1]);
+    manipulation.set(container, manipulation.fields.kTitle, title)
+    return Promise.resolve([title, body]); // Wrap in a resolved promise
+  }
+
+  // No selection - asynchronous part
+  const body = document.getElementById(weave.internal.bodyClicks[0]);
+  const modal = document.getElementById("modal");
+  const fileContainer = document.createElement("div");
+  fileContainer.id = "fileContainer";
+  modal.append(fileContainer);
+  // This block will be reused…
+  return setTitleInBodyDataset(body, fileContainer);
+};
+
 
 const filenameToSelectedBodyFromSelection = () => {
   const selection = window.getSelection() + "";
@@ -128,7 +162,7 @@ const filenameToSelectedBodyFromSelection = () => {
     // Selection exists, proceed (synchronous)
     const filename = selection;
     const body = document.getElementById(weave.internal.bodyClicks[1]);
-    body.dataset.filename = filename;
+    manipulation.set(container, manipulation.fields.kFilename, filename)
     return Promise.resolve([filename, body]); // Wrap in a resolved promise
   }
 
@@ -167,6 +201,25 @@ const isave = {
   el: "u",
 };
 
+const ititle = {
+  text: ["ititle"],
+  action: (ev) => {
+    /*if (common(ev)) {
+      return;
+    }*/
+    ev.preventDefault(); // To allow focusing on input
+    ev.stopPropagation();
+    titleToSelectedBodyFromSelection()
+      .then(([title, body]) => {})
+      .catch((error) => {
+        console.error("Error resolving the title promise", error);
+      });
+  },
+  description: "Save a pane to IndexedDB",
+  el: "u",
+};
+
+
 function processFiles() {
   let allFiles = [];
   let promiseChain = Promise.resolve(); // Start with a resolved promise
@@ -177,11 +230,11 @@ function processFiles() {
     // Chain promises sequentially
     promiseChain = promiseChain
       .then(() => {
-        body.closest(".body-container").classList.add("highlighted");
+        const container = body.closest(".body-container")
+        container.classList.add("highlighted");
         return setFilenameInBodyDataset(body).then(([filename, _]) => {
-          //const saveString = getBasicSaveString(body);
           const saveString = btoa(encodeURIComponent(toMarkdown(body)));
-          allFiles.push(body.dataset.filename);
+          allFiles.push(filename);
           body.closest(".body-container").classList.remove("highlighted");
           return set(filename, saveString);
         });
@@ -253,7 +306,6 @@ const save = {
     ev.preventDefault(); // To allow focusing on input
     filenameToSelectedBodyFromSelection()
       .then(([filename, body]) => {
-        //const saveString = getBasicSaveString(body);
         const saveString = btoa(encodeURIComponent(toMarkdown(body)));
         const downloadLink = document.createElement("a");
         const fileData = "data:application/json;base64," + saveString;
@@ -270,38 +322,3 @@ const save = {
   el: "u",
 };
 
-const serializeSaveData = (bodies, config) => {
-  let savedata = [];
-  for (let body of bodies) {
-    let b = {};
-    let contents;
-    if (body.dataset.filename && body.dataset.filename.includes("menu")) {
-      contents = body.innerHTML;
-    } else {
-      contents = body.dataset.filename || "";
-    }
-    // TODO clean up this repetition, write a centralised getter/setter
-    b["data"] = contents;
-    b["width"] = body.parentElement.style.width;
-    b["height"] = body.parentElement.style.height;
-    b["folded"] = body.parentElement.classList.contains("folded");
-    b["fontSize"] = body.style.fontSize;
-    b["fontFamily"] = body.style.fontFamily;
-    b["gfont"] = body.dataset.gfont;
-    b["filename"] = body.dataset.filename;
-    savedata.push(b);
-  }
-
-  const currentConfig = JSON.stringify(config);
-  const encodedBodiesContent = encodeURIComponent(
-    `${currentConfig}\u2223${JSON.stringify(savedata)}`,
-  );
-  return encodedBodiesContent;
-};
-
-function saveAll() {
-  const serializedSaveData = serializeSaveData(weave.bodies(), weave.config);
-  window.location.hash = serializedSaveData;
-  info.innerHTML = "&#x1F4BE;";
-  info.classList.add("fades");
-}

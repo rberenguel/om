@@ -19,6 +19,7 @@ import {
   saveAll_,
   save,
   isave,
+  ititle,
   gsave,
   showModalAndGetFilename,
 } from "./save.js";
@@ -154,14 +155,7 @@ const getAllThingsAsStrings = {
   action: (ev) => {
     console.log("A")
     let lines = [];
-    /*
-const text = new ClipboardItem({
-  "text/plain": fetch(this.sourceUrlValue)
-    .then(response => response.text())
-    .then(text => new Blob([text], { type: "text/plain" }))
-})
-navigator.clipboard.write([text])
-*/
+    // Thanks to https://wolfgangrittner.dev/how-to-use-clipboard-api-in-safari/
     const text = new ClipboardItem({
       "text/plain": entries()
       .then(
@@ -571,6 +565,7 @@ const buttons = (parentId) => {
     gfont, // tested
     save,
     isave,
+    ititle,
     dbload,
     dbdump,
     iload,

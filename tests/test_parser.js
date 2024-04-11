@@ -13,6 +13,7 @@ const config = `<!--
 - fontFamily: 
 - mono: false
 - filename: foo
+- title: 
 - folded: false
 - gfont: undefined
 - x: 455
