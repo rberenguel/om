@@ -28,7 +28,7 @@ const parseIntoWrapper = (text, body) => {
       }
       const split = line.split(" ");
       const property = split[1].replace(":", "");
-      const value = split[2];
+      const value = split.slice(2);
       console.info(`Setting "${property}" to "${value}"`)
       manipulation.set(container, property, value);
       continue;
