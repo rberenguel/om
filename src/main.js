@@ -5,6 +5,7 @@ import weave from "./weave.js";
 import { createPanel } from "./doms.js";
 import { iloadIntoBody } from "./loadymcloadface.js";
 import { entries } from "./libs/idb-keyval.js";
+import { getPropertiesFromFile } from "./parser.js";
 import { manipulation } from "./panel.js";
 import { enableSelectionOnAll, disableSelectionOnAll } from "./internal.js";
 // Globals that are used everywhere
@@ -48,9 +49,15 @@ entries().then((entries) => {
     if (value.startsWith("g:")) {
       continue;
     }
+    console.info(`Adding ${filename} to index`)
     const text = decodeURIComponent(atob(value));
-    docs.push({ name: filename, filename: filename, text: text });
+    const properties =   getPropertiesFromFile(text)
+    const title = properties[manipulation.fields.kTitle]
+    console.log(title)
+    docs.push({ name: filename, filename: filename, title: title, text: text });
+    weave.internal.fileTitles[filename] = title
   }
+  console.log(docs)
   weave.internal.idx = lunr(function () {
     this.ref("filename");
     this.field("name");
@@ -60,7 +67,7 @@ entries().then((entries) => {
       this.add(doc);
     }, this);
   });
-});
+}).catch(err => console.error(err));
 
 interact(document.body).draggable({
   inertia: true,

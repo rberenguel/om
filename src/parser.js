@@ -1,4 +1,4 @@
-export { parseIntoWrapper, parseInto, iterateDOM, toMarkdown };
+export { getPropertiesFromFile, parseIntoWrapper, parseInto, iterateDOM, toMarkdown };
 
 import { manipulation, panelFields } from "./panel.js";
 import weave from "./weave.js";
@@ -6,6 +6,45 @@ import { createPanel, placeTitle } from "./doms.js";
 import { iloadIntoBody } from "./loadymcloadface.js";
 import { toTop } from "./doms.js";
 import { dynamicDiv } from "./dynamicdiv.js";
+
+const parseProperties = (lines) => {
+  let properties = {}
+  for(const line of lines){
+    console.debug(`Parsing config line: ${line}`);
+    const split = line.split(" ");
+    console.log(split)
+    const property = split[1].replace(":", "");
+    const value = split.slice(2).join(" ");
+    console.info(`Setting "${property}" to "${value}"`)
+    properties[property] = value
+
+  }
+  return properties
+}
+
+const getPropertiesFromFile = (text) => {
+  const lines = text.split("\n");
+  let processingProperties = true;
+  let propertiesLines = []
+  // TODO can I have this just once?
+  for (const line of lines) {
+    if (processingProperties) {
+      // Processing properties
+      if (line.startsWith("<!--")) {
+        continue;
+      }
+      if (line.startsWith("-->")) {
+        processingProperties = false;
+        continue;
+      }
+      propertiesLines.push(line)
+    }else {
+      break
+    }
+  }
+  const properties = parseProperties(propertiesLines) 
+  return properties
+}
 
 const parseIntoWrapper = (text, body) => {
   console.debug("Parsing: ");
@@ -15,9 +54,9 @@ const parseIntoWrapper = (text, body) => {
   const lines = text.split("\n");
   let processingProperties = true;
   let rest = [];
+  let propertiesLines = []
   for (const line of lines) {
     if (processingProperties) {
-      console.debug(`Parsing config line: ${line}`);
       // Processing properties
       if (line.startsWith("<!--")) {
         continue;
@@ -26,18 +65,21 @@ const parseIntoWrapper = (text, body) => {
         processingProperties = false;
         continue;
       }
-      const split = line.split(" ");
-      const property = split[1].replace(":", "");
-      const value = split.slice(2);
-      console.info(`Setting "${property}" to "${value}"`)
-      manipulation.set(container, property, value);
-      continue;
+      propertiesLines.push(line)
+    }else {
+      rest.push(line);
     }
-    manipulation.reposition(container);
-    manipulation.resize(container);
-    placeTitle(container);
-    rest.push(line);
   }
+  const properties = parseProperties(propertiesLines) 
+  for(const property in properties){
+    console.log(property)
+    const value = properties[property]
+    manipulation.set(container, property, value);
+  }
+  manipulation.reposition(container);
+  manipulation.resize(container);
+  placeTitle(container);
+
   parseInto(rest.join("\n"), body);
 };
 

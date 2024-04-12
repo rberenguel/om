@@ -10,9 +10,12 @@ export {
   placeTitle
 };
 import { hookBodies } from "./internal.js";
+import { reset } from "./commands_base.js";
 import { manipulation } from "./panel.js";
 import { dndDynamicDiv } from "./dynamicdiv.js";
 import { createOrMoveArrowBetweenDivs } from "./arrow.js";
+import { toMarkdown } from "./parser.js";
+import { set } from "./libs/idb-keyval.js";
 // TODO: I think I want to be able to move panels instead of drag-and-drop.
 
 // I use this separator in many places
@@ -109,9 +112,33 @@ const createPanel = (parentId, id, buttons, weave) => {
   const d = new Date();
   const seconds = d.getTime()
   console.log(`Seconds: ${seconds}`)
+  bodyContainer.spaceCounter = 10
+  const save = () => {
+      const body = bodyContainer.querySelector(".body")
+      const filename = manipulation.get(bodyContainer, manipulation.fields.kFilename)
+      const saveString = btoa(encodeURIComponent(toMarkdown(body)));
+      set(filename, saveString)
+        .then(() => console.log("Data saved in IndexedDb"))
+        .catch((err) => console.log("Saving in IndexedDb failed", err));
+  }
   bodyContainer.addEventListener("keydown", (ev) => {
     // This auto-fits height as we type
     bodyContainer.classList.add("unfit");
+    console.log(ev)
+    if(ev.code === "Space"){
+      bodyContainer.spaceCounter -= 1;
+      reset()
+    }
+    if(ev.code === "Space" && bodyContainer.spaceCounter == 0){
+      bodyContainer.spaceCounter = 10
+      save()
+      console.info("Autosaving")
+    }
+    if(ev.key === "s" && ev.ctrlKey){
+      save()
+      info.innerHTML = "Saved";
+      info.classList.add("fades");
+    }
   });
   interact(bodyContainer).resizable({
     edges: { left: true, right: true, bottom: true, top: true },

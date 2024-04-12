@@ -18,6 +18,7 @@ const weave = {
     clickedId: ["b0", "b0"],
     held: false,
     arrows: [],
+    fileTitles: {}
   },
   lastBodyClickId: function () {
     console.log(this);

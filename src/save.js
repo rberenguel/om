@@ -48,11 +48,19 @@ function showModalAndGetFilename(placeholder, fileContainer, prefix, callback) {
     const searchString = inp.value;
     let results;
     try {
-      results = weave.internal.idx
+      console.log(prefix)
+      console.log(searchString)
+      const search = weave.internal.idx
         .search(prefix + searchString)
-        .map((r) => r.ref);
+      console.log(search)
+      console.log(search[0].ref)
+      console.log(search)
+      results = search.map((r) => {
+        return {key: r.ref, title: weave.internal.fileTitles[r.ref]}
+      });
     } catch (err) {
-      console.log("Lunar issue", err);
+      console.log("Lunar issue");
+      console.error(err)
       results = [];
     }
     console.log(results);
@@ -110,11 +118,6 @@ const setFilenameInBodyDataset = (body, fileContainer) => {
 
 const setTitleInBodyDataset = (body, fileContainer) => {
   const container = body.closest(".body-container")
-  if (manipulation.get(container, manipulation.fields.kTitle)) {
-    const title = manipulation.get(container, manipulation.fields.kTitle)
-    return Promise.resolve([title, body]);
-  }
-
   // Need filename from modal
   return new Promise((resolve) => {
     showModalAndGetFilename(
@@ -179,9 +182,9 @@ const filenameToSelectedBodyFromSelection = () => {
 const isave = {
   text: ["isave"],
   action: (ev) => {
-    /*if (common(ev)) {
+    if (common(ev)) {
       return;
-    }*/
+    }
     ev.preventDefault(); // To allow focusing on input
     ev.stopPropagation();
     filenameToSelectedBodyFromSelection()
@@ -204,9 +207,9 @@ const isave = {
 const ititle = {
   text: ["ititle"],
   action: (ev) => {
-    /*if (common(ev)) {
+    if (common(ev)) {
       return;
-    }*/
+    }
     ev.preventDefault(); // To allow focusing on input
     ev.stopPropagation();
     titleToSelectedBodyFromSelection()

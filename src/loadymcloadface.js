@@ -4,7 +4,8 @@ import weave from "./weave.js";
 import { get, entries } from "./libs/idb-keyval.js";
 import { showModalAndGetFilename } from "./save.js";
 import { enterKeyDownEvent } from "./commands_base.js";
-import { parseIntoWrapper } from "./parser.js";
+import { getPropertiesFromFile, parseIntoWrapper } from "./parser.js";
+import { manipulation } from "./panel.js";
 import { wireEverything } from "./load.js";
 import { createPanel } from "./doms.js";
 
@@ -27,17 +28,36 @@ const iloadIntoBody = (filename, body) => {
 };
 
 const presentFiles = (files, container) => {
+  console.log("Presenting")
+  console.log(files)
   const modal = document.getElementById("modal");
   container.innerHTML = "";
   for (const file of files) {
-    const k = document.createTextNode(file);
+    const key = file["key"]
+    const value = file["value"]
+    console.log(key, value)
+    let title = key
+    if(value && !value.startsWith("g:")){
+      const decoded = decodeURIComponent(atob(value))
+      const properties =  getPropertiesFromFile(decoded)
+      console.log(properties)
+      const fileTitle = properties[manipulation.fields.kTitle]
+      if(fileTitle){
+        title = fileTitle
+      }
+    } else {
+      title = file["title"]
+      // And if this fails something broke
+    }
+    console.log(`File with title ${title}`)
+    const k = document.createTextNode(title);
     const div = document.createElement("div");
     div.classList.add("hoverable");
     div.appendChild(k);
     container.appendChild(div);
     div.addEventListener("click", (ev) => {
       const inp = document.querySelector("input.filename");
-      inp.value = file;
+      inp.value = key;
       modal.innerHTML = "";
       inp.dispatchEvent(enterKeyDownEvent);
     });
@@ -55,7 +75,7 @@ const iload = {
     entries().then((entries) => {
       const files = entries
         .filter(([key, value]) => !value.startsWith("g:"))
-        .map(([key, value]) => key);
+        .map(([key, value]) => {return {key: key, value: value}});
       console.log(files);
       presentFiles(files, fileContainer);
       const hr = document.createElement("hr");
@@ -83,7 +103,7 @@ const gload = {
     entries().then((entries) => {
       const files = entries
         .filter(([key, value]) => value.startsWith("g:"))
-        .map(([key, value]) => key);
+        .map(([key, value]) => { return {key: key, value: value}});
       console.log(files);
       presentFiles(files, fileContainer);
       const hr = document.createElement("hr");
