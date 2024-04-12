@@ -1,0 +1,20 @@
+[package]
+name = "glicol-wasm"
+version = "0.1.0"
+authors = ["chaosprint <chaosprint@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+lazy_static = "1.2.0"
+glicol = { path = "../main", features = ["use-samples", "use-meta"] }
+
+[profile.release]
+opt-level = 'z'   # Optimize for size.
+lto = true        # Enable Link Time Optimization
+codegen-units = 1 # Reduce number of codegen units to increase optimizations.
+panic = 'abort'   # Abort on panic
