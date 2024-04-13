@@ -3,7 +3,10 @@ export { headers, code, lists, link, hr, mono, gfont, serif, fontup, fontdown, u
 import weave from "./weave.js";
 import { common } from "./commands_base.js";
 import { addGoogFont } from "./load.js";
-
+import { presentFiles } from "./loadymcloadface.js";
+import { set, entries } from "./libs/idb-keyval.js";
+import { showModalAndGetFilename } from "./save.js";
+import { postfix, createPanel } from "./doms.js"
 
 const underline = {
   text: ["underline", "u"],
@@ -161,18 +164,65 @@ const hr = {
 const link = {
   text: ["link"],
   action: (ev) => {
+    if (common(ev)) {
+      return;
+    }
     const selection = window.getSelection();
     const text = selection + "";
-    let range = selection.getRangeAt(0);
+    const range = selection.getRangeAt(0);
+    console.log(range)
+    const link = document.createElement("a");
+    range.deleteContents();
+    range.insertNode(link);
+    // TODO this screws up cancelling linking
+    const showModalHandler = (keys) => (destination) => {
+      if (!destination) {
+        return;
+      }
+      link.title = text;
+      link.innerText = text;
+      let href;
+      if (keys.includes(destination)) {
+        href = destination;
+        link.dataset.internal = true;
+        link.textContent = weave.internal.fileTitles[destination]
+      } else {
+        if (destination.startsWith("http")) {
+          href = destination;
+        } else {
+          href = "https://" + destination;
+        }
+        link.dataset.internal = false;
+      }
+      link.href = href;
+      //postfix(link);
+      link.addEventListener("click", (ev) => {
+        ev.preventDefault(); // Prevent default navigation
+        ev.stopPropagation();
+        const href = ev.target.getAttribute("href"); // To avoid issues with no-protocol
+        if (JSON.parse(link.dataset.internal)) {
+          const n = weave.bodies().length;
+          const bodyId = `b${n}`; // TODO NO, this is not good enough
+          createPanel(weave.root, bodyId, weave.buttons(weave.root), weave);
+          const body = document.getElementById(bodyId);
+          console.log(link);
+          iloadIntoBody(href, body);
+          toTop(body);
+        } else {
+          window.open(href, "_blank");
+        }
+      });
+    }
     const modal = document.getElementById("modal");
     const fileContainer = document.createElement("div");
     fileContainer.id = "fileContainer";
     modal.append(fileContainer);
+    console.log("foo")
     entries().then((entries) => {
       const keys = entries.map(([key, value]) => key);
       const files = entries
         .filter(([key, value]) => !value.startsWith("g:"))
-        .map(([key, value]) => key);
+        .map(([key, value]) => {return {key: key, value: value}});
       console.log(files);
       presentFiles(files, fileContainer);
 
@@ -182,46 +232,7 @@ const link = {
         "where to?",
         fileContainer,
         "name:",
-        (destination) => {
-          if (!destination) {
-            return;
-          }
-          const link = document.createElement("a");
-          link.title = text;
-          link.innerText = text;
-          let href;
-          if (keys.includes(destination)) {
-            href = destination;
-            link.dataset.internal = true;
-          } else {
-            if (destination.startsWith("http")) {
-              href = destination;
-            } else {
-              href = "https://" + destination;
-            }
-            link.dataset.internal = false;
-          }
-          link.href = href;
-          range.deleteContents();
-          range.insertNode(link);
-          postfix(link);
-          link.addEventListener("click", (ev) => {
-            ev.preventDefault(); // Prevent default navigation
-            ev.stopPropagation();
-            const href = ev.target.getAttribute("href"); // To avoid issues with no-protocol
-            if (JSON.parse(link.dataset.internal)) {
-              const n = weave.bodies().length;
-              const bodyId = `b${n}`; // TODO NO, this is not good enough
-              createPanel(weave.root, bodyId, weave.buttons(weave.root), weave);
-              const body = document.getElementById(bodyId);
-              console.log(link);
-              iloadIntoBody(href, body);
-              toTop(body);
-            } else {
-              window.open(href, "_blank");
-            }
-          });
-        },
+        showModalHandler(keys),
       );
     });
 

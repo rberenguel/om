@@ -9,13 +9,14 @@ export {
   toTop,
   placeTitle
 };
-import { hookBodies } from "./internal.js";
+import { hookBodies, constructCurrentGroup } from "./internal.js";
 import { reset } from "./commands_base.js";
 import { manipulation } from "./panel.js";
 import { dndDynamicDiv } from "./dynamicdiv.js";
 import { createOrMoveArrowBetweenDivs } from "./arrow.js";
 import { toMarkdown } from "./parser.js";
 import { set } from "./libs/idb-keyval.js";
+import { iload } from "./loadymcloadface.js"
 // TODO: I think I want to be able to move panels instead of drag-and-drop.
 
 // I use this separator in many places
@@ -58,7 +59,6 @@ const toTop = (b) => () => {
   const minZ = Math.min(...withZ, maxZ);
   b.style.zIndex = maxZ + 1;
   b.titleDiv.style.zIndex = maxZ + 1;
-  console.log(b.titleDiv)
   Array.from(weave.containers()).forEach(
     (b) => {
       b.style.zIndex = Math.max(0, (b.style.zIndex || minZ) - minZ)
@@ -111,7 +111,6 @@ const createPanel = (parentId, id, buttons, weave) => {
   bodyContainer.parentId = parentId;
   const d = new Date();
   const seconds = d.getTime()
-  console.log(`Seconds: ${seconds}`)
   bodyContainer.spaceCounter = 10
   const save = () => {
       const body = bodyContainer.querySelector(".body")
@@ -124,7 +123,6 @@ const createPanel = (parentId, id, buttons, weave) => {
   bodyContainer.addEventListener("keydown", (ev) => {
     // This auto-fits height as we type
     bodyContainer.classList.add("unfit");
-    console.log(ev)
     if(ev.code === "Space"){
       bodyContainer.spaceCounter -= 1;
       reset()
@@ -134,10 +132,19 @@ const createPanel = (parentId, id, buttons, weave) => {
       save()
       console.info("Autosaving")
     }
-    if(ev.key === "s" && ev.ctrlKey){
+     if(ev.key === "l" && ev.ctrlKey){
+      iload.action()
+    }
+   if(ev.key === "s" && ev.ctrlKey){
       save()
       info.innerHTML = "Saved";
       info.classList.add("fades");
+      const session = constructCurrentGroup()
+      set("weave:last-session", session)
+        .then(() => console.log("Session data saved in IndexedDB"))
+        .catch((err) =>
+          console.log("Session data saving in IndexedDB failed", err),
+        );
     }
   });
   interact(bodyContainer).resizable({

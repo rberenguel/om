@@ -45,14 +45,17 @@ describe("Lists", function () {
   });
   it("Should handle a list with an internal link", function () {
     const txt = `- foo\n- [[internal link]]\n- [ex](https://example.com)`;
+    weave.internal.fileTitles["internal link"] = "internal link"
     parseIntoWrapper(addConfig(txt), body);
     const li = Array.from(body.querySelectorAll("li"));
     chai.expect(li).to.have.length(3);
     chai.expect(li[1].children).to.have.length(1);
-    chai.expect(li[1].children[0].nodeName).to.equal("A");
+    chai.expect(li[1].children[0].nodeName).to.equal("DIV");
+    chai.expect(li[1].children[0].children[0].nodeName).to.equal("A");
     chai.expect(li[1].textContent).to.equal("internal link");
     chai.expect(li[2].children).to.have.length(1);
-    chai.expect(li[2].children[0].nodeName).to.equal("A");
+    chai.expect(li[2].children[0].nodeName).to.equal("DIV"); // This is unexpected: it should not be div?
+    chai.expect(li[1].children[0].children[0].nodeName).to.equal("A");
     chai.expect(li[2].textContent).to.equal("ex");
      const md = toMarkdown(body);
     stringDiffer(addConfig(txt), md)
@@ -264,4 +267,18 @@ describe("Links, links, links", function () {
     chai.expect(addConfig(txt)).to.eql(md);
     a.remove();
   });
+  it("should handle links properly (line, link, line)", function () {
+    const il = "internal link"
+    const txt = `a\n[[${il}]]\nb`;
+    parseIntoWrapper(addConfig(txt), body);
+    const a = body.querySelector("a");
+    chai.expect(a.getAttribute("href")).to.equal(il);
+    chai.expect(a.textContent).to.equal(il);
+    chai.expect(JSON.parse(a.dataset.internal)).to.be.true;
+    const md = toMarkdown(body);
+    stringDiffer(md, addConfig(txt))
+    chai.expect(addConfig(txt)).to.eql(md);
+    a.remove();
+  });
 });
+

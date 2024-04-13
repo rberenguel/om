@@ -1,9 +1,10 @@
+export { hookBodies, enableSelectionOnAll, disableSelectionOnAll, constructCurrentGroup };
 import weave from "./weave.js";
 import { wireEverything } from "./load.js";
-export { hookBodies, enableSelectionOnAll, disableSelectionOnAll };
 import { reset } from "./commands_base.js";
 import { zwsr } from "./doms.js";
 import { unrawPane } from "./raw.js";
+import { manipulation } from "./panel.js";
 
 const enableSelectionOnAll = () => {
   const containers = document.getElementsByClassName("body-container");
@@ -24,15 +25,12 @@ const hookBodies = (buttons) => {
     if (!body.clickAttached) {
       //body.addEventListener("mousedown", ())
       body.addEventListener("click", (ev) => {
-        console.log("Click handler on body");
-        console.log(ev.target);
         if (ev.target.classList.contains("alive")) {
           return;
         }
         weave.internal.held = false;
         reset();
         weave.internal.clickedId.unshift(body.id);
-        console.log(body.closest(".body-container").classList);
         Array.from(
           document.getElementsByClassName("mildly-highlighted")
         ).forEach((e) => e.classList.remove("mildly-highlighted"));
@@ -57,10 +55,8 @@ const hookBodies = (buttons) => {
         }
         if (!ev.target.classList.contains("wired")) {
           const wired = document.getElementsByClassName("code wired");
-          console.log(wired);
           // Try to undo edit mode
           for (let block of wired) {
-            console.log(block);
             if (block.editing) {
               block.editing = false;
               block.innerText = block.oldText;
@@ -174,7 +170,6 @@ const wireButtons = (buttons) => (event) => {
     return;
   }
   let node, result;
-  console.log(buttons);
   for (let button of buttons) {
     if (button.matcher && button.matcher.test(selectedText)) {
       if (button.creator) {
@@ -238,169 +233,13 @@ const wireButtons = (buttons) => (event) => {
   }
 };
 
-/*
-
-Removing the whole keyboard-driven state machine
-
-let keyStack = {};
-let listing = {};
-const hookBody = (body) => {
-  keyStack[body.id] = ["Enter"]; // TODO Fishy on load though
-  listing[body.id] = false; // TODO Horrible state machine
-  body.addEventListener("keyup", (event) => {
-    const ek = event.key; // TODO ref
-    if (event.ctrlKey && event.key === "s") {
-      saveAll();
-    } else {
-      if (event.key !== "Control") {
-        reset();
-      }
-    }
-    if (!["-", "Enter", " ", "#", "Shift", "`"].includes(ek)) {
-      keyStack[body.id] = [];
-    }
-
-    const deleteCurrentWord = (selection) => {
-      selection.extend(selection.anchorNode, 0);
-      let range = selection.getRangeAt(0);
-      range.deleteContents();
-      return range;
-    };
-    //console.log(event.key);
-    //console.log(keyStack);
-    if (event.key === "-") {
-      // State machine for lists and horizontal separators.
-      // Keeps track of state in keyStack.
-      if (keyStack[body.id][0] == "Enter") {
-        keyStack[body.id].push("-");
-        if (keyStack[body.id].slice(1).join("") === "---") {
-          const zws = zwsr();
-          keyStack[body.id] = ["Enter"]; // We want possibly lists in this case
-          const selection = window.getSelection();
-          let range = deleteCurrentWord(selection);
-          const hr = document.createElement("hr");
-          range.insertNode(zws);
-          range.insertNode(hr);
-          let newRange = document.createRange();
-          newRange.setStartAfter(zws);
-          selection.removeAllRanges();
-          selection.addRange(newRange);
-          
-        }
-      }
-    }
-    if (event.key === "#") {
-      // State machine for headings
-      if (keyStack[body.id][0] == "Enter") {
-        console.log("Pushed");
-        keyStack[body.id].push("#");
-      }
-    }
-    if (event.key === "`") {
-      // State machine for code blocks
-      if (keyStack[body.id][0] == "Enter") {
-        keyStack[body.id].push("`");
-      }
-    }
-    if (event.key === "Enter") {
-      //hilite();
-      const selection = window.getSelection();
-      if (listing[body.id] && keyStack[body.id].length == 0) {
-        // Push the anchor where we pressed enter.
-        // This is useful if we want to delete up to here.
-        const range = selection.getRangeAt(0);
-        listing[body.id].push(selection.anchorNode); // That should be the li
-      }
-      if (
-        keyStack[body.id].length &&
-        keyStack[body.id][0] == "Enter" &&
-        listing[body.id]
-      ) {
-        // Deletion mode after an empty list item (i.e. we have written a few list items, press Enter
-        // which starts a new list item which we do not want).
-        const zws = zwsr();
-        let range = document.createRange();
-        range.setStartBefore(listing[body.id][listing[body.id].length - 1]); //selection.anchorNode)
-        range.setEndAfter(selection.anchorNode);
-        range.deleteContents();
-        // Zero width space, TODO: remove on save
-        range.insertNode(zws);
-        selection.removeAllRanges();
-        range.setStartAfter(zws); //listing[0]);
-        selection.addRange(range);
-        listing[body.id] = false; // Hah!
-      }
-      if (!listing[body.id] && selection.anchorNode.nodeName == "LI") {
-        listing[body.id] = [selection.anchorNode];
-      }
-      keyStack[body.id] = [];
-      keyStack[body.id].push("Enter");
-    }
-    if (event.key === " ") {
-      if (
-        keyStack[body.id][0] == "Enter" &&
-        keyStack[body.id].slice(1)[0] == "#"
-      ) {
-        const hashes = keyStack[body.id]
-          .slice(1)
-          .filter((c) => c == "#").length;
-        const headingLevel = Math.min(hashes, 6);
-        const selection = window.getSelection();
-        const zws = zwsr();
-        let range = deleteCurrentWord(selection);
-        let heading = document.createElement(`h${headingLevel}`);
-        heading.appendChild(zws);
-        range.insertNode(heading);
-        range.collapse(false);
-        let newRange = document.createRange();
-        newRange.setStartAfter(heading);
-        selection.removeAllRanges();
-        selection.addRange(newRange);
-        keyStack[body.id] = [];
-      }
-      if (
-        keyStack[body.id].length == 4 &&
-        keyStack[body.id].slice(1).join("") === "```"
-      ) {
-        console.log("Code block");
-        // This is almost verbatim what I have for li and for h*
-        const selection = window.getSelection();
-        const zws = zwsr();
-        let range = deleteCurrentWord(selection);
-        let pre = document.createElement("pre");
-        let div = document.createElement("div");
-        div.appendChild(zwsr());
-        pre.appendChild(zws);
-        range.insertNode(div);
-        //range.insertNode(pre);
-        body.insertBefore(pre, div);
-        range.collapse(false);
-        let newRange = document.createRange();
-        newRange.setStartBefore(pre);
-        selection.removeAllRanges();
-        selection.addRange(newRange);
-        keyStack[body.id] = [];
-      }
-      if (keyStack[body.id][0] == "Enter" && keyStack[body.id][1] == "-") {
-        // We have pressed "enter - space", meaning, we want a list.
-        // Delete the current text (the - space part) and insert a
-        // list item with a zero-width-space to place the cursor where
-        // we want.
-        const selection = window.getSelection();
-        const zws = zwsr();
-        let range = deleteCurrentWord(selection);
-        li = document.createElement("li");
-        li.appendChild(zws);
-        range.insertNode(li);
-        range.collapse(false);
-        let newRange = document.createRange();
-        newRange.setStartAfter(li);
-        selection.removeAllRanges();
-        selection.addRange(newRange);
-        listing[body.id] = [li];
-        keyStack[body.id] = [];
-      }
-    }
-  });
-};
-*/
+const constructCurrentGroup = () => {
+  const current = weave.containers()
+  let inSession = []
+  for(const container of current){
+    const filename = manipulation.get(container, manipulation.fields.kFilename)
+    inSession.push(filename)
+  }
+  const filenames = inSession.join("|")
+  return `g:${filenames}`
+}

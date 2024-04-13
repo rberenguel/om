@@ -10,12 +10,8 @@ import { wireEverything } from "./load.js";
 import { createPanel } from "./doms.js";
 
 const iloadIntoBody = (filename, body) => {
-  console.log(filename);
   get(filename).then((filecontent) => {
     console.info("Loaded from IndexedDb");
-    console.log(filecontent);
-    console.log(atob(filecontent));
-    console.log(decodeURIComponent(atob(filecontent)));
     console.info("About to parse")
     parseIntoWrapper(decodeURIComponent(atob(filecontent)), body);
     console.info("About to wire")
@@ -35,12 +31,10 @@ const presentFiles = (files, container) => {
   for (const file of files) {
     const key = file["key"]
     const value = file["value"]
-    console.log(key, value)
     let title = key
     if(value && !value.startsWith("g:")){
       const decoded = decodeURIComponent(atob(value))
       const properties =  getPropertiesFromFile(decoded)
-      console.log(properties)
       const fileTitle = properties[manipulation.fields.kTitle]
       if(fileTitle){
         title = fileTitle
@@ -49,7 +43,6 @@ const presentFiles = (files, container) => {
       title = file["title"]
       // And if this fails something broke
     }
-    console.log(`File with title ${title}`)
     const k = document.createTextNode(title);
     const div = document.createElement("div");
     div.classList.add("hoverable");
@@ -76,7 +69,6 @@ const iload = {
       const files = entries
         .filter(([key, value]) => !value.startsWith("g:"))
         .map(([key, value]) => {return {key: key, value: value}});
-      console.log(files);
       presentFiles(files, fileContainer);
       const hr = document.createElement("hr");
       modal.appendChild(hr);
@@ -104,7 +96,6 @@ const gload = {
       const files = entries
         .filter(([key, value]) => value.startsWith("g:"))
         .map(([key, value]) => { return {key: key, value: value}});
-      console.log(files);
       presentFiles(files, fileContainer);
       const hr = document.createElement("hr");
       modal.appendChild(hr);
@@ -130,7 +121,6 @@ const loadAllFromGroup = (groupname) => {
   let throwing;
   return get(groupname)
     .then((groupcontent) => {
-      console.log(groupcontent);
       const files = groupcontent.substring(2).split("|");
       let n = weave.bodies().length;
       for (const filename of files) {

@@ -10,12 +10,9 @@ import { dynamicDiv } from "./dynamicdiv.js";
 const parseProperties = (lines) => {
   let properties = {}
   for(const line of lines){
-    console.debug(`Parsing config line: ${line}`);
     const split = line.split(" ");
-    console.log(split)
     const property = split[1].replace(":", "");
     const value = split.slice(2).join(" ");
-    console.info(`Setting "${property}" to "${value}"`)
     properties[property] = value
 
   }
@@ -72,7 +69,6 @@ const parseIntoWrapper = (text, body) => {
   }
   const properties = parseProperties(propertiesLines) 
   for(const property in properties){
-    console.log(property)
     const value = properties[property]
     manipulation.set(container, property, value);
   }
@@ -126,12 +122,22 @@ const linkStateMachine = (line, body, longerLine) => {
           const link = document.createElement("a");
           const href = reference.join("");
           link.href = href;
-          link.innerText = href;
+          const title = weave.internal.fileTitles[href]
+          link.innerText = title;
           link.dataset.internal = true;
           reference = [];
           console.info(`Appending link for ${link}`)
-          body.appendChild(link);
-          // TODO repetition
+          console.log(line)
+          console.log(reference)
+          if(line === `[[${href}]]` && !longerLine){
+            // The link is alone in a full line
+            const div = document.createElement("DIV")
+            div.appendChild(link)
+            body.appendChild(div)
+          } else {
+            body.appendChild(link);
+          }
+          // TODO repetition between internal and external links
           link.addEventListener("click", (ev) => {
             ev.preventDefault(); // Prevent default navigation
             ev.stopPropagation();
@@ -162,11 +168,20 @@ const linkStateMachine = (line, body, longerLine) => {
       const link = document.createElement("a");
       const href = linkHref.join("");
       link.href = href;
-      link.innerText = linkText.join("");
+      const text = linkText.join("");
+      link.textContent = text;
       link.dataset.internal = false;
       linkText = [];
       linkHref = [];
-      body.appendChild(link);
+      if(line === `[${text}](${href})` && !longerLine){
+        // The link is alone in a full line
+        const div = document.createElement("DIV")
+        div.appendChild(link)
+        body.appendChild(div)
+      } else {
+
+        body.appendChild(link);
+      }
       console.info(`Appending link for ${link}`)
       // TODO repetition
       link.addEventListener("click", (ev) => {
@@ -204,12 +219,10 @@ const linkStateMachine = (line, body, longerLine) => {
   console.debug("The accumulator at the end is");
   console.debug(`"${accum.join("").trim()}"`);
   const accumed = accum.join("")
-  console.log(`Trimmed "${accumed.trim().length}"`)
   if(accum.length > 0){
     const tn = document.createTextNode(accumed);
     accum = [];
     if(longerLine){
-      console.log("LOOOOOOOONGEEEEEEEEER LIIIIIIINE")
       body.appendChild(tn);
       return
     }
@@ -225,7 +238,7 @@ const linkStateMachine = (line, body, longerLine) => {
   }
 };
 
-const parseInto = (text, body) => {
+const parseInto = (text, body, mode) => {
   if(text.length == 0){
     return
   }
@@ -264,7 +277,7 @@ const parseInto = (text, body) => {
     if (line.startsWith("- ")) {
       const li = document.createElement("li");
       const rest = line.slice(2);
-      parseInto(rest, li);
+      parseInto(rest, li, "preserve");
       body.appendChild(li);
       continue;
     }
@@ -272,7 +285,7 @@ const parseInto = (text, body) => {
       // Ugly, but this forces out weird cases like lines of hashes
       const h = document.createElement("h1");
       const rest = line.slice(2);
-      parseInto(rest, h);
+      parseInto(rest, h, "preserve");
       body.appendChild(h);
       continue;
     }
@@ -280,7 +293,7 @@ const parseInto = (text, body) => {
       // Ugly, but this forces out weird cases like lines of hashes
       const h = document.createElement("h2");
       const rest = line.slice(3);
-      parseInto(rest, h);
+      parseInto(rest, h, "preserve");
       body.appendChild(h);
       continue;
     }
@@ -288,7 +301,7 @@ const parseInto = (text, body) => {
       // Ugly, but this forces out weird cases like lines of hashes
       const h = document.createElement("h3");
       const rest = line.slice(4);
-      parseInto(rest, h);
+      parseInto(rest, h, "preserve");
       body.appendChild(h);
       continue;
     }
@@ -296,33 +309,42 @@ const parseInto = (text, body) => {
       // Ugly, but this forces out weird cases like lines of hashes
       const h = document.createElement("h4");
       const rest = line.slice(5);
-      parseInto(rest, h);
+      parseInto(rest, h, "preserve");
       body.appendChild(h);
       continue;
     }
     // Ignoring code blocks for now, this can go in parsediv
     const [simple, hasDiv] = parseTillTick(line);
     console.debug(`simple: ${simple}, hasDiv: ${hasDiv}`);
+    let wd = body
+    if(mode != "preserve"){
+      // "preserve" means stay in the same context we have been provided instead of creating a new one.
+      // I use this to keep a div-per-line structure
+      wd = document.createElement("DIV")
+    }
     if (!hasDiv) {
       if (simple === null) {
         console.debug(`No div: ${line}`);
         // Here now I need to process links. Let's just inject a small state machine
-        linkStateMachine(line, body);
-        //const tn = document.createTextNode(line);
-        //body.appendChild(tn);
+        linkStateMachine(line, wd);
       } else {
       }
     }
     if (hasDiv) {
       console.debug(`hasDiv: ${hasDiv}`);
-      linkStateMachine(simple, body, "longer");
+      linkStateMachine(simple, wd, "longer");
       //const tn = document.createTextNode(simple);
       //body.appendChild(tn);
       const [div, rest] = parseTillTick(hasDiv);
       console.debug(`div: ${div}, rest: ${rest}`);
       const divNode = parseDiv(div);
-      body.appendChild(divNode);
-      parseInto(rest, body);
+      wd.appendChild(divNode);
+      console.log("Appended")
+      parseInto(rest, wd, "preserve");
+    }
+    console.log(wd)
+    if(mode != "preserve"){
+      body.appendChild(wd)
     }
   }
 };
@@ -358,18 +380,16 @@ const toMarkdown = (element) => {
     saveable.push("-->\n");
   }
   let fixedContent = []
-  console.log(content)
   fixedContent.push(content[0])
+  console.log("Purging of new lines")
   for(let i = 0;i< content.length-1;i++){
     const prev = content[i]
     const curr = content[i+1]
+    console.log(`curr: ${curr}`)
     if(prev == "\n" && curr == "\n"){
+      console.log("Purging a new line (skips curr)")
       continue
     }
-    // This is not good
-    /*if(prev.startsWith("<br") && curr == "\n"){
-      continue
-    }*/
     fixedContent.push(curr)
   }
 
@@ -422,7 +442,12 @@ function iterateDOM(node, mode) {
     if (child.nodeName === "DIV" && child.classList.length === 0) {
       //generated.push("<br/>");
       //generated.push("<br b/>");
+      console.log("Should add new line?")
+      console.log(child.textContent)
+      console.log(child.parentNode.nodeName)
+      console.log(mode)
       if(child.parentNode.nodeName != "LI" && mode != "noNL"){
+        console.log("Adding new line")
         generated.push("\n");
       }
       const md = iterateDOM(child);

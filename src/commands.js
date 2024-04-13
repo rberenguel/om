@@ -203,23 +203,6 @@ const dbdump = {
   el: "u",
 };
 
-const glicol = {
-  text: ["glicol"],
-  action: (ev) => {
-    if (common(ev)) {
-      return;
-    }
-    const body = document.getElementById(weave.internal.bodyClicks[0]);
-    const container = body.closest(".body-container");
-    console.info("Running through glicol: ")
-    console.info(body.textContent)
-    run(body.textContent)
-  },
-  description: "",
-  el: "u",
-};
-
-
 const reparse = {
   text: ["reparse"],
   action: (ev) => {
@@ -606,7 +589,6 @@ const buttons = (parentId) => {
     code,
     lists,
     arrow,
-    glicol
   ];
 };
 
