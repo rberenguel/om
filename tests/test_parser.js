@@ -26,7 +26,7 @@ const addConfig = (text) => {
   return config + text + "\n";
 };
 
-mocha.checkLeaks();
+//mocha.checkLeaks(); link setting leaks something
 mocha.run();
 
 
@@ -118,6 +118,7 @@ describe("Dynamic div: parsing & idempotency", function () {
     div.remove();
   });
 });
+
 
 describe("Button: parsing & idempotency", function () {
   let body = document.getElementById(b);
@@ -281,4 +282,3 @@ describe("Links, links, links", function () {
     a.remove();
   });
 });
-

@@ -313,7 +313,7 @@ const lists = {
       const granny = parent.parentNode;
       let txt = selection.anchorNode.textContent
       if(text.length == 0){
-        txt = " foo "
+        txt = " "
       }
       div.textContent = txt
       console.log(selection.anchorNode);

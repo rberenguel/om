@@ -14,6 +14,10 @@ const iloadIntoBody = (filename, body) => {
     console.info("Loaded from IndexedDb");
     console.info("About to parse")
     parseIntoWrapper(decodeURIComponent(atob(filecontent)), body);
+    const paddingDiv = document.createElement("DIV")
+    paddingDiv.id = "padding"
+    paddingDiv.innerHTML = "&nbsp;" // This preserves the cursor
+    body.appendChild(paddingDiv) // To allow a place for the cursor at the end
     console.info("About to wire")
     wireEverything(weave.buttons(weave.root));
   }).catch((err) => {
@@ -133,6 +137,10 @@ const loadAllFromGroup = (groupname) => {
           console.info("Loaded from IndexedDb");
           //loadFromContent(atob(filecontent), filename, body);
           parseIntoWrapper(decodeURIComponent(atob(filecontent)), body);
+          const paddingDiv = document.createElement("DIV")
+          paddingDiv.id = "padding"
+          paddingDiv.innerHTML = "&nbsp;" // This preserves the cursor
+          body.appendChild(paddingDiv) // To allow a place for the cursor at the end
           wireEverything(weave.buttons(weave.root));
         });
         //const container = body.closest(".body-container")

@@ -79,7 +79,7 @@ const parseIntoWrapper = (text, body) => {
   parseInto(rest.join("\n"), body);
 };
 
-const linkStateMachine = (line, body, longerLine) => {
+const linkStateMachine = (line, body, mode = "") => {
   let accum = [],
     linkText = [],
     linkHref = [],
@@ -129,7 +129,7 @@ const linkStateMachine = (line, body, longerLine) => {
           console.info(`Appending link for ${link}`)
           console.log(line)
           console.log(reference)
-          if(line === `[[${href}]]` && !longerLine){
+          if(line === `[[${href}]]` && !mode.includes("longer")){
             // The link is alone in a full line
             const div = document.createElement("DIV")
             div.appendChild(link)
@@ -173,13 +173,12 @@ const linkStateMachine = (line, body, longerLine) => {
       link.dataset.internal = false;
       linkText = [];
       linkHref = [];
-      if(line === `[${text}](${href})` && !longerLine){
+      if(line === `[${text}](${href})` && !mode.includes("longer")){
         // The link is alone in a full line
         const div = document.createElement("DIV")
         div.appendChild(link)
         body.appendChild(div)
       } else {
-
         body.appendChild(link);
       }
       console.info(`Appending link for ${link}`)
@@ -216,21 +215,26 @@ const linkStateMachine = (line, body, longerLine) => {
     }
     accum.push(c);
   }
-  console.debug("The accumulator at the end is");
+  console.debug(`Mode ${mode}, the accumulator at the end is`);
   console.debug(`"${accum.join("").trim()}"`);
   const accumed = accum.join("")
   if(accum.length > 0){
     const tn = document.createTextNode(accumed);
     accum = [];
-    if(longerLine){
+    if(mode.includes("longer")){
       body.appendChild(tn);
       return
     }
     if(accumed == line && accumed.trim().length > 0){
-      console.debug(`Adding accumulator div with "${accumed}"`);
-      const div = document.createElement("div")
-      div.appendChild(tn)
-      body.appendChild(div)
+      if(mode.includes("preserve")){
+        console.debug(`Preserving accumulator (no new div) "${accumed}"`);
+        body.appendChild(tn)
+      } else {
+        console.debug(`Adding accumulator div with "${accumed}"`);
+        const div = document.createElement("div")
+        div.appendChild(tn)
+        body.appendChild(div)
+      }
       //body.appendChild(tn)
     } else {
       body.appendChild(tn);
@@ -242,7 +246,7 @@ const parseInto = (text, body, mode) => {
   if(text.length == 0){
     return
   }
-  console.debug(`parseInto`);
+  console.debug(`parseInto with mode ${mode}`);
   console.debug(`"${text}"`);
   const lines = text.split("\n");
   let codeBlock = false;
@@ -277,6 +281,7 @@ const parseInto = (text, body, mode) => {
     if (line.startsWith("- ")) {
       const li = document.createElement("li");
       const rest = line.slice(2);
+      console.log("List mode")
       parseInto(rest, li, "preserve");
       body.appendChild(li);
       continue;
@@ -326,13 +331,14 @@ const parseInto = (text, body, mode) => {
       if (simple === null) {
         console.debug(`No div: ${line}`);
         // Here now I need to process links. Let's just inject a small state machine
-        linkStateMachine(line, wd);
+        linkStateMachine(line, wd, mode);
       } else {
       }
     }
     if (hasDiv) {
       console.debug(`hasDiv: ${hasDiv}`);
-      linkStateMachine(simple, wd, "longer");
+      // Propagate the mode, we might want to preserve the link state machine output without adding any new divs
+      linkStateMachine(simple, wd, `longer|${mode}`);
       //const tn = document.createTextNode(simple);
       //body.appendChild(tn);
       const [div, rest] = parseTillTick(hasDiv);
@@ -406,6 +412,11 @@ function iterateDOM(node, mode) {
   // If mode == noNL no new lines will be added to naked divs
   // The generated structures are never more than 2 levels deep, seems, for now
   let generated = [];
+  let isFirstList = true
+  if(mode == "foldNL"){
+    // Lists (alone) in divs only work well if they don't take into account this
+    isFirstList = false
+  }
   for (const child of node.childNodes) {
     //iterateDOM(child);
     if (child.nodeName === "#text") {
@@ -417,6 +428,9 @@ function iterateDOM(node, mode) {
       //generated.push("\n")
       //}
       continue;
+    }
+    if(child.nodeName != "LI" && mode != "foldNL"){
+      isFirstList = true
     }
     if (child.classList.contains("wrap")) {
       const button = child.children[0];
@@ -465,7 +479,6 @@ function iterateDOM(node, mode) {
       }
     }
     if (child.nodeName === "LI") {
-      // TODO this is ignoring all possibly HTML inside lists
       const inner = iterateDOM(child).join("");
       //const text = child.innerText;
       let nl = "\n";
@@ -475,7 +488,12 @@ function iterateDOM(node, mode) {
       if (child.nextSibling === null) {
         nl = "";
       }
-      const md = `- ${inner}${nl}`;
+      let md = ""
+      if(isFirstList){
+        md = nl
+        isFirstList = false
+      }
+      md += `- ${inner}${nl}`;
       generated.push(md);
     }
     if (child.nodeName === "H1") {
