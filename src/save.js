@@ -52,7 +52,8 @@ const exportCurrent = {
     const exportLine = `- ${filename}: ${saveString}`
     const text = new ClipboardItem({
       "text/plain": Promise.resolve(exportLine).then(text => new Blob([text], { type: "text/plain" }))})
-    navigator.clipboard.write([text])
+    console.log(text)
+    navigator.clipboard.write([text]).then(()=>console.info("Copied successfully")).catch(err => console.error(err))
   },
   description: "Copy current document as an export line",
   el: "u",

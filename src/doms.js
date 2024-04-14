@@ -252,10 +252,9 @@ const createPanel = (parentId, id, buttons, weave) => {
       const deltaX = body.endX -body.oneFingerStartX;
       const deltaY = body.endY -body.oneFingerStartY;
       const nrm = Math.sqrt(deltaX*deltaX + deltaY*deltaY)
-       if (deltaX > 0 && deltaY < 0 && nrm > 250) {
-        exportCurrent.action()
-        info.innerHTML = "Exported current panel";
-        info.classList.add("fades");  
+      if (deltaX > 0 && deltaY < 0 && nrm > 250) {
+        // Sadly, this can't work on mobile safari because
+        // copy needs direct user interaction
       }
     }
     if(body.twoFingerStartX){
