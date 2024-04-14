@@ -15,11 +15,11 @@ const loadRow = (row) => {
   const data = splits[2];
   return set(filename, data)
     .then(() => {
-      console.log(`Data for ${filename} stored in IndexedDb`)
+      console.info(`Data for ${filename} stored in IndexedDb`)
       return Promise.resolve(filename)
     })
     .catch((err) =>
-      console.log(`Saving in IndexedDb failed for ${filename}`, err),
+      console.info(`Saving in IndexedDb failed for ${filename}`, err),
     );
 }
 
@@ -36,15 +36,13 @@ const iloadIntoBody = (filename, body) => {
     console.info("About to wire")
     wireEverything(weave.buttons(weave.root));
   }).catch((err) => {
-    console.log("There was an unexpected error in loading")
-    console.log(err)
+    console.error("There was an unexpected error in loading")
+    console.error(err)
     throw err;
   });
 };
 
 const presentFiles = (files, container) => {
-  console.log("Presenting")
-  console.log(files)
   const modal = document.getElementById("modal");
   container.innerHTML = "";
   for (const file of files) {
@@ -68,10 +66,13 @@ const presentFiles = (files, container) => {
     div.appendChild(k);
     container.appendChild(div);
     div.addEventListener("click", (ev) => {
+      ev.stopPropagation()
+      ev.preventDefault()
       const inp = document.querySelector("input.filename");
       inp.value = key;
       modal.innerHTML = "";
       inp.dispatchEvent(enterKeyDownEvent);
+
     });
   }
 };
@@ -165,9 +166,8 @@ const loadAllFromGroup = (groupname) => {
       }
     })
     .catch((err) => {
-      console.log("Loading group from IndexedDb failed", err);
-      throwing = err;
-      console.log(throwing);
+      console.error("Loading group from IndexedDb failed", err);
+      console.error(err);
       throw err;
     });
 };

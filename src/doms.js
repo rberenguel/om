@@ -55,8 +55,6 @@ const toTop = (b) => () => {
   const arr = Array.from(weave.containers()).map((o) =>
     parseFloat(o.style.zIndex || 0),
   );
-  console.log("To top array")
-  console.log(arr)
   const withZ = arr.filter((z) => z > 0);
   const maxZ = Math.max(...withZ, 1);
   const minZ = Math.min(...withZ, maxZ);
@@ -121,15 +119,14 @@ const createPanel = (parentId, id, buttons, weave) => {
     const saveString = btoa(encodeURIComponent(toMarkdown(body)));
     set(filename, saveString)
       .then(() => {
-        console.log("Data saved in IndexedDb")
+        console.info("Data saved in IndexedDb")
         body.saved = true
       })
-      .catch((err) => console.log("Saving in IndexedDb failed", err));
+      .catch((err) => console.info("Saving in IndexedDb failed", err));
   }
   bodyContainer.addEventListener("keydown", (ev) => {
     // This auto-fits height as we type
     bodyContainer.classList.add("unfit");
-    console.log(ev)
     body.saved = false
     if(ev.code === "Space"){
       bodyContainer.spaceCounter -= 1;
@@ -144,7 +141,6 @@ const createPanel = (parentId, id, buttons, weave) => {
       iload.action()
     }
     if(ev.key === "t" && ev.ctrlKey){
-      console.log("Titling")
       ititle.action(ev)
     }    
     if(ev.code === "KeyC" && ev.ctrlKey){
@@ -158,9 +154,9 @@ const createPanel = (parentId, id, buttons, weave) => {
       info.classList.add("fades");
       const session = constructCurrentGroup()
       set("weave:last-session", session)
-        .then(() => console.log("Session data saved in IndexedDB"))
+        .then(() => console.info("Session data saved in IndexedDB"))
         .catch((err) =>
-          console.log("Session data saving in IndexedDB failed", err),
+          console.info("Session data saving in IndexedDB failed", err),
         );
     }
   });
@@ -275,7 +271,6 @@ const createPanel = (parentId, id, buttons, weave) => {
       }
       // TODO use the accept option of interact.js
       if (ev.relatedTarget.classList.contains("dynamic-div")) {
-        console.info("Dropping a magical div");
         const dropX = ev.dragEvent.client.x;
         const dropY = ev.dragEvent.client.y;
         const targetBody = ev.target.querySelector(".body");
@@ -300,9 +295,9 @@ const createPanel = (parentId, id, buttons, weave) => {
           info.classList.add("fades");
           const session = constructCurrentGroup()
           set("weave:last-session", session)
-            .then(() => console.log("Session data saved in IndexedDB"))
+            .then(() => console.info("Session data saved in IndexedDB"))
             .catch((err) =>
-              console.log("Session data saving in IndexedDB failed", err),
+              console.info("Session data saving in IndexedDB failed", err),
             );
         }
         if(ev.scale > 1.2) {
@@ -348,11 +343,7 @@ const createPanel = (parentId, id, buttons, weave) => {
   });
   interact(bodyContainer).on("hold", (ev) => {
     const selection = window.getSelection()+""
-    console.log("Any selection")
-    console.log(selection)
     if(selection===""){
-      console.log("Going for title")
-      console.log(ev)
       ev.target.querySelector(".body").click()
       ititle.action(ev)
       ev.stopPropagation()

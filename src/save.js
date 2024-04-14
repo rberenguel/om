@@ -26,8 +26,8 @@ const exportCurrent = {
     const exportLine = `- ${filename}: ${saveString}`
     const text = new ClipboardItem({
       "text/plain": Promise.resolve(exportLine).then(text => new Blob([text], { type: "text/plain" }))})
-      navigator.clipboard.write([text])
-    },
+    navigator.clipboard.write([text])
+  },
   description: "Copy current document as an export line",
   el: "u",
 }
@@ -42,7 +42,7 @@ const saveAll_ = {
     processFiles();
   },
   description:
-    "Save the current changes and config in the URL, so it survives browser crashes",
+  "Save the current changes and config in the URL, so it survives browser crashes",
   el: "u",
 };
 
@@ -62,32 +62,27 @@ function showModalAndGetFilename(placeholder, fileContainer, prefix, callback) {
   modal.style.display = "block";
   inp.focus();
   inp.addEventListener("blur", (ev) => {
+    setTimeout(() => { 
       modal.innerHTML = "";
       modal.style.display = "none";
       modal.showing = false
       callback(null);
+    }, 50); 
   })
   inp.addEventListener("keydown", function (ev) {
-    //ev.preventDefault();
     const searchString = inp.value;
     let results;
     try {
-      console.log(prefix)
-      console.log(searchString)
       const search = weave.internal.idx
         .search(prefix + searchString)
-      console.log(search)
-      console.log(search[0].ref)
-      console.log(search)
       results = search.map((r) => {
         return {key: r.ref, title: weave.internal.fileTitles[r.ref]}
       });
     } catch (err) {
-      console.log("Lunar issue");
+      console.error("Lunar issue:");
       console.error(err)
       results = [];
     }
-    console.log(results);
     presentFiles(results, fileContainer);
     if (ev.key === "Enter") {
       loadInput.value = searchString;
@@ -102,7 +97,6 @@ function showModalAndGetFilename(placeholder, fileContainer, prefix, callback) {
     }
   });
   loadInput.addEventListener("keydown", function (ev) {
-    console.log(ev);
     if (ev.key === "Enter") {
       ev.preventDefault();
       const filename = loadInput.value;
@@ -218,8 +212,8 @@ const isave = {
       .then(([filename, body]) => {
         const saveString = btoa(encodeURIComponent(toMarkdown(body)));
         set(filename, saveString)
-          .then(() => console.log("Data saved in IndexedDb"))
-          .catch((err) => console.log("Saving in IndexedDb failed", err));
+          .then(() => console.info("Data saved in IndexedDb"))
+          .catch((err) => console.info("Saving in IndexedDb failed", err));
         info.innerHTML = "Saved";
         info.classList.add("fades");
       })
@@ -276,7 +270,7 @@ function processFiles() {
         });
       })
       .then(() => {
-        console.log("Data saved in IndexedDb");
+        console.info("Data saved in IndexedDb");
       })
       .catch((err) => {
         console.error("Saving in IndexedDb failed", err);
@@ -286,9 +280,9 @@ function processFiles() {
   return promiseChain.then(() => {
     if (!weave.internal.group) {
       set("weave:last-session", "g:" + allFiles.join("|"))
-        .then(() => console.log("Last session data saved in IndexedDB"))
+        .then(() => console.info("Last session data saved in IndexedDB"))
         .catch((err) =>
-          console.log("Last session data saving in IndexedDB failed", err),
+          console.info("Last session data saving in IndexedDB failed", err),
         );
     }
     return allFiles;
@@ -320,8 +314,8 @@ const gsave = {
             return;
           }
           set(groupname, "g:" + allFiles.join("|"))
-            .then(() => console.log("Group data saved in IndexedDb"))
-            .catch((err) => console.log("Saving in IndexedDb failed", err));
+            .then(() => console.info("Group data saved in IndexedDb"))
+            .catch((err) => console.info("Saving in IndexedDb failed", err));
           info.innerHTML = "&#x1F4BE;";
           info.classList.add("fades");
         },
@@ -329,7 +323,7 @@ const gsave = {
     });
   },
   description:
-    "Save a group of panes to IndexedDB. There is no equivalent for file though",
+  "Save a group of panes to IndexedDB. There is no equivalent for file though",
   el: "u",
 };
 
@@ -345,7 +339,6 @@ const save = {
         const saveString = btoa(encodeURIComponent(toMarkdown(body)));
         const downloadLink = document.createElement("a");
         const fileData = "data:application/json;base64," + saveString;
-        console.log(saveString);
         downloadLink.href = fileData;
         downloadLink.download = filename;
         downloadLink.click();

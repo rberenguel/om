@@ -53,7 +53,6 @@ const hookBodies = (buttons) => {
         if (!weave.internal.cancelShifting) {
           weave.internal.bodyClicks.unshift(body.id);
           weave.internal.bodyClicks.length = 2;
-          console.log(`Shifted previous: ${weave.internal.bodyClicks}`);
         } else {
           weave.internal.cancelShifting = false;
         }
@@ -82,7 +81,7 @@ const hookBodies = (buttons) => {
           .toString()
           .replace(/\s+/g, "").length;
         if (selection.length > 0) {
-          console.log(
+          console.debug(
             `You have selected something ('${selection}'), not folding`
           );
           return;
@@ -146,12 +145,7 @@ const hookBodies = (buttons) => {
     interact(body).on("hold", (ev) => {
       weave.internal.held = true
       const selection = window.getSelection()+""
-      console.log("Any selection")
-      console.log(selection)
       if(selection===""){
-        console.log("Going for title")
-        ititle.action(ev)
-        ev.stopPropagation()
       } else {
         wireButtons(buttons)(ev);
         window.getSelection().removeAllRanges();
@@ -165,7 +159,7 @@ const hookBodies = (buttons) => {
       if(pastedText.startsWith("- f")){
         // TODO this is very naive, I need better data transfer options
         loadRow(pastedText).then(f => {
-          console.log(`Loaded ${f} in IndexedDB (possibly replacing it)`)
+          console.info(`Loaded ${f} in IndexedDB (possibly replacing it)`)
           info.innerHTML = `Added ${f}`;
           info.classList.add("fades");})
         event.preventDefault()
@@ -241,7 +235,6 @@ const wireButtons = (buttons) => (event) => {
       ev.stopPropagation();
     });
     div.addEventListener("dblclick", (ev) => {
-      console.log("Preventing folding");
       weave.internal.preventFolding = true;
     });
     node.dataset.action = `${selectedText}`;

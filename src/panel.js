@@ -39,8 +39,6 @@ const manipulation = {
       case panelFields.kFilename:
         return container.dataset.filename || ""; // TODO :shrug:
       case panelFields.kTitle:
-        console.log("***********************************")
-        console.log(container.dataset.title)
         if(container.dataset.title === undefined){
           return ""
         }
@@ -163,7 +161,6 @@ const manipulation = {
     container.style.height = h + "px";
   },
   forcePositionToReality(container) {
-    console.log("Forcing to reality!")
     const body = container.querySelector(".body");
     const current = container.getBoundingClientRect();
     let x = current.x;
