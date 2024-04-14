@@ -5,6 +5,9 @@ import { reset } from "./commands_base.js";
 import { zwsr } from "./doms.js";
 import { unrawPane } from "./raw.js";
 import { manipulation } from "./panel.js";
+import {loadRow} from "./loadymcloadface.js"
+import { set } from "./libs/idb-keyval.js";
+
 
 const enableSelectionOnAll = () => {
   const containers = document.getElementsByClassName("body-container");
@@ -148,6 +151,15 @@ const hookBodies = (buttons) => {
       // Paste takes a slight bit to modify the DOM, if I trigger
       // the wiring without waiting a pasted button might not be wired
       // properly.
+      const pastedText = event.clipboardData.getData('text/plain');
+      if(pastedText.startsWith("- f")){
+        // TODO this is very naive, I need better data transfer options
+        loadRow(pastedText).then(f => {
+          console.log(`Loaded ${f} in IndexedDB (possibly replacing it)`)
+          info.innerHTML = `Added ${f}`;
+          info.classList.add("fades");})
+        event.preventDefault()
+      }
       setTimeout(() => {
         wireEverything(weave.buttons(weave.root));
       }, 100);

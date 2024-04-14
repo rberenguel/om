@@ -17,6 +17,7 @@ import { createOrMoveArrowBetweenDivs } from "./arrow.js";
 import { toMarkdown } from "./parser.js";
 import { set } from "./libs/idb-keyval.js";
 import { iload } from "./loadymcloadface.js"
+import {exportCurrent} from "./save.js"
 // TODO: I think I want to be able to move panels instead of drag-and-drop.
 
 // I use this separator in many places
@@ -113,16 +114,17 @@ const createPanel = (parentId, id, buttons, weave) => {
   const seconds = d.getTime()
   bodyContainer.spaceCounter = 10
   const save = () => {
-      const body = bodyContainer.querySelector(".body")
-      const filename = manipulation.get(bodyContainer, manipulation.fields.kFilename)
-      const saveString = btoa(encodeURIComponent(toMarkdown(body)));
-      set(filename, saveString)
-        .then(() => console.log("Data saved in IndexedDb"))
-        .catch((err) => console.log("Saving in IndexedDb failed", err));
+    const body = bodyContainer.querySelector(".body")
+    const filename = manipulation.get(bodyContainer, manipulation.fields.kFilename)
+    const saveString = btoa(encodeURIComponent(toMarkdown(body)));
+    set(filename, saveString)
+      .then(() => console.log("Data saved in IndexedDb"))
+      .catch((err) => console.log("Saving in IndexedDb failed", err));
   }
   bodyContainer.addEventListener("keydown", (ev) => {
     // This auto-fits height as we type
     bodyContainer.classList.add("unfit");
+    console.log(ev)
     if(ev.code === "Space"){
       bodyContainer.spaceCounter -= 1;
       reset()
@@ -132,10 +134,15 @@ const createPanel = (parentId, id, buttons, weave) => {
       save()
       console.info("Autosaving")
     }
-     if(ev.key === "l" && ev.ctrlKey){
+    if(ev.key === "l" && ev.ctrlKey){
       iload.action()
     }
-   if(ev.key === "s" && ev.ctrlKey){
+    if(ev.code === "KeyC" && ev.altKey && ev.ctrlKey){
+      // Note: this is not weird-layout safe, C just happens to be the same in QWERTY and Colemak
+      exportCurrent.action()
+      info.innerHTML = "Exported current panel";
+      info.classList.add("fades");    }
+    if(ev.key === "s" && ev.ctrlKey){
       save()
       info.innerHTML = "Saved";
       info.classList.add("fades");
@@ -287,7 +294,7 @@ const createPanel = (parentId, id, buttons, weave) => {
         manipulation.set(bodyContainer, manipulation.fields.kY, y);
         manipulation.reposition(bodyContainer);
         placeTitle(bodyContainer);
-         for(const arrow of weave.internal.arrows){
+        for(const arrow of weave.internal.arrows){
           createOrMoveArrowBetweenDivs(arrow)
         }
       },

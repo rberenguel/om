@@ -5,6 +5,7 @@ export {
   save,
   saveAll_,
   showModalAndGetFilename,
+  exportCurrent
 };
 
 import weave from "./weave.js";
@@ -13,6 +14,24 @@ import { set } from "./libs/idb-keyval.js";
 import { toMarkdown } from "./parser.js";
 import { presentFiles } from "./loadymcloadface.js";
 import { manipulation } from "./panel.js";
+
+
+const exportCurrent = {
+  text: ["export"],
+  action: (ev) => {
+    const body = document.getElementById(weave.internal.bodyClicks[0]);
+    const container = body.closest(".body-container")
+    const saveString = btoa(encodeURIComponent(toMarkdown(body)));
+    const filename = manipulation.get(container, manipulation.fields.kFilename)
+    const exportLine = `- ${filename}: ${saveString}`
+    const text = new ClipboardItem({
+      "text/plain": Promise.resolve(exportLine).then(text => new Blob([text], { type: "text/plain" }))})
+      navigator.clipboard.write([text])
+    },
+  description: "Copy current document as an export line",
+  el: "u",
+}
+
 
 const saveAll_ = {
   text: ["saveall"],

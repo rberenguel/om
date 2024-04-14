@@ -1,13 +1,28 @@
-export { iload, iloadIntoBody, presentFiles, gload, loadAllFromGroup };
+export { loadRow, iload, iloadIntoBody, presentFiles, gload, loadAllFromGroup };
 
 import weave from "./weave.js";
-import { get, entries } from "./libs/idb-keyval.js";
+import { set, get, entries } from "./libs/idb-keyval.js";
 import { showModalAndGetFilename } from "./save.js";
 import { enterKeyDownEvent } from "./commands_base.js";
 import { getPropertiesFromFile, parseIntoWrapper } from "./parser.js";
 import { manipulation } from "./panel.js";
 import { wireEverything } from "./load.js";
 import { createPanel } from "./doms.js";
+
+const loadRow = (row) => {
+  const splits = row.split(" ");
+  const filename = splits[1].slice(0, -1);
+  const data = splits[2];
+  return set(filename, data)
+    .then(() => {
+      console.log(`Data for ${filename} stored in IndexedDb`)
+      return Promise.resolve(filename)
+    })
+    .catch((err) =>
+      console.log(`Saving in IndexedDb failed for ${filename}`, err),
+    );
+}
+
 
 const iloadIntoBody = (filename, body) => {
   get(filename).then((filecontent) => {

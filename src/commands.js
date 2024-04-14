@@ -457,15 +457,8 @@ filePicker.addEventListener("change", (event) => {
   reader.onload = (readerEvent) => {
     const content = readerEvent.target.result;
     console.log(content);
-    for (const line of content.split("\n")) {
-      const splits = line.split(" ");
-      const filename = splits[1].slice(0, -1);
-      const data = splits[2];
-      set(filename, data)
-        .then(() => console.log(`Data for ${filename} stored in IndexedDb`))
-        .catch((err) =>
-          console.log(`Saving in IndexedDb failed for ${filename}`, err),
-        );
+    for (const row of content.split("\n")) {
+      loadRow(row)
     }
   };
 });
