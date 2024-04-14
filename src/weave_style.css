@@ -735,3 +735,24 @@ div.wrap {
   -webkit-user-select: none;
   pointer-events: none;
 }
+
+/* Mobile styling */
+
+@media only screen and (max-width: 768px) { /* Adjust the max-width as needed */
+  .body-container {
+      width: 100%; /* Make it take full width on mobile */
+      height: 66%;
+      margin: 0;
+  }
+  #info {
+    right: 1em;
+    top: 1.8em;
+    font-size: 70%;
+    line-height: 1;
+    font-style: italic;
+  }
+  .fades {
+    border-radius: 5px;
+    padding: 0.5em;
+  }
+}

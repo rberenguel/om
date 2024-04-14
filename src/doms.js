@@ -55,6 +55,8 @@ const toTop = (b) => () => {
   const arr = Array.from(weave.containers()).map((o) =>
     parseFloat(o.style.zIndex || 0),
   );
+  console.log("To top array")
+  console.log(arr)
   const withZ = arr.filter((z) => z > 0);
   const maxZ = Math.max(...withZ, 1);
   const minZ = Math.min(...withZ, maxZ);
@@ -137,7 +139,7 @@ const createPanel = (parentId, id, buttons, weave) => {
     if(ev.key === "l" && ev.ctrlKey){
       iload.action()
     }
-    if(ev.code === "KeyC" && ev.altKey && ev.ctrlKey){
+    if(ev.code === "KeyC" && ev.ctrlKey){
       // Note: this is not weird-layout safe, C just happens to be the same in QWERTY and Colemak
       exportCurrent.action()
       info.innerHTML = "Exported current panel";
@@ -303,11 +305,11 @@ const createPanel = (parentId, id, buttons, weave) => {
   // TODO: this might be better in weave directly
   betterHandle.addEventListener("click", () => {
     toggleTitling(bodyContainer)
-    toTop(bodyContainer)
+    toTop(bodyContainer)()
   });
   bodyContainer.addEventListener("click", () => {
     toggleTitling(bodyContainer)
-    toTop(bodyContainer)
+    toTop(bodyContainer)()
   });
   document.getElementById(parentId).appendChild(bodyContainer);
   document.getElementById(parentId).appendChild(title);
