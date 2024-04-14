@@ -11,7 +11,7 @@ import { get, keys, del, set, entries } from "./libs/idb-keyval.js";
 import { arrow } from "./arrow.js";
 import { headers, code, lists, link, hr, gfont, mono, fontup, fontdown, serif, underline, italic, bold } from "./formatters.js";
 import { toTop } from "./doms.js";
-import { iload, iloadIntoBody, gload } from "./loadymcloadface.js";
+import { iload, iloadIntoBody, gload, dbload } from "./loadymcloadface.js";
 import { presentFiles } from "./loadymcloadface.js";
 // Buttons
 import { div } from "./dynamicdiv.js";
@@ -22,6 +22,7 @@ import {
   ititle,
   gsave,
   showModalAndGetFilename,
+  dbdump
 } from "./save.js";
 import { addGoogFont } from "./load.js";
 import { jazz } from "./jazz.js";
@@ -178,31 +179,6 @@ const getAllThingsAsStrings = {
 };
 
 //weave.internal.getAll = getAllThingsAsStrings
-const dbdump = {
-  text: ["dbdump", "dumpdb"],
-  action: (ev) => {
-    entries().then((entries) => {
-      let lines = [];
-      for (const [key, value] of entries) {
-        lines.push(`- ${key}: ${value}`);
-      }
-      const fileBlob = new Blob([lines.join("\n")], {
-        type: "application/octet-stream;charset=utf-8",
-      });
-      const url = URL.createObjectURL(fileBlob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "weave.db";
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
-    });
-  },
-  description: "Copy whole database to clipboard",
-  el: "u",
-};
-
 const reparse = {
   text: ["reparse"],
   action: (ev) => {
@@ -381,15 +357,6 @@ const title = {
     body.dataset.filename = selection;
   },
   description: "(deprecating?) Sets the title of this pane. Useful to store menus in the URL",
-  el: "u",
-};
-
-const dbload = {
-  text: ["dbload", "loaddb"],
-  action: (ev) => {
-    filePicker.click();
-  },
-  description: "Load a pane to disk, you won't be choosing where though",
   el: "u",
 };
 

@@ -1,4 +1,4 @@
-export { loadRow, iload, iloadIntoBody, presentFiles, gload, loadAllFromGroup };
+export { loadRow, iload, iloadIntoBody, presentFiles, gload, loadAllFromGroup, dbload };
 
 import weave from "./weave.js";
 import { set, get, entries } from "./libs/idb-keyval.js";
@@ -8,6 +8,16 @@ import { getPropertiesFromFile, parseIntoWrapper } from "./parser.js";
 import { manipulation } from "./panel.js";
 import { wireEverything } from "./load.js";
 import { createPanel } from "./doms.js";
+
+const dbload = {
+  text: ["dbload", "loaddb"],
+  action: (ev) => {
+    filePicker.click();
+  },
+  description: "Load a pane to disk, you won't be choosing where though",
+  el: "u",
+};
+
 
 const loadRow = (row) => {
   const splits = row.split(" ");

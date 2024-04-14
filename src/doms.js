@@ -160,7 +160,7 @@ const createPanel = (parentId, id, buttons, weave) => {
         );
     }
   });
-  interact(bodyContainer).resizable({
+    interact(bodyContainer).resizable({
     edges: { left: true, right: true, bottom: true, top: true },
     // TODO There is something failing in resize
     listeners: {
@@ -233,6 +233,34 @@ const createPanel = (parentId, id, buttons, weave) => {
   body.id = id;
   betterHandle.appendChild(body);
   bodyContainer.appendChild(betterHandle);
+  body.addEventListener("touchstart", function(event) {
+    // TODO wtf
+    console.log(event.touches.length)
+    if (event.touches.length < 2){
+      body.oneFingerStartX = event.touches[0].clientX;
+      body.oneFingerStartY = event.touches[0].clientY;
+      body.twoFingerStartX = undefined
+      body.twoFingerStartY = undefined
+    }
+  });
+
+  body.addEventListener("touchend", function(event) {
+    body.endX = event.changedTouches[0].clientX;
+    body.endY = event.changedTouches[0].clientY;
+   
+    if(body.oneFingerStartX){
+      const deltaX = body.endX -body.oneFingerStartX;
+      const deltaY = body.endY -body.oneFingerStartY;
+      const nrm = Math.sqrt(deltaX*deltaX + deltaY*deltaY)
+       if (deltaX > 0 && deltaY < 0 && nrm > 250) {
+        exportCurrent.action()
+        info.innerHTML = "Exported current panel";
+        info.classList.add("fades");  
+      }
+    }
+    if(body.twoFingerStartX){
+    }
+  });
 
   interact(bodyContainer).dropzone({
     ondropmove: (ev) => {

@@ -3,7 +3,8 @@ import { loadAllFromGroup } from "./loadymcloadface.js";
 // Can't import from dom due to circular dependency?
 import weave from "./weave.js";
 import { createPanel } from "./doms.js";
-import { iloadIntoBody } from "./loadymcloadface.js";
+import { iloadIntoBody, dbload } from "./loadymcloadface.js";
+import { dbdump } from "./save.js";
 import { entries } from "./libs/idb-keyval.js";
 import { getPropertiesFromFile } from "./parser.js";
 import { manipulation } from "./panel.js";
@@ -68,6 +69,39 @@ entries().then((entries) => {
     }, this);
   });
 }).catch(err => console.error(err));
+
+document.body.addEventListener("touchstart", function(event) {
+    if(event.touches.length === 2){
+      document.body.twoFingerStartX = event.touches[0].clientX;
+      document.body.twoFingerStartY = event.touches[0].clientY;
+      document.body.oneFingerStartX = undefined
+      document.body.oneFingerStartY = undefined
+     }else {
+      document.body.twoFingerStartX = undefined
+      document.body.twoFingerStartY = undefined
+     }
+})
+  document.body.addEventListener("touchend", function(event) {
+    document.body.endX = event.changedTouches[0].clientX;
+    document.body.endY = event.changedTouches[0].clientY;
+    // TODO it can collide with pinch-for-zoom, how could I prevent that?
+    if(document.body.twoFingerStartX){
+      console.log("Foo")
+      console.log(event)
+      const deltaX = document.body.endX -document.body.twoFingerStartX;
+      const deltaY = document.body.endY -document.body.twoFingerStartY;
+      const nrm = Math.sqrt(deltaX*deltaX + deltaY*deltaY)
+      console.log(deltaX, deltaY, nrm)
+       if (Math.abs(deltaX) < 20 && deltaY > 0 && nrm > 250) {
+        console.info("dbdumping")
+        dbdump.action()
+       }
+      if (Math.abs(deltaX) < 20 && deltaY < 0 && nrm > 250) {
+        // Ideally this would be dbload, but seems like Safari doesn't like this
+      }
+ }
+  })
+
 
 interact(document.body).draggable({
   inertia: true,
