@@ -17,7 +17,7 @@ import { createOrMoveArrowBetweenDivs } from "./arrow.js";
 import { toMarkdown } from "./parser.js";
 import { set } from "./libs/idb-keyval.js";
 import { iload } from "./loadymcloadface.js"
-import {exportCurrent} from "./save.js"
+import {exportCurrent, ititle} from "./save.js"
 // TODO: I think I want to be able to move panels instead of drag-and-drop.
 
 // I use this separator in many places
@@ -143,6 +143,10 @@ const createPanel = (parentId, id, buttons, weave) => {
     if(ev.key === "l" && ev.ctrlKey){
       iload.action()
     }
+    if(ev.key === "t" && ev.ctrlKey){
+      console.log("Titling")
+      ititle.action(ev)
+    }    
     if(ev.code === "KeyC" && ev.ctrlKey){
       // Note: this is not weird-layout safe, C just happens to be the same in QWERTY and Colemak
       exportCurrent.action()
@@ -287,7 +291,6 @@ const createPanel = (parentId, id, buttons, weave) => {
         // Pinch to load and save
         // Scale > 1 is opening up, load
         // Scale < 1 is closing, save
-        console.log(ev.scale)
         const body = ev.target.querySelector(".body")
         body.click()
         if(ev.scale < 0.8){
@@ -303,8 +306,6 @@ const createPanel = (parentId, id, buttons, weave) => {
             );
         }
         if(ev.scale > 1.2) {
-          console.log("Scale went wrong?")
-          console.log(ev.scale)
           const modal = document.getElementById("modal");
           if(!modal.showing){
             iload.action()
@@ -345,6 +346,19 @@ const createPanel = (parentId, id, buttons, weave) => {
     toggleTitling(bodyContainer)
     toTop(bodyContainer)()
   });
+  interact(bodyContainer).on("hold", (ev) => {
+    const selection = window.getSelection()+""
+    console.log("Any selection")
+    console.log(selection)
+    if(selection===""){
+      console.log("Going for title")
+      console.log(ev)
+      ev.target.querySelector(".body").click()
+      ititle.action(ev)
+      ev.stopPropagation()
+    } 
+  }
+  )
   bodyContainer.addEventListener("click", () => {
     toggleTitling(bodyContainer)
     toTop(bodyContainer)()

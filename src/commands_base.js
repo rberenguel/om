@@ -22,5 +22,9 @@ const reset = () => {
 
 const common = (ev, held) => {
   reset();
-  return ev.button !== 0 || held;
+  if(!ev){
+    console.log(held)
+    return held
+  }
+  return held || ev.button !== 0 ;
 };

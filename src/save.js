@@ -61,6 +61,12 @@ function showModalAndGetFilename(placeholder, fileContainer, prefix, callback) {
   modal.appendChild(loadInput);
   modal.style.display = "block";
   inp.focus();
+  inp.addEventListener("blur", (ev) => {
+      modal.innerHTML = "";
+      modal.style.display = "none";
+      modal.showing = false
+      callback(null);
+  })
   inp.addEventListener("keydown", function (ev) {
     //ev.preventDefault();
     const searchString = inp.value;
@@ -156,9 +162,8 @@ const setTitleInBodyDataset = (body, fileContainer) => {
 };
 
 
-const titleToSelectedBodyFromSelection = () => {
+const titleToSelectedBodyFromSelection = (currentTitle) => {
   const selection = window.getSelection() + "";
-
   if (selection.length > 0) {
     // Selection exists, proceed (synchronous)
     const title = selection;
@@ -170,9 +175,11 @@ const titleToSelectedBodyFromSelection = () => {
   // No selection - asynchronous part
   const body = document.getElementById(weave.internal.bodyClicks[0]);
   const modal = document.getElementById("modal");
+  modal.showing = true
   const fileContainer = document.createElement("div");
   fileContainer.id = "fileContainer";
   modal.append(fileContainer);
+  modal.value = currentTitle
   // This block will be reused…
   return setTitleInBodyDataset(body, fileContainer);
 };
@@ -227,18 +234,24 @@ const isave = {
 const ititle = {
   text: ["ititle"],
   action: (ev) => {
-    if (common(ev)) {
+    /*if (common(ev)) {
       return;
-    }
+    }*/
     ev.preventDefault(); // To allow focusing on input
     ev.stopPropagation();
-    titleToSelectedBodyFromSelection()
+    if(modal.showing){
+      return
+    }
+    const body = document.getElementById(weave.internal.bodyClicks[0]);
+    const container = body.closest(".body-container")
+    const currentTitle = manipulation.get(body, manipulation.fields.kTitle)
+    titleToSelectedBodyFromSelection(currentTitle)
       .then(([title, body]) => {})
       .catch((error) => {
         console.error("Error resolving the title promise", error);
       });
   },
-  description: "Save a pane to IndexedDB",
+  description: "Add title to panel",
   el: "u",
 };
 

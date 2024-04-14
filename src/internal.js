@@ -8,6 +8,7 @@ import { manipulation } from "./panel.js";
 import {loadRow} from "./loadymcloadface.js"
 import { set } from "./libs/idb-keyval.js";
 
+import {ititle} from "./save.js"
 
 const enableSelectionOnAll = () => {
   const containers = document.getElementsByClassName("body-container");
@@ -144,9 +145,18 @@ const hookBodies = (buttons) => {
     body.addEventListener("contextmenu", wireButtons(buttons));
     interact(body).on("hold", (ev) => {
       weave.internal.held = true
-      wireButtons(buttons)(ev);
-      window.getSelection().removeAllRanges();
-    });
+      const selection = window.getSelection()+""
+      console.log("Any selection")
+      console.log(selection)
+      if(selection===""){
+        console.log("Going for title")
+        ititle.action(ev)
+        ev.stopPropagation()
+      } else {
+        wireButtons(buttons)(ev);
+        window.getSelection().removeAllRanges();
+      }
+   });
     body.addEventListener("paste", (event) => {
       // Paste takes a slight bit to modify the DOM, if I trigger
       // the wiring without waiting a pasted button might not be wired
