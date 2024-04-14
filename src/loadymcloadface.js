@@ -81,6 +81,7 @@ const iload = {
   action: (ev) => {
     const body = document.getElementById(weave.internal.bodyClicks[0]);
     const modal = document.getElementById("modal");
+    modal.showing = true
     const fileContainer = document.createElement("div");
     fileContainer.id = "fileContainer";
     modal.append(fileContainer);
@@ -143,7 +144,7 @@ const loadAllFromGroup = (groupname) => {
       const files = groupcontent.substring(2).split("|");
       let n = weave.bodies().length;
       for (const filename of files) {
-        const bodyId = `b${n}`; // TODO NO, this is not good enough
+        const bodyId = `b${n}`; // TODO NO, this is not good enough, but works for now…
         createPanel(weave.root, bodyId, weave.buttons(weave.root), weave);
         const body = document.getElementById(bodyId);
         n += 1;

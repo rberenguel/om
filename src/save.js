@@ -46,7 +46,6 @@ const saveAll_ = {
   el: "u",
 };
 
-// TODO: this is now preventing save!
 // TODO: the modal should be showable without searching for
 // stuff in the files (should be optional)
 function showModalAndGetFilename(placeholder, fileContainer, prefix, callback) {
@@ -92,6 +91,7 @@ function showModalAndGetFilename(placeholder, fileContainer, prefix, callback) {
     if (ev.key === "Escape") {
       modal.innerHTML = "";
       modal.style.display = "none";
+      modal.showing = false
       callback(null);
     }
   });
@@ -102,6 +102,7 @@ function showModalAndGetFilename(placeholder, fileContainer, prefix, callback) {
       const filename = loadInput.value;
       callback(filename);
       modal.style.display = "none";
+      modal.showing = false
       modal.innerHTML = "";
     }
   });

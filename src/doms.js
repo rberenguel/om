@@ -120,13 +120,17 @@ const createPanel = (parentId, id, buttons, weave) => {
     const filename = manipulation.get(bodyContainer, manipulation.fields.kFilename)
     const saveString = btoa(encodeURIComponent(toMarkdown(body)));
     set(filename, saveString)
-      .then(() => console.log("Data saved in IndexedDb"))
+      .then(() => {
+        console.log("Data saved in IndexedDb")
+        body.saved = true
+      })
       .catch((err) => console.log("Saving in IndexedDb failed", err));
   }
   bodyContainer.addEventListener("keydown", (ev) => {
     // This auto-fits height as we type
     bodyContainer.classList.add("unfit");
     console.log(ev)
+    body.saved = false
     if(ev.code === "Space"){
       bodyContainer.spaceCounter -= 1;
       reset()
@@ -276,6 +280,40 @@ const createPanel = (parentId, id, buttons, weave) => {
       }
     },
   });
+
+  interact(bodyContainer).gesturable({
+    listeners: {
+      move(ev) {
+        // Pinch to load and save
+        // Scale > 1 is opening up, load
+        // Scale < 1 is closing, save
+        console.log(ev.scale)
+        const body = ev.target.querySelector(".body")
+        body.click()
+        if(ev.scale < 0.8){
+          // TODO this is now repeated with ctrl-s
+          save()
+          info.innerHTML = "Saved";
+          info.classList.add("fades");
+          const session = constructCurrentGroup()
+          set("weave:last-session", session)
+            .then(() => console.log("Session data saved in IndexedDB"))
+            .catch((err) =>
+              console.log("Session data saving in IndexedDB failed", err),
+            );
+        }
+        if(ev.scale > 1.2) {
+          console.log("Scale went wrong?")
+          console.log(ev.scale)
+          const modal = document.getElementById("modal");
+          if(!modal.showing){
+            iload.action()
+          }
+        }
+      },
+    },
+  });
+
 
   interact(bodyContainer).draggable({
     allowFrom: betterHandle,
