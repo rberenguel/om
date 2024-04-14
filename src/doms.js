@@ -255,6 +255,7 @@ const createPanel = (parentId, id, buttons, weave) => {
       if (deltaX > 0 && deltaY < 0 && nrm > 250) {
         // Sadly, this can't work on mobile safari because
         // copy needs direct user interaction
+        // TODO instead, this could create a panel (or just load it) with just an export button :shrug:
       }
     }
     if(body.twoFingerStartX){
