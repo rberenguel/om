@@ -1,9 +1,11 @@
-export { hookBodies, enableSelectionOnAll, disableSelectionOnAll, constructCurrentGroup };
+export { hookBodies, enableSelectionOnAll, disableSelectionOnAll, constructCurrentGroupAsMarkdown, constructCurrentGroup, parseGroupFromMarkdown };
 import weave from "./weave.js";
 import { wireEverything } from "./load.js";
 import { reset } from "./commands_base.js";
 
+import { iloadIntoBody} from "./loadymcloadface.js";
 import { unrawPane } from "./raw.js";
+import { createPanel } from "./doms.js";
 import { manipulation } from "./panel.js";
 import {loadRow} from "./loadymcloadface.js"
 
@@ -267,7 +269,69 @@ const wireButtons = (buttons) => (event) => {
   }
 };
 
+const constructCurrentGroupAsMarkdown = () => {
+  const current = weave.containers()
+  let lines = []
+  for(const container of current){
+    const filename = manipulation.get(container, manipulation.fields.kFilename)
+    const title = manipulation.get(container, manipulation.fields.kTitle)
+    lines.push(`# ${filename} (${title})`)
+    const x = manipulation.get(container, manipulation.fields.kX)
+    lines.push(`${manipulation.fields.kX}: ${x}`)
+    const y = manipulation.get(container, manipulation.fields.kY)
+    lines.push(`${manipulation.fields.kY}: ${y}`)
+    const height = manipulation.get(container, manipulation.fields.kHeight)
+    lines.push(`${manipulation.fields.kHeight}: ${height}`)
+    const width = manipulation.get(container, manipulation.fields.kWidth)
+    lines.push(`${manipulation.fields.kWidth}: ${width}`)
+    lines.push("\n")
+  }
+  for(const arrow of weave.internal.arrows){
+    const [srcbid, dstbid] = arrow.split("-");
+    const srcCt = document.getElementById(srcbid).closest(".body-container")
+    const dstCt = document.getElementById(dstbid).closest(".body-container")
+    const srcFn = manipulation.get(srcCt, manipulation.fields.kFilename)
+    const dstFn = manipulation.get(dstCt, manipulation.fields.kFilename)
+    lines.push(`${srcFn}-${dstFn}`)
+  }
+  if(weave.internal.arrows.length > 0){
+    lines.push("# Arrows")
+  }
+  return lines.join("\n")
+}
+
+const parseGroupFromMarkdown = (text) => {
+  let n = 0
+  let fileBodyMap = {}
+  let arrowMode = false
+  const lines = text.split("\n").filter(l => l.trim().length > 0)
+  for(const line of lines){
+    if(line.startsWith("# f")){
+      // Parsing a file, matches the above
+      const filename = line.split(" ")[1]
+      const bodyId = `b${n}`; // TODO NO, this is not good enough
+      createPanel(weave.root, bodyId, weave.buttons(weave.root), weave);
+      const body = document.getElementById(bodyId);
+      console.info(`Loading ${filename}`);
+      iloadIntoBody(filename, body);
+      fileBodyMap[filename] = bodyId
+      n+=1
+      // TODO this should start file details state, doesn't yet
+    }
+    if(arrowMode){
+      const [srcFn, dstFn] = line.split("-");
+      const srcB = fileBodyMap[srcFn]
+      const dstB = fileBodyMap[dstFn]
+      weave.internal.arrows.push(`${srcB}-${dstB}`)
+    }
+    if(line === "# Arrows"){
+      arrowMode = true
+    }
+  }
+}
+
 const constructCurrentGroup = () => {
+  console.log(constructCurrentGroupAsMarkdown())
   const current = weave.containers()
   let inSession = []
   for(const container of current){

@@ -50,11 +50,10 @@ entries().then((entries) => {
     if (value.startsWith("g:")) {
       continue;
     }
-    console.info(`Adding ${filename} to index`)
     const text = decodeURIComponent(atob(value));
     const properties =   getPropertiesFromFile(text)
     const title = properties[manipulation.fields.kTitle]
-    console.log(title)
+    console.info(`Adding ${filename} (${title}) to index`)
     docs.push({ name: filename, filename: filename, title: title, text: text });
     weave.internal.fileTitles[filename] = title
   }

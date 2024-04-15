@@ -9,12 +9,13 @@ export {
   toTop,
   placeTitle
 };
-import { hookBodies, constructCurrentGroup } from "./internal.js";
+import { hookBodies,constructCurrentGroupAsMarkdown, constructCurrentGroup, parseGroupFromMarkdown } from "./internal.js";
 import { reset } from "./commands_base.js";
 import { manipulation } from "./panel.js";
+import { raw } from "./raw.js";
 import { dndDynamicDiv } from "./dynamicdiv.js";
 import { createOrMoveArrowBetweenDivs } from "./arrow.js";
-import { toMarkdown } from "./parser.js";
+import { toMarkdown  } from "./parser.js";
 import { set } from "./libs/idb-keyval.js";
 import { iload } from "./loadymcloadface.js"
 import {exportCurrent, ititle} from "./save.js"
@@ -137,8 +138,26 @@ const createPanel = (parentId, id, buttons, weave) => {
       save()
       console.info("Autosaving")
     }
+    if(ev.key === "b" && ev.ctrlKey){
+      console.log(constructCurrentGroupAsMarkdown())
+    }
     if(ev.key === "l" && ev.ctrlKey){
       iload.action()
+    }
+    if(ev.key === "r" && ev.ctrlKey){
+      raw.action()
+    }
+    if(ev.key === "g" && ev.ctrlKey){
+      console.log("ctrl-G")
+      const md = toMarkdown(body)
+      console.log("Loading group data from the following")
+      console.log(md)
+      const containers = weave.containers()
+      for(const container of containers){
+        container.remove()
+        weave.internal.arrows = []
+      }
+      parseGroupFromMarkdown(md)
     }
     if(ev.key === "t" && ev.ctrlKey){
       ititle.action(ev)
