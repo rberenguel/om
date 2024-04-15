@@ -1,5 +1,10 @@
 :root {
   --dynamic-div-width: 98%;
+  /* Trying https://jameshfisher.com/2024/03/12/a-formula-for-responsive-font-size/?utm_source=tldrnewsletter
+    Although I think I should change then all the other styles of sizing I have…
+    TODO
+  */
+  font-size: calc(1rem + 0.25vw);
 }
 
 .panel-title {
@@ -578,11 +583,12 @@ svg {
 
 .fades {
   opacity: 0 !important;
-  background: var(--dark-background) !important;
+  color: var(--dark-background) !important;
+  /* I liked the looks of these gradients here: https://codersblock.com/blog/playing-with-infinity-in-css/ */
+  background: var(--bright-orange) linear-gradient(45deg, #0006, transparent);
   border: 1px solid var(--bright-orange);
   border-radius: 5px;
   padding: 1em;
-  color: var(--gray-text) !important;
   z-index: 10000 !important;
 }
 

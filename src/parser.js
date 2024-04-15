@@ -520,6 +520,11 @@ function iterateDOM(node, mode) {
       const md = iterateDOM(child);
       generated.push(md);
     }
+    if (child.nodeName === "P"){
+      const md = iterateDOM(child);
+      generated.push(md);
+      generated.push("\n<br id='paragraph'/>\n")
+    }
     if (child.nodeName === "PRE") {
       console.debug("PRE");
       const splits = child.innerText.split("\n").filter((l) => l.length > 0);

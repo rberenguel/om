@@ -2,13 +2,13 @@ export { hookBodies, enableSelectionOnAll, disableSelectionOnAll, constructCurre
 import weave from "./weave.js";
 import { wireEverything } from "./load.js";
 import { reset } from "./commands_base.js";
-import { zwsr } from "./doms.js";
+
 import { unrawPane } from "./raw.js";
 import { manipulation } from "./panel.js";
 import {loadRow} from "./loadymcloadface.js"
-import { set } from "./libs/idb-keyval.js";
 
-import {ititle} from "./save.js"
+import { toMarkdown,parseInto } from "./parser.js";
+
 
 const enableSelectionOnAll = () => {
   const containers = document.getElementsByClassName("body-container");
@@ -163,6 +163,25 @@ const hookBodies = (buttons) => {
           info.innerHTML = `Added ${f}`;
           info.classList.add("fades");})
         event.preventDefault()
+      }
+      const pastedHTML = event.clipboardData.getData('text/html')
+      if(pastedHTML){
+        event.preventDefault()
+        console.log(pastedHTML)
+        console.log("This is HTML stuff")
+        const div = document.createElement("DIV")
+        div.innerHTML = pastedHTML
+        console.log(div)
+        const md = toMarkdown(div)
+        console.log(md)
+        div.innerHTML = ""
+        parseInto(md, div)
+        const selection = window.getSelection();
+        let range = selection.getRangeAt(0);
+        range.deleteContents();
+        range.insertNode(div);
+        info.innerHTML = `Converted pasted HTML (experimental)`;
+        info.classList.add("fades");
       }
       setTimeout(() => {
         wireEverything(weave.buttons(weave.root));
