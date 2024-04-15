@@ -496,25 +496,22 @@ function iterateDOM(node, mode) {
       md += `- ${inner}${nl}`;
       generated.push(md);
     }
+    // TODO headers need tests, particularly for additional inlined content like buttons
     if (child.nodeName === "H1") {
-      // TODO this is ignoring all possibly HTML inside headers
-      const text = child.innerText;
-      generated.push(`# ${text}\n`);
+      const md = iterateDOM(child);
+      generated.push(`# ${md.join(' ')}\n`);
     }
     if (child.nodeName === "H2") {
-      // TODO this is ignoring all possibly HTML inside headers
-      const text = child.innerText;
-      generated.push(`## ${text}\n`);
-    }
+      const md = iterateDOM(child);
+      generated.push(`## ${md.join(' ')}\n`);
+     }
     if (child.nodeName === "H3") {
-      // TODO this is ignoring all possibly HTML inside headers
-      const text = child.innerText;
-      generated.push(`### ${text}\n`);
+      const md = iterateDOM(child);
+      generated.push(`### ${md.join(' ')}\n`);
     }
     if (child.nodeName === "H4") {
-      // TODO this is ignoring all possibly HTML inside headers
-      const text = child.innerText;
-      generated.push(`#### ${text}\n`);
+      const md = iterateDOM(child);
+      generated.push(`#### ${md.join(' ')}\n`);
     }
     if (child.nodeName === "SPAN" && child.classList.length === 0) {
       const md = iterateDOM(child);
