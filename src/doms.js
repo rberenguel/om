@@ -108,7 +108,7 @@ const createPanel = (parentId, id, buttons, weave) => {
   bodyContainer.classList.add("unfit");
   title.textContent = "foo"
   title.classList.add("panel-title")
-  title.id = `title-$id`
+  title.id = `title-${id}`
   bodyContainer.titleDiv = title
   bodyContainer.parentId = parentId;
   const d = new Date();
@@ -148,7 +148,6 @@ const createPanel = (parentId, id, buttons, weave) => {
       raw.action()
     }
     if(ev.key === "g" && ev.ctrlKey){
-      console.log("ctrl-G")
       const md = toMarkdown(body)
       console.log("Loading group data from the following")
       console.log(md)

@@ -499,19 +499,19 @@ function iterateDOM(node, mode) {
     // TODO headers need tests, particularly for additional inlined content like buttons
     if (child.nodeName === "H1") {
       const md = iterateDOM(child);
-      generated.push(`# ${md.join(' ')}\n`);
+      generated.push(`\n# ${md.join(' ')}\n`);
     }
     if (child.nodeName === "H2") {
       const md = iterateDOM(child);
-      generated.push(`## ${md.join(' ')}\n`);
+      generated.push(`\n## ${md.join(' ')}\n`);
      }
     if (child.nodeName === "H3") {
       const md = iterateDOM(child);
-      generated.push(`### ${md.join(' ')}\n`);
+      generated.push(`\n### ${md.join(' ')}\n`);
     }
     if (child.nodeName === "H4") {
       const md = iterateDOM(child);
-      generated.push(`#### ${md.join(' ')}\n`);
+      generated.push(`\n#### ${md.join(' ')}\n`);
     }
     if (child.nodeName === "SPAN" && child.classList.length === 0) {
       const md = iterateDOM(child);

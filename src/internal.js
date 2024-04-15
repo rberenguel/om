@@ -317,6 +317,7 @@ const parseGroupFromMarkdown = (text) => {
       fileBodyMap[filename] = bodyId
       n+=1
       // TODO this should start file details state, doesn't yet
+      // TODO why is there an extra panel being created?
     }
     if(arrowMode){
       const [srcFn, dstFn] = line.split("-");
