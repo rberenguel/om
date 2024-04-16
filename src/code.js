@@ -2,7 +2,7 @@ export { id, eval_, sql, wireEval };
 
 import { reset, common } from "./commands_base.js";
 
-import { pad, wrap, postfix, divWithDraggableHandle } from "./doms.js";
+import { pad, wrap, postfix } from "./doms.js";
 
 import weave from "./weave.js";
 
@@ -148,9 +148,7 @@ const wireEvalFromScratch = (kind) => {
     tagPlain == "DIV" &&
     parentNodePlain.classList.contains("wired") &&
     parentNodePlain.classList.contains("code");
-
-  const [code, handle] = divWithDraggableHandle();
-  handle.remove();
+  const code = document.createElement("DIV")
   code.classList.add("wired", "code");
   if (skipPlain || skipAssignment) {
     // If the block is wired we skip

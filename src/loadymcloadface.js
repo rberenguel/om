@@ -6,9 +6,10 @@ import { showModalAndGetFilename } from "./save.js";
 import { enterKeyDownEvent } from "./commands_base.js";
 import { getPropertiesFromFile, parseIntoWrapper } from "./parser.js";
 import { parseGroupFromMarkdown } from "./internal.js"
-import { manipulation } from "./panel.js";
+import { manipulation } from "./manipulation.js";
 import { wireEverything } from "./load.js";
-import { createPanel } from "./doms.js";
+import { createPanel } from "./panel.js";
+
 
 const DEBUG = false
 
@@ -85,8 +86,9 @@ const convertNonGroupFileData = (key, value) => {
   if(value){
     // Store also the title at the beginning so it's more readable
     const splits = value.split(" ")
+    const len = splits.length
     if(splits.length > 1){
-      title = splits[0]
+      title = splits.slice(0, len-1).join(" ")
       content = splits.slice(-1)[0] // Last one, the rest is assumed to be title
     } else {
       content = splits[0]

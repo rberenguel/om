@@ -6,9 +6,10 @@ export {
   toMarkdown,
 };
 
-import { manipulation, panelFields } from "./panel.js";
 import weave from "./weave.js";
-import { createPanel, placeTitle } from "./doms.js";
+import { manipulation, panelFields } from "./manipulation.js";
+import { createPanel } from "./panel.js";
+import { placeTitle } from "./title.js";
 import { iloadIntoBody } from "./loadymcloadface.js";
 import { toTop } from "./doms.js";
 import { dynamicDiv } from "./dynamicdiv.js";

@@ -7,7 +7,7 @@ export {
 };
 
 import weave from "./weave.js";
-import { createPanel } from "./doms.js";
+import { createPanel } from "./panel.js";
 import { wireEval } from "./code.js";
 
 const DEBUG = false;

@@ -6,7 +6,8 @@ import { addGoogFont } from "./load.js";
 import { presentFiles } from "./loadymcloadface.js";
 import { set, entries } from "./libs/idb-keyval.js";
 import { showModalAndGetFilename } from "./save.js";
-import { postfix, createPanel } from "./doms.js"
+import { postfix } from "./doms.js"
+import { createPanel } from "./panel.js"
 
 const underline = {
   text: ["underline", "u"],

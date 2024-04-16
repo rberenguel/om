@@ -1,29 +1,28 @@
 export { buttons };
 
 import weave from "./weave.js";
-import { split } from "./doms.js";
+import { split } from "./panel.js";
 import { common } from "./commands_base.js";
 import { configLevels } from "./common.js";
 import { wireEverything } from "./load.js";
-import { manipulation } from "./panel.js";
+import { manipulation } from "./manipulation.js";
 import { parseIntoWrapper, parseInto, toMarkdown } from "./parser.js";
 import { get, keys, del, set, entries } from "./libs/idb-keyval.js";
 import { arrow } from "./arrow.js";
 import { headers, code, lists, link, hr, gfont, mono, fontup, fontdown, serif, underline, italic, bold } from "./formatters.js";
 import { toTop } from "./doms.js";
-import { iload, iloadIntoBody, gload, dbload } from "./loadymcloadface.js";
-import { presentFiles } from "./loadymcloadface.js";
+import { iload, iloadIntoBody, gload, dbload, presentFiles } from "./loadymcloadface.js";
 // Buttons
 import { div } from "./dynamicdiv.js";
 import {
   saveAll_,
   save,
   isave,
-  ititle,
   gsave,
   showModalAndGetFilename,
   dbdump
 } from "./save.js";
+import { ititle } from "./title.js"
 import { addGoogFont } from "./load.js";
 import { jazz } from "./jazz.js";
 import { GuillotineJS } from "./guillotine.js";

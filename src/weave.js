@@ -1,4 +1,4 @@
-import { createPanel } from "./doms.js";
+import { createPanel } from "./panel.js"
 
 const weave = {
   bodies: () => document.getElementsByClassName("body"),
@@ -30,10 +30,6 @@ const weave = {
   },
   createPanel: createPanel,
   root: null,
-  /*constructor() {
-    // Bind `this` for methods that need it
-    this.lastBodyClickId = this.lastBodyClickId.bind(this); 
-  }*/
 };
 
 export default weave;

@@ -1,21 +1,16 @@
-import {
-  loadAllFromGroup,
-  convertNonGroupFileData,
-} from "./loadymcloadface.js";
-
-// Can't import from dom due to circular dependency?
 import weave from "./weave.js";
-import { createPanel } from "./doms.js";
+
+import { entries } from "./libs/idb-keyval.js";
+import { loadAllFromGroup, convertNonGroupFileData } from "./loadymcloadface.js"
+import { createPanel } from "./panel.js";
 import { iloadIntoBody, dbload } from "./loadymcloadface.js";
 import { dbdump } from "./save.js";
-import { entries } from "./libs/idb-keyval.js";
 import { getPropertiesFromFile } from "./parser.js";
-import { manipulation } from "./panel.js";
+import { manipulation } from "./manipulation.js";
 import { enableSelectionOnAll, disableSelectionOnAll } from "./internal.js";
+
 // Globals that are used everywhere
-
 const DEBUG = false;
-
 // Helper for inline code
 
 let $ = {

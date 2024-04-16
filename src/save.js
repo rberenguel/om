@@ -1,7 +1,6 @@
 export {
   gsave,
   isave,
-  ititle,
   save,
   saveAll_,
   showModalAndGetFilename,
@@ -14,7 +13,7 @@ import { common, enterKeyDownEvent } from "./commands_base.js";
 import { set, entries } from "./libs/idb-keyval.js";
 import { toMarkdown } from "./parser.js";
 import { presentFiles } from "./loadymcloadface.js";
-import { manipulation } from "./panel.js";
+import { manipulation } from "./manipulation.js";
 
 const dbdump = {
   text: ["dbdump", "dumpdb"],
@@ -187,30 +186,6 @@ const setTitleInBodyDataset = (body, fileContainer) => {
   });
 };
 
-
-const titleToSelectedBodyFromSelection = (currentTitle) => {
-  const selection = window.getSelection() + "";
-  if (selection.length > 0) {
-    // Selection exists, proceed (synchronous)
-    const title = selection;
-    const body = document.getElementById(weave.internal.bodyClicks[1]);
-    manipulation.set(container, manipulation.fields.kTitle, title)
-    return Promise.resolve([title, body]); // Wrap in a resolved promise
-  }
-
-  // No selection - asynchronous part
-  const body = document.getElementById(weave.internal.bodyClicks[0]);
-  const modal = document.getElementById("modal");
-  modal.showing = true
-  const fileContainer = document.createElement("div");
-  fileContainer.id = "fileContainer";
-  modal.append(fileContainer);
-  modal.value = currentTitle
-  // This block will be reused…
-  return setTitleInBodyDataset(body, fileContainer);
-};
-
-
 const filenameToSelectedBodyFromSelection = () => {
   const selection = window.getSelection() + "";
 
@@ -257,30 +232,6 @@ const isave = {
       });
   },
   description: "Save a pane to IndexedDB",
-  el: "u",
-};
-
-const ititle = {
-  text: ["ititle"],
-  action: (ev) => {
-    /*if (common(ev)) {
-      return;
-    }*/
-    ev.preventDefault(); // To allow focusing on input
-    ev.stopPropagation();
-    if(modal.showing){
-      return
-    }
-    const body = document.getElementById(weave.internal.bodyClicks[0]);
-    const container = body.closest(".body-container")
-    const currentTitle = manipulation.get(body, manipulation.fields.kTitle)
-    titleToSelectedBodyFromSelection(currentTitle)
-      .then(([title, body]) => {})
-      .catch((error) => {
-        console.error("Error resolving the title promise", error);
-      });
-  },
-  description: "Add title to panel",
   el: "u",
 };
 
