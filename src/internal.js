@@ -306,9 +306,12 @@ const parseGroupFromMarkdown = (text) => {
   let arrowMode = false
   const lines = text.split("\n").filter(l => l.trim().length > 0)
   for(const line of lines){
-    if(line.startsWith("# f")){
+    console.log(line)
+    if(!(line === "# Arrows") && line.startsWith("# ") && !arrowMode){ // TODO so bad
       // Parsing a file, matches the above
+      console.log("File")
       const filename = line.split(" ")[1]
+      console.info(`Block for file ${filename}`)
       const bodyId = `b${n}`; // TODO NO, this is not good enough
       createPanel(weave.root, bodyId, weave.buttons(weave.root), weave);
       const body = document.getElementById(bodyId);
@@ -332,13 +335,8 @@ const parseGroupFromMarkdown = (text) => {
 }
 
 const constructCurrentGroup = () => {
-  console.log(constructCurrentGroupAsMarkdown())
-  const current = weave.containers()
-  let inSession = []
-  for(const container of current){
-    const filename = manipulation.get(container, manipulation.fields.kFilename)
-    inSession.push(filename)
-  }
-  const filenames = inSession.join("|")
-  return `g:${filenames}`
+  const md = constructCurrentGroupAsMarkdown()
+  console.info(md)
+  const groupData = btoa(encodeURIComponent(md))
+  return `g:${groupData}`
 }

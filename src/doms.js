@@ -7,9 +7,10 @@ export {
   postfix,
   divWithDraggableHandle,
   toTop,
-  placeTitle
+  placeTitle,
+  split
 };
-import { hookBodies,constructCurrentGroupAsMarkdown, constructCurrentGroup, parseGroupFromMarkdown } from "./internal.js";
+import { hookBodies, constructCurrentGroupAsMarkdown, constructCurrentGroup, parseGroupFromMarkdown } from "./internal.js";
 import { reset } from "./commands_base.js";
 import { manipulation } from "./panel.js";
 import { raw } from "./raw.js";
@@ -19,6 +20,9 @@ import { toMarkdown  } from "./parser.js";
 import { set } from "./libs/idb-keyval.js";
 import { iload } from "./loadymcloadface.js"
 import {exportCurrent, ititle} from "./save.js"
+
+import { common } from "./commands_base.js";
+
 // TODO: I think I want to be able to move panels instead of drag-and-drop.
 
 // I use this separator in many places
@@ -26,6 +30,25 @@ const zwsr = () => document.createTextNode("\u200b");
 
 // HTML elements of interest
 //const bodies = () => document.getElementsByClassName("body");
+
+const split = (parentId) => {
+  return {
+    text: ["split"],
+    action: (ev) => {
+      console.info(`Splitting for parentId: ${parentId}`);
+      if (common(ev)) {
+        return;
+      }
+      const n = weave.bodies().length;
+      const id = `b${n}`; // TODO: This will work _badly_ with deletions
+      // This is now repeated!
+      createPanel(parentId, id, weave.buttons(weave.root), weave); // I might as well send everything once?
+    },
+    description: "Add a new editing buffer",
+    el: "u",
+  };
+};
+
 
 const pad = (node) => {
   node.insertAdjacentHTML("afterbegin", "&thinsp;");
@@ -53,6 +76,7 @@ const divWithDraggableHandle = () => {
 };
 
 const toTop = (b) => () => {
+  // TODO this seems to not preserve ordering
   const arr = Array.from(weave.containers()).map((o) =>
     parseFloat(o.style.zIndex || 0),
   );
@@ -162,6 +186,9 @@ const createPanel = (parentId, id, buttons, weave) => {
       }
       parseGroupFromMarkdown(md)
     }
+    if(ev.key === "n" && ev.ctrlKey){
+      split(weave.root).action()
+    }
     if(ev.key === "t" && ev.ctrlKey){
       ititle.action(ev)
     }    
@@ -186,12 +213,18 @@ const createPanel = (parentId, id, buttons, weave) => {
     edges: { left: true, right: true, bottom: true, top: true },
     // TODO There is something failing in resize
     listeners: {
+      start(ev) {
+        for(const container of weave.containers()){
+          container.classList.add("no-select")
+        }
+      },
+      end(ev) {
+        for(const container of weave.containers()){
+          container.classList.remove("no-select")
+        }
+      },
       move(event) {
         const f = 1 / (document.body.dataset.scale || 1);
-        const bx = document.body.dataset.x;
-        const by = document.body.dataset.y;
-        // TODO Uhm, strange I don't need to use these
-        // TODO use accessors also for body moves
         bodyContainer.classList.remove("unfit"); // This allows full resizability
         let target = event.target;
         toTop(target)();
@@ -368,14 +401,23 @@ const createPanel = (parentId, id, buttons, weave) => {
     autoscroll: true,
     listeners: {
       leave: (ev) => {},
-      start(event) {
+      start(ev) {
         toTop(bodyContainer)
+        for(const container of weave.containers()){
+          container.classList.add("no-select")
+        }
       },
-      move(event) {
+      end(ev) {
+        for(const container of weave.containers()){
+          container.classList.remove("no-select")
+        }
+      },
+      move(ev) {
+        const f = 1 / (document.body.dataset.scale || 1);
         let x = manipulation.get(bodyContainer, manipulation.fields.kX);
         let y = manipulation.get(bodyContainer, manipulation.fields.kY);
-        x += event.dx;
-        y += event.dy;
+        x += f*ev.dx;
+        y += f*ev.dy;
         manipulation.set(bodyContainer, manipulation.fields.kX, x);
         manipulation.set(bodyContainer, manipulation.fields.kY, y);
         manipulation.reposition(bodyContainer);
@@ -406,6 +448,9 @@ const createPanel = (parentId, id, buttons, weave) => {
   bodyContainer.addEventListener("click", () => {
     toggleTitling(bodyContainer)
     toTop(bodyContainer)()
+    for(const container of weave.containers()){
+      container.classList.remove("unfit");
+    }
   });
   document.getElementById(parentId).appendChild(bodyContainer);
   document.getElementById(parentId).appendChild(title);

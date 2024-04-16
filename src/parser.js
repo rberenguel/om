@@ -1,4 +1,10 @@
-export { getPropertiesFromFile, parseIntoWrapper, parseInto, iterateDOM, toMarkdown };
+export {
+  getPropertiesFromFile,
+  parseIntoWrapper,
+  parseInto,
+  iterateDOM,
+  toMarkdown,
+};
 
 import { manipulation, panelFields } from "./panel.js";
 import weave from "./weave.js";
@@ -7,22 +13,31 @@ import { iloadIntoBody } from "./loadymcloadface.js";
 import { toTop } from "./doms.js";
 import { dynamicDiv } from "./dynamicdiv.js";
 
-const parseProperties = (lines) => {
-  let properties = {}
-  for(const line of lines){
-    const split = line.split(" ");
-    const property = split[1].replace(":", "");
-    const value = split.slice(2).join(" ");
-    properties[property] = value
+const DEBUG = false;
 
+const parseProperties = (lines) => {
+  let properties = {};
+  for (const line of lines) {
+    if(line.trim().length == 0){
+      continue
+    }
+    try {
+      const split = line.split(" ");
+      const property = split[1].replace(":", "");
+      const value = split.slice(2).join(" ");
+      properties[property] = value;
+    } catch (err) {
+      console.error("Failed parsing a property, failing line: ", line);
+      console.error(err);
+    }
   }
-  return properties
-}
+  return properties;
+};
 
 const getPropertiesFromFile = (text) => {
   const lines = text.split("\n");
   let processingProperties = true;
-  let propertiesLines = []
+  let propertiesLines = [];
   // TODO can I have this just once?
   for (const line of lines) {
     if (processingProperties) {
@@ -34,24 +49,26 @@ const getPropertiesFromFile = (text) => {
         processingProperties = false;
         continue;
       }
-      propertiesLines.push(line)
-    }else {
-      break
+      propertiesLines.push(line);
+    } else {
+      break;
     }
   }
-  const properties = parseProperties(propertiesLines) 
-  return properties
-}
+  const properties = parseProperties(propertiesLines);
+  return properties;
+};
 
 const parseIntoWrapper = (text, body) => {
-  console.debug("Parsing: ");
-  console.debug(text);
+  if (DEBUG) {
+    console.debug("Parsing: ");
+    console.debug(text);
+  }
   body.innerHTML = "";
   const container = body.closest(".body-container");
   const lines = text.split("\n");
   let processingProperties = true;
   let rest = [];
-  let propertiesLines = []
+  let propertiesLines = [];
   for (const line of lines) {
     if (processingProperties) {
       // Processing properties
@@ -62,14 +79,14 @@ const parseIntoWrapper = (text, body) => {
         processingProperties = false;
         continue;
       }
-      propertiesLines.push(line)
-    }else {
+      propertiesLines.push(line);
+    } else {
       rest.push(line);
     }
   }
-  const properties = parseProperties(propertiesLines) 
-  for(const property in properties){
-    const value = properties[property]
+  const properties = parseProperties(propertiesLines);
+  for (const property in properties) {
+    const value = properties[property];
     manipulation.set(container, property, value);
   }
   manipulation.reposition(container);
@@ -99,9 +116,11 @@ const linkStateMachine = (line, body, mode = "") => {
         // We are starting a link: emit whatever text we had up until now.
         // TODO Yes, this is preventing having naked brackets.
         inLinkText = true;
-        console.debug("The accumulator at the middle is");
-        console.debug(`"${accum}"`);
-        if(accum.length > 0){
+        if (DEBUG) {
+          console.debug("The accumulator at the middle is");
+          console.debug(`"${accum}"`);
+        }
+        if (accum.length > 0) {
           const tn = document.createTextNode(accum.join(""));
           accum = [];
           body.appendChild(tn);
@@ -122,18 +141,20 @@ const linkStateMachine = (line, body, mode = "") => {
           const link = document.createElement("a");
           const href = reference.join("");
           link.href = href;
-          const title = weave.internal.fileTitles[href]
+          const title = weave.internal.fileTitles[href];
           link.innerText = title;
           link.dataset.internal = true;
           reference = [];
-          console.info(`Appending link for ${link}`)
-          console.log(line)
-          console.log(reference)
-          if(line === `[[${href}]]` && !mode.includes("longer")){
+          if (DEBUG) {
+            console.log(`Appending link for ${link}`);
+            console.log(line);
+            console.log(reference);
+          }
+          if (line === `[[${href}]]` && !mode.includes("longer")) {
             // The link is alone in a full line
-            const div = document.createElement("DIV")
-            div.appendChild(link)
-            body.appendChild(div)
+            const div = document.createElement("DIV");
+            div.appendChild(link);
+            body.appendChild(div);
           } else {
             body.appendChild(link);
           }
@@ -147,7 +168,9 @@ const linkStateMachine = (line, body, mode = "") => {
               const bodyId = `b${n}`; // TODO NO, this is not good enough
               createPanel(weave.root, bodyId, weave.buttons(weave.root), weave);
               const body = document.getElementById(bodyId);
-              console.debug(link);
+              if (DEBUG) {
+                console.debug(link);
+              }
               iloadIntoBody(href, body);
               toTop(body);
             } else {
@@ -173,15 +196,15 @@ const linkStateMachine = (line, body, mode = "") => {
       link.dataset.internal = false;
       linkText = [];
       linkHref = [];
-      if(line === `[${text}](${href})` && !mode.includes("longer")){
+      if (line === `[${text}](${href})` && !mode.includes("longer")) {
         // The link is alone in a full line
-        const div = document.createElement("DIV")
-        div.appendChild(link)
-        body.appendChild(div)
+        const div = document.createElement("DIV");
+        div.appendChild(link);
+        body.appendChild(div);
       } else {
         body.appendChild(link);
       }
-      console.info(`Appending link for ${link}`)
+      if (DEBUG) console.log(`Appending link for ${link}`);
       // TODO repetition
       link.addEventListener("click", (ev) => {
         ev.preventDefault(); // Prevent default navigation
@@ -192,7 +215,7 @@ const linkStateMachine = (line, body, mode = "") => {
           const bodyId = `b${n}`; // TODO NO, this is not good enough
           createPanel(weave.root, bodyId, weave.buttons(weave.root), weave);
           const body = document.getElementById(bodyId);
-          console.debug(link);
+          if (DEBUG) console.debug(link);
           iloadIntoBody(href, body);
           toTop(body);
         } else {
@@ -215,25 +238,28 @@ const linkStateMachine = (line, body, mode = "") => {
     }
     accum.push(c);
   }
-  console.debug(`Mode ${mode}, the accumulator at the end is`);
-  console.debug(`"${accum.join("").trim()}"`);
-  const accumed = accum.join("")
-  if(accum.length > 0){
+  if (DEBUG) {
+    console.debug(`Mode ${mode}, the accumulator at the end is`);
+    console.debug(`"${accum.join("").trim()}"`);
+  }
+  const accumed = accum.join("");
+  if (accum.length > 0) {
     const tn = document.createTextNode(accumed);
     accum = [];
-    if(mode.includes("longer")){
+    if (mode.includes("longer")) {
       body.appendChild(tn);
-      return
+      return;
     }
-    if(accumed == line && accumed.trim().length > 0){
-      if(mode.includes("preserve")){
-        console.debug(`Preserving accumulator (no new div) "${accumed}"`);
-        body.appendChild(tn)
+    if (accumed == line && accumed.trim().length > 0) {
+      if (mode.includes("preserve")) {
+        if (DEBUG)
+          console.debug(`Preserving accumulator (no new div) "${accumed}"`);
+        body.appendChild(tn);
       } else {
-        console.debug(`Adding accumulator div with "${accumed}"`);
-        const div = document.createElement("div")
-        div.appendChild(tn)
-        body.appendChild(div)
+        if (DEBUG) console.debug(`Adding accumulator div with "${accumed}"`);
+        const div = document.createElement("div");
+        div.appendChild(tn);
+        body.appendChild(div);
       }
       //body.appendChild(tn)
     } else {
@@ -243,17 +269,19 @@ const linkStateMachine = (line, body, mode = "") => {
 };
 
 const parseInto = (text, body, mode) => {
-  if(text.length == 0){
-    return
+  if (text.length == 0) {
+    return;
   }
-  console.debug(`parseInto with mode ${mode}`);
-  console.debug(`"${text}"`);
+  if (DEBUG) {
+    console.debug(`parseInto with mode ${mode}`);
+    console.debug(`"${text}"`);
+  }
   const lines = text.split("\n");
   let codeBlock = false;
   for (const line of lines) {
-    console.debug(`Parsing line: ${line}`);
+    if (DEBUG) console.debug(`Parsing line: ${line}`);
     if (line.startsWith("<br")) {
-      const br = document.createElement("br")
+      const br = document.createElement("br");
       //const div = document.createElement("div");
       //div.appendChild(document.createElement("br"));
       body.appendChild(br);
@@ -281,7 +309,7 @@ const parseInto = (text, body, mode) => {
     if (line.startsWith("- ")) {
       const li = document.createElement("li");
       const rest = line.slice(2);
-      console.log("List mode")
+      if (DEBUG) console.log("List mode");
       parseInto(rest, li, "preserve");
       body.appendChild(li);
       continue;
@@ -320,43 +348,43 @@ const parseInto = (text, body, mode) => {
     }
     // Ignoring code blocks for now, this can go in parsediv
     const [simple, hasDiv] = parseTillTick(line);
-    console.debug(`simple: ${simple}, hasDiv: ${hasDiv}`);
-    let wd = body
-    if(mode != "preserve"){
+    if (DEBUG) console.debug(`simple: ${simple}, hasDiv: ${hasDiv}`);
+    let wd = body;
+    if (mode != "preserve") {
       // "preserve" means stay in the same context we have been provided instead of creating a new one.
       // I use this to keep a div-per-line structure
-      wd = document.createElement("DIV")
+      wd = document.createElement("DIV");
     }
     if (!hasDiv) {
       if (simple === null) {
-        console.debug(`No div: ${line}`);
+        if(DEBUG) console.debug(`No div: ${line}`);
         // Here now I need to process links. Let's just inject a small state machine
         linkStateMachine(line, wd, mode);
       } else {
       }
     }
     if (hasDiv) {
-      console.debug(`hasDiv: ${hasDiv}`);
+      if (DEBUG) console.debug(`hasDiv: ${hasDiv}`);
       // Propagate the mode, we might want to preserve the link state machine output without adding any new divs
       linkStateMachine(simple, wd, `longer|${mode}`);
       //const tn = document.createTextNode(simple);
       //body.appendChild(tn);
       const [div, rest] = parseTillTick(hasDiv);
-      console.debug(`div: ${div}, rest: ${rest}`);
+      if (DEBUG) console.debug(`div: ${div}, rest: ${rest}`);
       const divNode = parseDiv(div);
       wd.appendChild(divNode);
-      console.log("Appended")
+      if (DEBUG) console.log("Appended");
       parseInto(rest, wd, "preserve");
     }
-    console.log(wd)
-    if(mode != "preserve"){
-      body.appendChild(wd)
+    if (DEBUG) console.log(wd);
+    if (mode != "preserve") {
+      body.appendChild(wd);
     }
   }
 };
 
 const parseTillTick = (text) => {
-  console.debug(`parseTillTick: ${text}`);
+  if (DEBUG) console.debug(`parseTillTick: ${text}`);
   const regex = /^(.*?)`(.*)$/s;
   const match = text.match(regex);
   if (!match) {
@@ -372,8 +400,10 @@ const parseTillTick = (text) => {
 };
 
 const toMarkdown = (element) => {
-  console.debug("Parsing markdown on element");
-  console.debug(element);
+  if (DEBUG) {
+    console.debug("Parsing markdown on element");
+    console.debug(element);
+  }
   const content = iterateDOM(element);
   let saveable = [];
   if (element.classList.contains("body")) {
@@ -385,18 +415,18 @@ const toMarkdown = (element) => {
     }
     saveable.push("-->\n");
   }
-  let fixedContent = []
-  fixedContent.push(content[0])
-  console.log("Purging of new lines")
-  for(let i = 0;i< content.length-1;i++){
-    const prev = content[i]
-    const curr = content[i+1]
-    console.log(`curr: ${curr}`)
-    if(prev == "\n" && curr == "\n"){
-      console.log("Purging a new line (skips curr)")
-      continue
+  let fixedContent = [];
+  fixedContent.push(content[0]);
+  if (DEBUG) console.log("Purging of new lines");
+  for (let i = 0; i < content.length - 1; i++) {
+    const prev = content[i];
+    const curr = content[i + 1];
+    if (DEBUG) console.log(`curr: ${curr}`);
+    if (prev == "\n" && curr == "\n") {
+      if (DEBUG) console.log("Purging a new line (skips curr)");
+      continue;
     }
-    fixedContent.push(curr)
+    fixedContent.push(curr);
   }
 
   fixedContent = fixedContent.join("").trim();
@@ -412,10 +442,10 @@ function iterateDOM(node, mode) {
   // If mode == noNL no new lines will be added to naked divs
   // The generated structures are never more than 2 levels deep, seems, for now
   let generated = [];
-  let isFirstList = true
-  if(mode == "foldNL"){
+  let isFirstList = true;
+  if (mode == "foldNL") {
     // Lists (alone) in divs only work well if they don't take into account this
-    isFirstList = false
+    isFirstList = false;
   }
   for (const child of node.childNodes) {
     //iterateDOM(child);
@@ -429,8 +459,8 @@ function iterateDOM(node, mode) {
       //}
       continue;
     }
-    if(child.nodeName != "LI" && mode != "foldNL"){
-      isFirstList = true
+    if (child.nodeName != "LI" && mode != "foldNL") {
+      isFirstList = true;
     }
     if (child.classList.contains("wrap")) {
       const button = child.children[0];
@@ -443,9 +473,9 @@ function iterateDOM(node, mode) {
     }
     if (child.nodeName === "BR") {
       //generated.push("\n"); // This might be a stretch
-      generated.push("\n")
+      generated.push("\n");
       generated.push("<br id='nodename-br'/>");
-      generated.push("\n")
+      generated.push("\n");
       //generated.push("\n"); // This might be a stretch
     }
     if (child.nodeName === "HR") {
@@ -456,12 +486,14 @@ function iterateDOM(node, mode) {
     if (child.nodeName === "DIV" && child.classList.length === 0) {
       //generated.push("<br/>");
       //generated.push("<br b/>");
-      console.log("Should add new line?")
-      console.log(child.textContent)
-      console.log(child.parentNode.nodeName)
-      console.log(mode)
-      if(child.parentNode.nodeName != "LI" && mode != "noNL"){
-        console.log("Adding new line")
+      if (DEBUG) {
+        console.log("Should add new line?");
+        console.log(child.textContent);
+        console.log(child.parentNode.nodeName);
+        console.log(mode);
+      }
+      if (child.parentNode.nodeName != "LI" && mode != "noNL") {
+        if (DEBUG) console.log("Adding new line");
         generated.push("\n");
       }
       const md = iterateDOM(child);
@@ -488,10 +520,10 @@ function iterateDOM(node, mode) {
       if (child.nextSibling === null) {
         nl = "";
       }
-      let md = ""
-      if(isFirstList){
-        md = nl
-        isFirstList = false
+      let md = "";
+      if (isFirstList) {
+        md = nl;
+        isFirstList = false;
       }
       md += `- ${inner}${nl}`;
       generated.push(md);
@@ -499,33 +531,33 @@ function iterateDOM(node, mode) {
     // TODO headers need tests, particularly for additional inlined content like buttons
     if (child.nodeName === "H1") {
       const md = iterateDOM(child);
-      generated.push(`\n# ${md.join(' ')}\n`);
+      generated.push(`\n# ${md.join(" ")}\n`);
     }
     if (child.nodeName === "H2") {
       const md = iterateDOM(child);
-      generated.push(`\n## ${md.join(' ')}\n`);
-     }
+      generated.push(`\n## ${md.join(" ")}\n`);
+    }
     if (child.nodeName === "H3") {
       const md = iterateDOM(child);
-      generated.push(`\n### ${md.join(' ')}\n`);
+      generated.push(`\n### ${md.join(" ")}\n`);
     }
     if (child.nodeName === "H4") {
       const md = iterateDOM(child);
-      generated.push(`\n#### ${md.join(' ')}\n`);
+      generated.push(`\n#### ${md.join(" ")}\n`);
     }
     if (child.nodeName === "SPAN" && child.classList.length === 0) {
       const md = iterateDOM(child);
       generated.push(md);
     }
-    if (child.nodeName === "P"){
+    if (child.nodeName === "P") {
       const md = iterateDOM(child);
       generated.push(md);
-      generated.push("\n<br id='paragraph'/>\n")
+      generated.push("\n<br id='paragraph'/>\n");
     }
     if (child.nodeName === "PRE") {
-      console.debug("PRE");
+      if (DEBUG) console.debug("PRE");
       const splits = child.innerText.split("\n").filter((l) => l.length > 0);
-      console.debug(splits);
+      if (DEBUG) console.debug(splits);
       const md = "\n```\n" + splits.join("\n<br id='br-pre'/>\n") + "\n```\n";
       generated.push(md);
     }
@@ -536,9 +568,9 @@ function iterateDOM(node, mode) {
         .map((c) => `.${c}`)
         .join(" ");
       const inner = iterateDOM(child, "foldNL").join("").trim();
-      console.debug(`Inner: ${inner}`);
+      if (DEBUG) console.debug(`Inner: ${inner}`);
       const toAdd = [allClasses, inner].join(" ").trim();
-      console.debug(toAdd);
+      if (DEBUG) console.debug(toAdd);
       const md = `\`[div] .dynamic-div ${toAdd}\``;
       generated.push(md);
       //generated.push("\n");
@@ -560,7 +592,7 @@ function iterateDOM(node, mode) {
 const divBlock = "[div]";
 
 const parseDiv = (divData) => {
-  console.debug(`Parsing div: ${divData}`);
+  if (DEBUG) console.debug(`Parsing div: ${divData}`);
   if (!divData.startsWith(divBlock)) {
     return divData; // This eventually should create a textNode for code blocks in Markdown
   }
@@ -596,12 +628,12 @@ const parseDiv = (divData) => {
     const rest = noHeaderSplits.slice(2).join(" ");
     // The rest need more work.
     const value = rest.slice(rest.lastIndexOf(veq) + veq.length, -1);
-    console.debug(`Code, value: ${value}`);
+    if (DEBUG) console.debug(`Code, value: ${value}`);
     const evalString = rest
       .replace(" " + veq + value + "}", "")
       .replace(esq, "")
       .slice(0, -1);
-    console.debug(`Code, evalString: ${evalString}`);
+    if (DEBUG) console.debug(`Code, evalString: ${evalString}`);
     const div = document.createElement("div");
     div.classList.add("wired");
     div.classList.add("code");

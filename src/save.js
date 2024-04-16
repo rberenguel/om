@@ -89,14 +89,16 @@ function showModalAndGetFilename(placeholder, fileContainer, prefix, callback) {
   modal.style.display = "block";
   inp.focus();
   inp.addEventListener("blur", (ev) => {
+    console.log("blurred")
     setTimeout(() => { 
       modal.innerHTML = "";
       modal.style.display = "none";
       modal.showing = false
       callback(null);
-    }, 50); 
+    }, 150); 
   })
   inp.addEventListener("keydown", function (ev) {
+    console.log("keyed down")
     const searchString = inp.value;
     let results;
     try {
@@ -126,8 +128,11 @@ function showModalAndGetFilename(placeholder, fileContainer, prefix, callback) {
   loadInput.addEventListener("keydown", function (ev) {
     if (ev.key === "Enter") {
       ev.preventDefault();
+      
       const filename = loadInput.value;
+      console.log(filename)
       callback(filename);
+      // TODO The following likely never runs
       modal.style.display = "none";
       modal.showing = false
       modal.innerHTML = "";

@@ -1,4 +1,7 @@
-import { loadAllFromGroup } from "./loadymcloadface.js";
+import {
+  loadAllFromGroup,
+  convertNonGroupFileData,
+} from "./loadymcloadface.js";
 
 // Can't import from dom due to circular dependency?
 import weave from "./weave.js";
@@ -11,6 +14,8 @@ import { manipulation } from "./panel.js";
 import { enableSelectionOnAll, disableSelectionOnAll } from "./internal.js";
 // Globals that are used everywhere
 
+const DEBUG = false;
+
 // Helper for inline code
 
 let $ = {
@@ -20,10 +25,10 @@ let $ = {
   qs: (s) => document.querySelector(s),
 };
 
-console.log(weave);
+if (DEBUG) console.log(weave);
 
 weave.root = "content";
-weave.canvas = "canvas"
+weave.canvas = "canvas";
 
 document.isDragging = false;
 
@@ -44,84 +49,72 @@ const urlParams = new URLSearchParams(window.location.search);
 const gloadParam = urlParams.get("gload");
 const iloadParam = urlParams.get("iload");
 
-entries().then((entries) => {
-  let docs = [];
-  for (const [filename, value] of entries) {
-    if (value && value.startsWith("g:")) {
-      continue;
-    }
-    let title = ""
-    let content = ""
-    if(value){
-      // Store also the title at the beginning so it's more readable
-      const splits = value.split(" ")
-      if(splits.length > 1){
-        title = splits[0]
-        content = splits.slice(-1)[0] // Last one, the rest is assumed to be title
-      } else {
-        content = splits[0]
+// TODO this should be re-run every time we save
+entries()
+  .then((entries) => {
+    let docs = [];
+    for (const [k, v] of entries) {
+      if (v && v.startsWith("g:")) {
+        continue;
+      }
+      const { key, value } = convertNonGroupFileData(k, v);
+      // Don't care about the database title here, only real content title
+      try {
+        const text = decodeURIComponent(atob(value));
+        const properties = getPropertiesFromFile(text);
+        if (DEBUG) console.debug(properties);
+        const title = properties[manipulation.fields.kTitle];
+        console.info(`Adding ${key} (${title}) to index`);
+        docs.push({ name: title, filename: key, title: title, text: text });
+        weave.internal.fileTitles[key] = title;
+      } catch (err) {
+        console.error(`Failed loading ${key}, ${value} (${k}, ${v})`);
+        console.error(err);
       }
     }
-    console.log(`filename: ${filename}`)
-    console.log(`title: ${title}`)
-    console.log(`content: ${content}`)
-    // Don't care about the database title here, only real content title
-    try {
-      const text = decodeURIComponent(atob(content));
-      const properties =   getPropertiesFromFile(text)
-      console.debug(properties)
-      title = properties[manipulation.fields.kTitle]
-      console.info(`Adding ${filename} (${title}) to index`)
-      docs.push({ name: filename, filename: filename, title: title, text: text });
-      weave.internal.fileTitles[filename] = title
-    } catch(err) {
-      console.error(err)
+    if (DEBUG) console.log(docs);
+    weave.internal.idx = lunr(function () {
+      this.ref("filename");
+      this.field("name");
+      this.field("text");
+
+      docs.forEach(function (doc) {
+        this.add(doc);
+      }, this);
+    });
+  })
+  .catch((err) => console.error(err));
+
+document.body.addEventListener("touchstart", function (event) {
+  if (event.touches.length === 2) {
+    document.body.twoFingerStartX = event.touches[0].clientX;
+    document.body.twoFingerStartY = event.touches[0].clientY;
+    document.body.oneFingerStartX = undefined;
+    document.body.oneFingerStartY = undefined;
+  } else {
+    document.body.twoFingerStartX = undefined;
+    document.body.twoFingerStartY = undefined;
+  }
+});
+document.body.addEventListener("touchend", function (event) {
+  document.body.endX = event.changedTouches[0].clientX;
+  document.body.endY = event.changedTouches[0].clientY;
+  // TODO it can collide with pinch-for-zoom, how could I prevent that?
+  if (document.body.twoFingerStartX) {
+    if (DEBUG) console.log(event);
+    const deltaX = document.body.endX - document.body.twoFingerStartX;
+    const deltaY = document.body.endY - document.body.twoFingerStartY;
+    const nrm = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    if (DEBUG) console.log(deltaX, deltaY, nrm);
+    if (Math.abs(deltaX) < 20 && deltaY > 0 && nrm > 250) {
+      if (DEBUG) console.info("dbdumping");
+      dbdump.action();
+    }
+    if (Math.abs(deltaX) < 20 && deltaY < 0 && nrm > 250) {
+      // Ideally this would be dbload, but seems like Safari doesn't like this
     }
   }
-  console.log(docs)
-  weave.internal.idx = lunr(function () {
-    this.ref("filename");
-    this.field("name");
-    this.field("text");
-
-    docs.forEach(function (doc) {
-      this.add(doc);
-    }, this);
-  });
-}).catch(err => console.error(err));
-
-document.body.addEventListener("touchstart", function(event) {
-    if(event.touches.length === 2){
-      document.body.twoFingerStartX = event.touches[0].clientX;
-      document.body.twoFingerStartY = event.touches[0].clientY;
-      document.body.oneFingerStartX = undefined
-      document.body.oneFingerStartY = undefined
-     }else {
-      document.body.twoFingerStartX = undefined
-      document.body.twoFingerStartY = undefined
-     }
-})
-  document.body.addEventListener("touchend", function(event) {
-    document.body.endX = event.changedTouches[0].clientX;
-    document.body.endY = event.changedTouches[0].clientY;
-    // TODO it can collide with pinch-for-zoom, how could I prevent that?
-    if(document.body.twoFingerStartX){
-      console.log("Foo")
-      console.log(event)
-      const deltaX = document.body.endX -document.body.twoFingerStartX;
-      const deltaY = document.body.endY -document.body.twoFingerStartY;
-      const nrm = Math.sqrt(deltaX*deltaX + deltaY*deltaY)
-      console.log(deltaX, deltaY, nrm)
-       if (Math.abs(deltaX) < 20 && deltaY > 0 && nrm > 250) {
-        console.info("dbdumping")
-        dbdump.action()
-       }
-      if (Math.abs(deltaX) < 20 && deltaY < 0 && nrm > 250) {
-        // Ideally this would be dbload, but seems like Safari doesn't like this
-      }
- }
-  })
-
+});
 
 interact(document.body).draggable({
   inertia: true,
@@ -138,8 +131,8 @@ interact(document.body).draggable({
       let scale = parseFloat(body.dataset.scale || 1);
       let x = manipulation.get(body, manipulation.fields.kX);
       let y = manipulation.get(body, manipulation.fields.kY);
-      let deltaX = ((event.dx * 1) / scale);
-      let deltaY = ((event.dy * 1) / scale);
+      let deltaX = (event.dx * 1) / scale;
+      let deltaY = (event.dy * 1) / scale;
       if (body.dataset.stickyX > 0) {
         deltaX = 0;
         body.dataset.stickyX -= 1;
@@ -175,7 +168,7 @@ interact(document.body).draggable({
 
       manipulation.set(body, manipulation.fields.kX, nx);
       manipulation.set(body, manipulation.fields.kY, ny);
-      
+
       // Translate all panels according to the current drag of the body
       for (const container of containers) {
         let x = manipulation.get(container, manipulation.fields.kX);
@@ -187,18 +180,18 @@ interact(document.body).draggable({
         manipulation.reposition(container);
       }
       // Translate all arrows likewise
-      for(const arrow of weave.internal.arrows){
-        const arr = document.getElementById(arrow)
-        let x, y
-        if(arr.dataset.x){
-          x= parseFloat(arr.dataset.x)
+      for (const arrow of weave.internal.arrows) {
+        const arr = document.getElementById(arrow);
+        let x, y;
+        if (arr.dataset.x) {
+          x = parseFloat(arr.dataset.x);
         } else {
-          x = 0
+          x = 0;
         }
-        if(arr.dataset.y){
-          y= parseFloat(arr.dataset.y)
+        if (arr.dataset.y) {
+          y = parseFloat(arr.dataset.y);
         } else {
-          y = 0
+          y = 0;
         }
         x += deltaX;
         y += deltaY;
@@ -217,8 +210,8 @@ interact(document.body).gesturable({
   listeners: {
     move(ev) {
       const body = document.getElementById(weave.root);
-      if (event.target.id != weave.root && event.target.id != weave.canvas) {
-        console.log(`Skipping pinch on ${event.target.id}`);
+      if (ev.target.id != weave.root && event.target.id != weave.canvas) {
+        console.info(`Skipping pinch on ${ev.target.id}`);
         return;
       }
       if (body.dataset.sticky > 0) {
@@ -247,45 +240,51 @@ interact(document.body).gesturable({
   },
 });
 
-document.body.addEventListener("wheel", (event) => {
-  const body = document.body;
-  const content = document.getElementById(weave.root);
-  console.log("wheel");
-  console.log(event);
-  if (event.target.id != weave.root && event.target.id != weave.canvas) {
-    console.log("Skipping wheel");
-    return;
-  }
-  event.preventDefault();
-  if (body.dataset.sticky > 0) {
-    body.dataset.sticky -= 1;
-    return;
-  }
-  let x = parseFloat(body.dataset.x || 0);
-  let y = parseFloat(body.dataset.y || 0);
-  const sign = Math.sign(event.deltaY);
+document.body.addEventListener(
+  "wheel",
+  (event) => {
+    const body = document.body;
+    const content = document.getElementById(weave.root);
+    if (DEBUG) {
+      console.log("wheel");
+      console.log(event);
+    }
+    if (event.target.id != weave.root && event.target.id != weave.canvas) {
+      if (DEBUG) console.log("Skipping wheel");
+      return;
+    }
+    event.preventDefault();
+    if (body.dataset.sticky > 0) {
+      body.dataset.sticky -= 1;
+      return;
+    }
+    let x = parseFloat(body.dataset.x || 0);
+    let y = parseFloat(body.dataset.y || 0);
+    const sign = Math.sign(event.deltaY);
 
-  let scale = parseFloat(body.dataset.scale || 1);
-  const zoomDelta = scale / 50;
-  const transformed = Math.log(Math.abs(event.deltaY)) * zoomDelta;
-  const prev = scale;
-  if (sign < 1) {
-    scale = Math.abs(scale + transformed);
-    if ((1 - scale) * (1 - prev) < 0) {
-      scale = 1;
-      body.dataset.sticky = 10;
+    let scale = parseFloat(body.dataset.scale || 1);
+    const zoomDelta = scale / 50;
+    const transformed = Math.log(Math.abs(event.deltaY)) * zoomDelta;
+    const prev = scale;
+    if (sign < 1) {
+      scale = Math.abs(scale + transformed);
+      if ((1 - scale) * (1 - prev) < 0) {
+        scale = 1;
+        body.dataset.sticky = 10;
+      }
+      content.style.transform = `scale(${scale})`;
+    } else {
+      scale = Math.abs(scale - transformed);
+      if ((1 - scale) * (1 - prev) < 0) {
+        scale = 1;
+        body.dataset.sticky = 10;
+      }
+      content.style.transform = `scale(${scale})`;
     }
-    content.style.transform = `scale(${scale})`;
-  } else {
-    scale = Math.abs(scale - transformed);
-    if ((1 - scale) * (1 - prev) < 0) {
-      scale = 1;
-      body.dataset.sticky = 10;
-    }
-    content.style.transform = `scale(${scale})`;
-  }
-  body.dataset.scale = scale;
-});
+    body.dataset.scale = scale;
+  },
+  { passive: false }
+);
 
 if (gloadParam) {
   try {
@@ -303,13 +302,13 @@ if (gloadParam) {
     const bodyId = `b${n}`; // TODO NO, this is not good enough
     createPanel(weave.root, bodyId, weave.buttons(weave.root), weave);
     const body = document.getElementById(bodyId);
-    console.log(iloadParam);
+    if (DEBUG) console.log(iloadParam);
     iloadIntoBody(iloadParam, body);
   } else {
     loadAllFromGroup("weave:last-session")
       .then()
       .catch((err) => {
-        console.log("Could not load from previous session", err);
+        console.error("Could not load from previous session", err);
 
         weave.createPanel(weave.root, "b0", weave.buttons(weave.root), weave);
       });

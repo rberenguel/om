@@ -13,38 +13,36 @@ const panelFields = Object.freeze({
   kGFont: "gfont",
   kX: "x",
   kY: "y",
-  kKind: "kind"
+  kKind: "kind",
 });
 
 const manipulation = {
   fields: panelFields,
   get(node, prop) {
-    let body, container
-    if(node.classList.contains("body")){
-      body = node
-      container = node.closest(".body-container")
-    }
-    else if(node.classList.contains("body-container")){
-      body = node.querySelector(".body")
-      container = node
+    let body, container;
+    if (node.classList.contains("body")) {
+      body = node;
+      container = node.closest(".body-container");
+    } else if (node.classList.contains("body-container")) {
+      body = node.querySelector(".body");
+      container = node;
     } else if (node === document.body) {
-      body = node
-      container = node
+      body = node;
+      container = node;
     } else if (node.classList.contains("panel-title")) {
-      body = node
-      container = node
-    } 
-    else {
+      body = node;
+      container = node;
+    } else {
       throw {
-        name: 'WeaveNodeError',
-        message: `The node is neither a .body-container, .body or document.body (it is '${node.nodeName} '${node.classList}')`
+        name: "WeaveNodeError",
+        message: `The node is neither a .body-container, .body or document.body (it is '${node.nodeName} '${node.classList}')`,
       };
     }
     //const body = container.querySelector(".body");
     const currentRect = container.getBoundingClientRect();
     switch (prop) {
       case panelFields.kKind:
-        return container.dataset.kind || "text"
+        return container.dataset.kind || "text";
       case panelFields.kWidth:
         return (
           parseFloat(container.dataset.width) || Math.floor(currentRect.width)
@@ -60,31 +58,29 @@ const manipulation = {
       case panelFields.kFilename:
         return container.dataset.filename || ""; // TODO :shrug:
       case panelFields.kTitle:
-        if(container.dataset.title === undefined){
-          return ""
+        if (container.dataset.title === undefined) {
+          return this.get(container, panelFields.kFilename);
         }
-        return container.dataset.title
-       case panelFields.kFolded:
+        return container.dataset.title;
+      case panelFields.kFolded:
         return (
           body.classList.contains("folded") &&
           container.classList.contains("folded-bc")
         );
       case panelFields.kMono:
-        return (
-          body.classList.contains("mono")
-        );
+        return body.classList.contains("mono");
       case panelFields.kGFont:
         return body.dataset.gfont;
       case panelFields.kX:
-        if(container.dataset.x){
-          return parseFloat(container.dataset.x)
+        if (container.dataset.x) {
+          return parseFloat(container.dataset.x);
         } else {
           return Math.floor(currentRect.x);
         }
 
       case panelFields.kY:
-        if(container.dataset.y){
-          return parseFloat(container.dataset.y)
+        if (container.dataset.y) {
+          return parseFloat(container.dataset.y);
         } else {
           return Math.floor(currentRect.y);
         }
@@ -94,7 +90,7 @@ const manipulation = {
     const body = container.querySelector(".body");
     switch (prop) {
       case panelFields.kKind:
-        container.dataset.kind = value
+        container.dataset.kind = value;
         break;
       case panelFields.kWidth:
         container.dataset.width = parseFloat(value);
@@ -118,7 +114,7 @@ const manipulation = {
         container.dataset.filename = value;
         break;
       case panelFields.kTitle:
-        if(value === undefined){
+        if (value === undefined) {
           container.dataset.title = "";
         } else {
           container.dataset.title = value;
@@ -135,9 +131,9 @@ const manipulation = {
         }
         break;
       case panelFields.kMono:
-        if(JSON.parse(value)){
-          body.classList.add("mono")
-          body.classList.remove("serif")
+        if (JSON.parse(value)) {
+          body.classList.add("mono");
+          body.classList.remove("serif");
         }
         break;
       case panelFields.kGFont:
@@ -156,12 +152,12 @@ const manipulation = {
     }
   },
   reposition(container) {
-    let x = this.get(container, panelFields.kX)
-    let y = this.get(container, panelFields.kY)
+    let x = this.get(container, panelFields.kX);
+    let y = this.get(container, panelFields.kY);
     container.dataset.x = x;
     container.dataset.y = y;
     const transform = `translate(${x}px, ${y}px)`;
-    container.style.transform = transform;  
+    container.style.transform = transform;
   },
   resize(container) {
     const current = container.getBoundingClientRect();

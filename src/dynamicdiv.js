@@ -7,6 +7,8 @@ import { parseInto, toMarkdown } from "./parser.js";
 import { common } from "./commands_base.js";
 import { postfix } from "./doms.js";
 
+const DEBUG = false
+
 const div = {
   text: ["div"],
   action: (ev) => {
@@ -21,9 +23,6 @@ const div = {
     htmlContainer.appendChild(selection.getRangeAt(0).cloneContents());
     const div = dynamicDiv(toMarkdown(htmlContainer));
     let range = selection.getRangeAt(0);
-    //const [div, handle] = divWithDraggableHandle();
-    //div.classList.add("dynamic-div");
-    //div.innerHTML = selectedHTML;
     draggy(div);
     // The following is to remove the phantom divs that can appear when editing in a contenteditable.
     // I mighta s well do this anywhere I manupulate selections too
@@ -39,20 +38,19 @@ const div = {
     range.insertNode(div);
     // Either I do inline-block and postfix or don't postfix
     postfix(div);
-    //addListeners(handle, div, "dynamic-div");
   },
 };
 
 const dynamicDiv = (text) => {
-  console.info(`Preparing dynamic div with "${text}"`)
+  if(DEBUG) console.info(`Preparing dynamic div with "${text}"`)
   const div = document.createElement("div");
   // First extract the classes present
   const splits = text.split(/\s+/);
-  console.log(splits);
+  if(DEBUG) console.log(splits);
   let i = 0,
     classes = [];
   while (splits.length >= i + 1 && splits[i].startsWith(".")) {
-    console.log(`Extracted class: ${splits[i]}`);
+    if(DEBUG) console.log(`Extracted class: ${splits[i]}`);
     classes.push(splits[i].trim());
     i += 1;
   }
@@ -89,10 +87,8 @@ const dynamicDiv = (text) => {
     });
   }
   const cleanText = splits.slice(i).join(" ").replaceAll("\\n", "\n");
-  console.log(`Text ready to be parsed into a div: ${cleanText}`);
+  if(DEBUG) console.log(`Text ready to be parsed into a div: ${cleanText}`);
   parseInto(cleanText, div);
-  //const tn = document.createTextNode(cleanText);
-  //div.appendChild(tn);
   draggy(div);
   return div;
 };

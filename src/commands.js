@@ -1,7 +1,7 @@
 export { buttons };
 
 import weave from "./weave.js";
-import { createPanel, postfix, prefix } from "./doms.js";
+import { split } from "./doms.js";
 import { common } from "./commands_base.js";
 import { configLevels } from "./common.js";
 import { wireEverything } from "./load.js";
@@ -429,24 +429,6 @@ filePicker.addEventListener("change", (event) => {
     }
   };
 });
-
-const split = (parentId) => {
-  return {
-    text: ["split"],
-    action: (ev) => {
-      console.info(`Splitting for parentId: ${parentId}`);
-      if (common(ev)) {
-        return;
-      }
-      const n = weave.bodies().length;
-      const id = `b${n}`; // TODO: This will work _badly_ with deletions
-      // This is now repeated!
-      createPanel(parentId, id, weave.buttons(weave.root), weave); // I might as well send everything once?
-    },
-    description: "Add a new editing buffer",
-    el: "u",
-  };
-};
 
 const dark = {
   text: ["dark"],

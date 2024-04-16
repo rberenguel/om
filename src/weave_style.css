@@ -282,24 +282,12 @@ Uses font-awesome for styling, but requires also a label for it so it can be che
   touch-action: none;
   line-height: 1.5;
   font-weight: 100;
-  /*padding: 1em;*/
   caret-color: green;
   width: 30%;
   height: 30%;
-  /*min-height: fit-content;*/
-  /* height: 300px; why the f had I this hardcoded? */
   overflow: auto;
-  /*
-     * resize: both;
-     * This does not work in iOS Safari and I might then as well use the 
-     * nice-looking interactjs.io also for dragging.
-     * */
   border: 1px solid var(--bright-orange);
   border-radius: 5px;
-  /* float: inline-start; */
-  /*min-width: fit-content;
-  min-height: fit-content;*/
-  /*max-height: 95%;*/
   max-width: 95%;
   margin: 1em;
   box-sizing: border-box;
