@@ -35,10 +35,22 @@ const loadRow = (row) => {
 
 
 const iloadIntoBody = (filename, body) => {
-  get(filename).then((filecontent) => {
+  get(filename).then((value) => {
     console.info("Loaded from IndexedDb");
     console.info("About to parse")
-    parseIntoWrapper(decodeURIComponent(atob(filecontent)), body);
+    let title = ""
+          let content = ""
+          if(value){
+            // Store also the title at the beginning so it's more readable
+            const splits = value.split(" ")
+            if(splits.length > 1){
+              title = splits[0]
+              content = splits.slice(-1)[0] // Last one, the rest is assumed to be title
+            } else {
+              content = splits[0]
+            }
+          }
+    parseIntoWrapper(decodeURIComponent(atob(content)), body);
     const paddingDiv = document.createElement("DIV")
     paddingDiv.id = "padding"
     paddingDiv.innerHTML = "&nbsp;" // This preserves the cursor
@@ -90,6 +102,7 @@ const presentFiles = (files, container) => {
 const iload = {
   text: ["iload"],
   action: (ev) => {
+    console.debug("iloading")
     const body = document.getElementById(weave.internal.bodyClicks[0]);
     const modal = document.getElementById("modal");
     modal.showing = true
@@ -98,8 +111,21 @@ const iload = {
     modal.append(fileContainer);
     entries().then((entries) => {
       const files = entries
-        .filter(([key, value]) => !value.startsWith("g:"))
-        .map(([key, value]) => {return {key: key, value: value}});
+        .filter(([key, value]) => value && !value.startsWith("g:"))
+        .map(([key, value]) => {
+          let title = ""
+          let content = ""
+          if(value){
+            // Store also the title at the beginning so it's more readable
+            const splits = value.split(" ")
+            if(splits.length > 1){
+              title = splits[0]
+              content = splits.slice(-1)[0] // Last one, the rest is assumed to be title
+            } else {
+              content = splits[0]
+            }
+          }
+          return {key: key, value: content}});
       presentFiles(files, fileContainer);
       const hr = document.createElement("hr");
       modal.appendChild(hr);

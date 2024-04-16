@@ -47,15 +47,36 @@ const iloadParam = urlParams.get("iload");
 entries().then((entries) => {
   let docs = [];
   for (const [filename, value] of entries) {
-    if (value.startsWith("g:")) {
+    if (value && value.startsWith("g:")) {
       continue;
     }
-    const text = decodeURIComponent(atob(value));
-    const properties =   getPropertiesFromFile(text)
-    const title = properties[manipulation.fields.kTitle]
-    console.info(`Adding ${filename} (${title}) to index`)
-    docs.push({ name: filename, filename: filename, title: title, text: text });
-    weave.internal.fileTitles[filename] = title
+    let title = ""
+    let content = ""
+    if(value){
+      // Store also the title at the beginning so it's more readable
+      const splits = value.split(" ")
+      if(splits.length > 1){
+        title = splits[0]
+        content = splits.slice(-1)[0] // Last one, the rest is assumed to be title
+      } else {
+        content = splits[0]
+      }
+    }
+    console.log(`filename: ${filename}`)
+    console.log(`title: ${title}`)
+    console.log(`content: ${content}`)
+    // Don't care about the database title here, only real content title
+    try {
+      const text = decodeURIComponent(atob(content));
+      const properties =   getPropertiesFromFile(text)
+      console.debug(properties)
+      title = properties[manipulation.fields.kTitle]
+      console.info(`Adding ${filename} (${title}) to index`)
+      docs.push({ name: filename, filename: filename, title: title, text: text });
+      weave.internal.fileTitles[filename] = title
+    } catch(err) {
+      console.error(err)
+    }
   }
   console.log(docs)
   weave.internal.idx = lunr(function () {

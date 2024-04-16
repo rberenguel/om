@@ -116,8 +116,12 @@ const createPanel = (parentId, id, buttons, weave) => {
   bodyContainer.spaceCounter = 10
   const save = () => {
     const body = bodyContainer.querySelector(".body")
+    // TODO this is very repeated with isave
     const filename = manipulation.get(bodyContainer, manipulation.fields.kFilename)
-    const saveString = btoa(encodeURIComponent(toMarkdown(body)));
+    const content = btoa(encodeURIComponent(toMarkdown(body)));
+    const title = manipulation.get(body, manipulation.fields.kTitle)
+    const saveString = `${title} ${content}`
+    console.log(`Saving with a title of ${title}`)
     set(filename, saveString)
       .then(() => {
         console.info("Data saved in IndexedDb")
@@ -390,9 +394,12 @@ const createPanel = (parentId, id, buttons, weave) => {
   interact(bodyContainer).on("hold", (ev) => {
     const selection = window.getSelection()+""
     if(selection===""){
-      ev.target.querySelector(".body").click()
-      ititle.action(ev)
-      ev.stopPropagation()
+      const targetBody = ev.target.querySelector(".body")
+      if(targetBody){
+        targetBody.click()
+        ititle.action(ev)
+        ev.stopPropagation()
+      }
     } 
   }
   )

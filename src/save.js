@@ -237,7 +237,10 @@ const isave = {
     ev.stopPropagation();
     filenameToSelectedBodyFromSelection()
       .then(([filename, body]) => {
-        const saveString = btoa(encodeURIComponent(toMarkdown(body)));
+        const content = btoa(encodeURIComponent(toMarkdown(body)));
+        const title = manipulation.get(body, manipulation.fields.kTitle)
+        const saveString = `${title} ${content}`
+        console.log(`Saving with a title`)
         set(filename, saveString)
           .then(() => console.info("Data saved in IndexedDb"))
           .catch((err) => console.info("Saving in IndexedDb failed", err));
