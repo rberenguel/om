@@ -23,7 +23,7 @@ const stringDiffer = (s1, s2) => {
       diff = true;
     }
   }
-  
+
   if (diff) {
     console.log(s1);
     console.log(s2);
@@ -83,4 +83,23 @@ const createButton = (text, panelBody) => {
 const events = {
   mousedown: new MouseEvent("mousedown"),
   click: new MouseEvent("click"),
+  cDash: (key) => {
+    const event = new KeyboardEvent("keydown", {
+      key: key,
+      bubbles: false,
+      ctrlKey: true
+    });
+    return event
+  },
+  esc: new KeyboardEvent("keydown", {
+    key: "Escape",
+    bubbles: false
+  }),
+  enter: new KeyboardEvent("keydown", {
+  key: "Enter",
+  code: "Enter",
+  which: 13,
+  keyCode: 13,
+  bubbles: false,
+}) 
 };

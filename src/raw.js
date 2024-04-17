@@ -1,5 +1,7 @@
 export { raw, unrawPane };
 
+import weave from "../src/weave.js";
+
 import { parseIntoWrapper, toMarkdown } from "./parser.js";
 import { wireEverything } from "./load.js";
 

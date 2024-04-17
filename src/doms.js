@@ -6,6 +6,8 @@ export {
   postfix,
   toTop,
 };
+import weave from "../src/weave.js";
+
 import { constructCurrentGroupAsMarkdown, constructCurrentGroup, parseGroupFromMarkdown } from "./internal.js";
 import { reset } from "./commands_base.js";
 import { manipulation } from "./manipulation.js";

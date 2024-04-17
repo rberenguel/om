@@ -101,6 +101,7 @@ const convertNonGroupFileData = (key, value) => {
 const iload = {
   text: ["iload"],
   action: (ev) => {
+    console.info("iload triggered")
     if(DEBUG) console.debug("iloading")
     const body = document.getElementById(weave.internal.bodyClicks[0]);
     const modal = document.getElementById("modal");

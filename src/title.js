@@ -1,6 +1,8 @@
 export { toggleTitling, placeTitle, ititle }
 
+import weave from "../src/weave.js";
 import { manipulation } from "./manipulation.js";
+import { showModalAndGetFilename } from "./save.js";
 
 const ititle = {
   text: ["ititle"],
@@ -45,6 +47,26 @@ const titleToSelectedBodyFromSelection = (currentTitle) => {
   // This block will be reused…
   return setTitleInBodyDataset(body, fileContainer);
 };
+
+const setTitleInBodyDataset = (body, fileContainer) => {
+  const container = body.closest(".body-container")
+  // Need filename from modal
+  return new Promise((resolve) => {
+    showModalAndGetFilename(
+      "title?",
+      fileContainer,
+      "name:",
+      function (titleFromModal) {
+        if (!titleFromModal) {
+          return;
+        }
+        manipulation.set(container, manipulation.fields.kTitle, titleFromModal)
+        resolve([titleFromModal, body]);
+      },
+    );
+  });
+};
+
 
 
 const placeTitle = (container) => {
