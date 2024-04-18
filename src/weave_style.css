@@ -1,5 +1,7 @@
 :root {
   --dynamic-div-width: 98%;
+  --handle-margin: 0.5em;
+  --handle-padding: 1.5em;
   /* Trying https://jameshfisher.com/2024/03/12/a-formula-for-responsive-font-size/?utm_source=tldrnewsletter
     Although I think I should change then all the other styles of sizing I have…
     TODO
@@ -263,18 +265,18 @@ Uses font-awesome for styling, but requires also a label for it so it can be che
 .better-handle {
   display: block;
   /* This padding is the draggable space always present */
-  padding: 1.5em;
+  padding: var(--handle-padding);
   border-radius: 5px;
   line-height: 1.5;
   font-weight: 100;
   z-index: -1;
   /* This margin is the resizable space always present */
-  margin: 0.5em;
+  margin: var(--handle-margin);
 }
 
 .better-handle {
-  height: 100%;
-  box-shadow: 0 0 1.5em 1.5em #cc660008; /* Subtle glow */
+  height: calc(100% - 2 * var(--handle-padding) - 2 * var(--handle-margin));
+  box-shadow: 0 0 var(--handle-padding) var(--handle-padding) #cc660008; /* Subtle glow */
 }
 
 .body-container {

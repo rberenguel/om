@@ -170,7 +170,12 @@ const loadAllFromGroup = (groupname) => {
       const text = groupcontent.substring(2)// Discarg g:
       if(true) console.log(text)
       const group = decodeURIComponent(atob(text))
+    try {
       parseGroupFromMarkdown(group) 
+    } catch(err){
+      console.error("Group is unparsable as markdown: ")
+      console.error(err)
+    }
       // const files = groupcontent.substring(2).split("|");
       // let n = weave.bodies().length;
       // for (const filename of files) {

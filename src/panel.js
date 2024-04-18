@@ -3,7 +3,7 @@ export { createPanel, split, close_ };
 import weave from "./weave.js";
 
 import { constructCurrentGroup } from "./internal.js";
-import { set, get, entries } from "./libs/idb-keyval.js";
+import { set } from "./libs/idb-keyval.js";
 import { manipulation } from "./manipulation.js";
 import { wireBodies } from "./wires.js";
 import { placeTitle, ititle, toggleTitling } from "./title.js";
@@ -12,8 +12,9 @@ import { toTop } from "./doms.js";
 import { iload } from "./loadymcloadface.js";
 import { raw } from "./raw.js";
 import { toMarkdown } from "./parser.js";
-import { common } from "./commands_base.js";
+import { common, reset } from "./commands_base.js";
 import { createOrMoveArrowBetweenDivs } from "./arrow.js";
+import { dndDynamicDiv } from "./dynamicdiv.js";
 
 const split = (parentId) => {
   return {
@@ -26,7 +27,7 @@ const split = (parentId) => {
       const n = weave.bodies().length;
       const id = `b${n}`; // TODO: This will work _badly_ with closings?
       // This is now repeated!
-      createPanel(parentId, id, weave.buttons(weave.root), weave); // I might as well send everything once?
+      return createPanel(parentId, id, weave.buttons(weave.root), weave); // I might as well send everything once?
     },
     description: "Add a new editing buffer",
     el: "u",
@@ -58,6 +59,7 @@ const close_ = {
 
 const createPanel = (parentId, id, buttons, weave) => {
   const bodyContainer = document.createElement("div");
+  bodyContainer.dragMethod = "dragmove" // TODO convert to constants
   const title = document.createElement("div");
   bodyContainer.classList.add("body-container");
   bodyContainer.classList.add("unfit");
@@ -109,9 +111,6 @@ const createPanel = (parentId, id, buttons, weave) => {
     }
     if (ev.key === "r" && ev.ctrlKey) {
       raw.action();
-    }
-    if (ev.key === "n" && ev.ctrlKey) {
-      split(weave.root).action();
     }
     if (ev.key === "t" && ev.ctrlKey) {
       ititle.action(ev);
@@ -321,6 +320,21 @@ const createPanel = (parentId, id, buttons, weave) => {
       },
     },
   });
+  bodyContainer.dragMove = {}
+  bodyContainer.dragMove["dragmove"] = (ev) => {
+    const f = 1 / (document.body.dataset.scale || 1);
+    let x = manipulation.get(bodyContainer, manipulation.fields.kX);
+    let y = manipulation.get(bodyContainer, manipulation.fields.kY);
+    x += f * ev.dx;
+    y += f * ev.dy;
+    manipulation.set(bodyContainer, manipulation.fields.kX, x);
+    manipulation.set(bodyContainer, manipulation.fields.kY, y);
+    manipulation.reposition(bodyContainer);
+    placeTitle(bodyContainer);
+    for (const arrow of weave.internal.arrows) {
+      createOrMoveArrowBetweenDivs(arrow);
+    }
+  }
 
   interact(bodyContainer).draggable({
     allowFrom: betterHandle,
@@ -341,18 +355,10 @@ const createPanel = (parentId, id, buttons, weave) => {
         }
       },
       move(ev) {
-        const f = 1 / (document.body.dataset.scale || 1);
-        let x = manipulation.get(bodyContainer, manipulation.fields.kX);
-        let y = manipulation.get(bodyContainer, manipulation.fields.kY);
-        x += f * ev.dx;
-        y += f * ev.dy;
-        manipulation.set(bodyContainer, manipulation.fields.kX, x);
-        manipulation.set(bodyContainer, manipulation.fields.kY, y);
-        manipulation.reposition(bodyContainer);
-        placeTitle(bodyContainer);
-        for (const arrow of weave.internal.arrows) {
-          createOrMoveArrowBetweenDivs(arrow);
+        if(!bodyContainer.dragMethod){
+          return
         }
+        bodyContainer.dragMove[bodyContainer.dragMethod](ev)
       },
     },
   });
@@ -384,4 +390,5 @@ const createPanel = (parentId, id, buttons, weave) => {
   wireBodies(buttons);
   manipulation.forcePositionToReality(bodyContainer);
   placeTitle(bodyContainer);
+  return bodyContainer
 };

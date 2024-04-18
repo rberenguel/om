@@ -1,7 +1,8 @@
-export { wireBodies, wireButtons }
+export { wireBodies, wireButtons };
 
 import weave from "./weave.js";
-import { reset } from "./commands_base.js"
+import { reset } from "./commands_base.js";
+import { toMarkdown  } from "./parser.js";
 
 const wireBodies = (buttons) => {
   for (let body of weave.bodies()) {
@@ -117,43 +118,55 @@ const wireBodies = (buttons) => {
       });
       body.dblClickAttached = true;
     }
-
-    body.addEventListener("contextmenu", wireButtons(buttons));
+    // TODO: check what range.extractContents() can simplify
+    body.addEventListener("contextmenu", (ev) => {
+      const selection = window.getSelection();
+      if (selection.toString() === "") {
+        const range = document.createRange();
+        range.setStartBefore(ev.target.firstChild);
+        range.setEndAfter(ev.target.lastChild);
+        wireButtons(buttons)(ev);
+      } else {
+        wireButtons(buttons)(ev);
+      }
+      
+    });
     interact(body).on("hold", (ev) => {
-      console.info("Wiring on hold")
-      weave.internal.held = true
-      const selection = window.getSelection()+""
-      if(selection===""){
+      console.info("Wiring on hold");
+      weave.internal.held = true;
+      const selection = window.getSelection() + "";
+      if (selection === "") {
       } else {
         wireButtons(buttons)(ev);
         window.getSelection().removeAllRanges();
       }
-   });
+    });
     body.addEventListener("paste", (event) => {
       // Paste takes a slight bit to modify the DOM, if I trigger
       // the wiring without waiting a pasted button might not be wired
       // properly.
-      const pastedText = event.clipboardData.getData('text/plain');
-      if(pastedText.startsWith("- f")){
+      const pastedText = event.clipboardData.getData("text/plain");
+      if (pastedText.startsWith("- f")) {
         // TODO this is very naive, I need better data transfer options
-        loadRow(pastedText).then(f => {
-          console.info(`Loaded ${f} in IndexedDB (possibly replacing it)`)
+        loadRow(pastedText).then((f) => {
+          console.info(`Loaded ${f} in IndexedDB (possibly replacing it)`);
           info.innerHTML = `Added ${f}`;
-          info.classList.add("fades");})
-        event.preventDefault()
+          info.classList.add("fades");
+        });
+        event.preventDefault();
       }
-      const pastedHTML = event.clipboardData.getData('text/html')
-      if(pastedHTML){
-        event.preventDefault()
-        console.log(pastedHTML)
-        console.log("This is HTML stuff")
-        const div = document.createElement("DIV")
-        div.innerHTML = pastedHTML
-        console.log(div)
-        const md = toMarkdown(div)
-        console.log(md)
-        div.innerHTML = ""
-        parseInto(md, div)
+      const pastedHTML = event.clipboardData.getData("text/html");
+      if (pastedHTML) {
+        event.preventDefault();
+        console.log(pastedHTML);
+        console.log("This is HTML stuff");
+        const div = document.createElement("DIV");
+        div.innerHTML = pastedHTML;
+        console.log(div);
+        const md = toMarkdown(div);
+        console.log(md);
+        div.innerHTML = "";
+        parseInto(md, div);
         const selection = window.getSelection();
         let range = selection.getRangeAt(0);
         range.deleteContents();
@@ -170,8 +183,8 @@ const wireBodies = (buttons) => {
 
 const wireButtons = (buttons) => (event) => {
   const selection = window.getSelection();
-  if(!selection){
-    return
+  if (!selection) {
+    return;
   }
   const selectedText = selection.toString().toLowerCase();
   console.info(`Wiring button for ${selectedText}`);
@@ -183,10 +196,10 @@ const wireButtons = (buttons) => (event) => {
     return;
   }
   let node, result;
-  console.log("all buttons")
-  console.log(buttons)
+  console.log("all buttons");
+  console.log(buttons);
   for (const button of buttons) {
-    console.log(button)
+    console.log(button);
     if (button.matcher && button.matcher.test(selectedText)) {
       if (button.creator) {
         event.preventDefault();
@@ -218,6 +231,7 @@ const wireButtons = (buttons) => (event) => {
   if (node) {
     // The event needs to be stopped _if_ we successfully generated a button
     event.preventDefault();
+    event.stopPropagation()
     let div = document.createElement("div");
     node.innerHTML = `${selectedText}`.trim();
     div.contentEditable = false;
@@ -247,5 +261,3 @@ const wireButtons = (buttons) => (event) => {
     div.insertAdjacentHTML("afterend", "&thinsp;");
   }
 };
-
-

@@ -2,8 +2,8 @@ import weave from "./weave.js";
 
 import { entries } from "./libs/idb-keyval.js";
 import { loadAllFromGroup, convertNonGroupFileData } from "./loadymcloadface.js"
-import { createPanel } from "./panel.js";
-import { iloadIntoBody, dbload } from "./loadymcloadface.js";
+import { createPanel, split } from "./panel.js";
+import { iloadIntoBody } from "./loadymcloadface.js";
 import { dbdump } from "./save.js";
 import { getPropertiesFromFile } from "./parser.js";
 import { manipulation } from "./manipulation.js";
@@ -280,6 +280,14 @@ document.body.addEventListener(
   },
   { passive: false }
 );
+
+document.body.addEventListener("keydown", ev => {
+  console.log(ev)
+  if (ev.key === "n" && ev.ctrlKey) {
+    const body = split(weave.root).action().querySelector(".body");
+    body.focus()
+  }
+})
 
 if (gloadParam) {
   try {

@@ -8,18 +8,6 @@ export {
 };
 import weave from "../src/weave.js";
 
-import { constructCurrentGroupAsMarkdown, constructCurrentGroup, parseGroupFromMarkdown } from "./internal.js";
-import { reset } from "./commands_base.js";
-import { manipulation } from "./manipulation.js";
-import { raw } from "./raw.js";
-import { dndDynamicDiv } from "./dynamicdiv.js";
-import { createOrMoveArrowBetweenDivs } from "./arrow.js";
-import { toMarkdown  } from "./parser.js";
-import { set } from "./libs/idb-keyval.js";
-import { iload } from "./loadymcloadface.js"
-
-import { common } from "./commands_base.js";
-
 // I use this separator in many places
 const zwsr = () => document.createTextNode("\u200b");
 
