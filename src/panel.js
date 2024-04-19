@@ -16,6 +16,8 @@ import { common, reset } from "./commands_base.js";
 import { createOrMoveArrowBetweenDivs } from "./arrow.js";
 import { dndDynamicDiv } from "./dynamicdiv.js";
 
+const DEBUG = true
+
 const split = (parentId) => {
   return {
     text: ["split"],
@@ -320,8 +322,23 @@ const createPanel = (parentId, id, buttons, weave) => {
       },
     },
   });
-  bodyContainer.dragMove = {}
-  bodyContainer.dragMove["dragmove"] = (ev) => {
+  bodyContainer.dragMethod = "dragmove"
+  bodyContainer.dragMethods = {}
+  bodyContainer.dragMethods["dragmove"] = {}
+  bodyContainer.dragMethods["dragmove"].enter = (ev) => {}
+  bodyContainer.dragMethods["dragmove"].leave = (ev) => {}
+  bodyContainer.dragMethods["dragmove"].start = (ev) => {
+    toTop(bodyContainer);
+    for (const container of weave.containers()) {
+      container.classList.add("no-select");
+    }
+  }
+  bodyContainer.dragMethods["dragmove"].end = (ev) => {
+    for (const container of weave.containers()) {
+      container.classList.remove("no-select");
+    }
+  }
+  bodyContainer.dragMethods["dragmove"].move = (ev) => {
     const f = 1 / (document.body.dataset.scale || 1);
     let x = manipulation.get(bodyContainer, manipulation.fields.kX);
     let y = manipulation.get(bodyContainer, manipulation.fields.kY);
@@ -344,22 +361,28 @@ const createPanel = (parentId, id, buttons, weave) => {
     listeners: {
       leave: (ev) => {},
       start(ev) {
-        toTop(bodyContainer);
-        for (const container of weave.containers()) {
-          container.classList.add("no-select");
-        }
+        if(DEBUG) console.debug(`dragstart: ${bodyContainer.querySelector(".body").id}`)
+        bodyContainer.dragMethods[bodyContainer.dragMethod].start(ev)
       },
       end(ev) {
-        for (const container of weave.containers()) {
-          container.classList.remove("no-select");
-        }
+        if(DEBUG) console.debug(`dragend: ${bodyContainer.querySelector(".body").id}`)
+        bodyContainer.dragMethods[bodyContainer.dragMethod].end(ev)
       },
       move(ev) {
-        if(!bodyContainer.dragMethod){
-          return
-        }
-        bodyContainer.dragMove[bodyContainer.dragMethod](ev)
+        bodyContainer.dragMethods[bodyContainer.dragMethod].move(ev)
       },
+      enter(ev) {
+        if(DEBUG) console.debug(`dragenter: ${bodyContainer.querySelector(".body").id}`)
+        const m = bodyContainer.dragMethods[bodyContainer.dragMethod].enter
+        if(m){
+          m(ev)
+        }
+      },
+      leave(ev) {
+        if(DEBUG) console.debug(`dragleave: ${bodyContainer.querySelector(".body").id}`)
+        bodyContainer.dragMethods[bodyContainer.dragMethod].leave(ev)
+      }
+
     },
   });
   // TODO: this might be better in weave directly

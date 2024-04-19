@@ -118,7 +118,14 @@ interact(document.body).draggable({
     start(event) {
       disableSelectionOnAll();
     },
+    over(event) {
+        console.log("Arrowing")
+    },
     move(event) {
+      if(weave.internal.arrowStarted){
+        console.log("Arrowing")
+        //const createOrMovePlaceholder = (srcb, x2, y2, svgId = "canvas") => {
+      }
       event.preventDefault();
       event.stopPropagation();
       const body = document.body;

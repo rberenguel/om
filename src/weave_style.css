@@ -428,6 +428,12 @@ a[data-internal="false"]::after {
   stroke-width: 2;
   marker-end: url(#arrowhead); /* Keep marker reference */
 }
+.arrow-placeholder {
+  stroke: #d33682;/*var(--solarized-pink);*.
+  fill: #d33682;/*var(--solarized-pink); */
+  stroke-width: 2;
+  marker-end: url(#arrowhead); /* Keep marker reference */
+}
 .arrow-red {
   stroke: var(--bright-red);
   fill: var(--bright-red); 
