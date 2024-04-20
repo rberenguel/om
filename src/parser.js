@@ -133,9 +133,12 @@ const linkStateMachine = (line, body, mode = "") => {
       if (inLinkText && linkText.length > 0) {
         inLinkText = false;
         // We have finished the link text. We still don't emit
-        // anything though, we need to finish the link.
+        // anything though, we need to finish, potentially, the link.
       } else {
+        console.log("closing references")
         closedReference += 1;
+        console.log(closedReference)
+        console.log(linkText)
         if (closedReference == 2) {
           inReference = false; // Reference finished, emit it
           closedReference = 0;
@@ -186,9 +189,20 @@ const linkStateMachine = (line, body, mode = "") => {
       inLinkHref = true;
       continue;
     }
-    if (c == ")" && linkText.length > 0) {
+    if (c == ")") {
+      // We can either be in a real link reference, or just getting some braces
+      if(!inLinkHref){
+        // A link has not really been started (something like `([a])` or `([])` maybe)
+        console.log("not inlink, with", closedReference)
+        if(linkText.length > 0 || closedReference > 0){
+          accum.push(`[${linkText}])`)
+          closedReference = 0
+        }
+        continue
+      }
+      
       inLinkHref = false;
-      // We finished a link, emit it
+      // We _potentially_ finished a link, emit it
       const link = document.createElement("a");
       const href = linkHref.join("");
       link.href = href;
@@ -283,9 +297,14 @@ const parseInto = (text, body, mode) => {
     if (DEBUG) console.debug(`Parsing line: ${line}`);
     if (line.startsWith("<br")) {
       const br = document.createElement("br");
-      //const div = document.createElement("div");
-      //div.appendChild(document.createElement("br"));
-      body.appendChild(br);
+      if(codeBlock){
+        codeBlock.appendChild(br);
+      } else {
+        console.log("Appending a br")
+        console.log(line)
+        body.appendChild(br);
+      }
+
       continue;
     }
     if (codeBlock && !line.startsWith("```")) {
@@ -474,6 +493,10 @@ function iterateDOM(node, mode) {
     }
     if (child.nodeName === "BR") {
       //generated.push("\n"); // This might be a stretch
+      if(node.nodeName === "PRE"){
+        // Skip BRs in PREs
+        continue
+      }
       generated.push("\n");
       generated.push("<br id='nodename-br'/>");
       generated.push("\n");

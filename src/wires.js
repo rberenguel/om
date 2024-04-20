@@ -2,7 +2,8 @@ export { wireBodies, wireButtons };
 
 import weave from "./weave.js";
 import { reset } from "./commands_base.js";
-import { toMarkdown  } from "./parser.js";
+import { toMarkdown, parseInto  } from "./parser.js";
+import { wireEverything } from "./load.js";
 
 const wireBodies = (buttons) => {
   for (let body of weave.bodies()) {

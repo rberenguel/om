@@ -189,6 +189,7 @@ const createPanel = (parentId, id, buttons, weave) => {
   });
   manipulation.set(bodyContainer, manipulation.fields.kFilename, `f${seconds}`);
   if (id != "b0") {
+    // This is not working well: should just use timestamps
     const prevContainer = document
       .getElementById("b" + (weave.bodies().length - 1))
       .closest(".body-container");

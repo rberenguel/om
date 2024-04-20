@@ -24,10 +24,11 @@ import {
 import { ititle } from "./title.js"
 import { addGoogFont } from "./load.js";
 import { jazz } from "./jazz.js";
+import { live } from "./tone-live.js";
 import { GuillotineJS } from "./guillotine.js";
 import { id, eval_, sql } from "./code.js";
 import { raw } from "./raw.js";
-import { hilite } from "./highlight.js";
+import { highlight } from "./highlight.js";
 weave.idb = {
   keys: () => {
     keys().then((keys) => (weave.idb.allKeys = keys));
@@ -512,6 +513,8 @@ const buttons = (parentId) => {
     code,
     lists,
     arrow,
+    live,
+    highlight
   ];
 };
 

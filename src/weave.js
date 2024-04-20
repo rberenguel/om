@@ -20,6 +20,7 @@ const weave = {
     arrows: [],
     fileTitles: {}
   },
+  liveTone: {},
   lastBodyClickId: function () {
     console.log(this);
     console.log(this.internal);

@@ -1,5 +1,5 @@
-export { hilite };
-
+export { highlight };
+import { common } from "./commands_base.js";
 const pythonKeywords = [
   "False",
   "None",
@@ -96,20 +96,30 @@ const javascriptKeywords = [
 ];
 const keywords = pythonKeywords.concat(javascriptKeywords);
 
-const hilite = () => {
-  const pres = document.getElementsByTagName("pre");
-  for (let pre of pres) {
-    let text = pre.innerHTML;
-    for (let kw of keywords) {
-      text = text.replaceAll(kw + " ", `<span class='keyword'>${kw}</span> `);
+const highlight = {
+  text: ["highlight"],
+  action: async (ev) => {
+    if (common(ev)) {
+      return;
     }
-    text = text.replaceAll(
-      /[^>]("[^"]*")[^>]/g,
-      "<span class='string'>$1</span>",
-    );
-    //text = text.replaceAll(/[^>]({)[^>]/g, "<span class='brace'>$1</span>")
-    //text = text.replaceAll(/[^>](})[^>|$]/g, "<span class='brace'>$1</span>")
-    //text = text.replaceAll(/[^>](\;)$/g, "<span class='brace'>$1</span>")
-    pre.innerHTML = text;
+    const body = document.getElementById(weave.lastBodyClickId());
+    hilite(body)
+  },
+  description: "Very cheap syntax highlighting that may fail",
+  el: "u",
+};
+
+const hilite = (b) => {
+  let text = b.innerHTML;
+  for (let kw of keywords) {
+    text = text.replaceAll(kw + " ", `<span class='keyword'>${kw}</span> `);
   }
+  text = text.replaceAll(
+    /[^>]("[^"]*")[^>]/g,
+    "<span class='string'>$1</span>"
+  );
+  //text = text.replaceAll(/[^>]({)[^>]/g, "<span class='brace'>$1</span>")
+  //text = text.replaceAll(/[^>](})[^>|$]/g, "<span class='brace'>$1</span>")
+  //text = text.replaceAll(/[^>](\;)$/g, "<span class='brace'>$1</span>")
+  b.innerHTML = text;
 };

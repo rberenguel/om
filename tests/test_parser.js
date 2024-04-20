@@ -200,6 +200,24 @@ describe("Code: parsing & idempotency", function () {
 
 describe("Links, links, links", function () {
   let body = document.getElementById(b);
+  it("should not understand ([a]) as a link", function () {
+    const txt = `([a])`;
+    parseIntoWrapper(addConfig(txt), body);
+    const a = body.querySelector("a");
+    chai.expect(a).to.be.null;
+    const md = toMarkdown(body);
+    stringDiffer(md, addConfig(txt))
+    chai.expect(addConfig(txt)).to.eql(md);
+  });
+  it("should not understand ([]) as a link", function () {
+    const txt = `([])`;
+    parseIntoWrapper(addConfig(txt), body);
+    const a = body.querySelector("a");
+    chai.expect(a).to.be.null;
+    const md = toMarkdown(body);
+    stringDiffer(md, addConfig(txt))
+    chai.expect(addConfig(txt)).to.eql(md);
+  });
   it("should handle links properly (1 internal link)", function () {
     const il = "internal link";
     const txt = `[[${il}]]`;
