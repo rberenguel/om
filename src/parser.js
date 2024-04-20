@@ -13,6 +13,7 @@ import { placeTitle } from "./title.js";
 import { iloadIntoBody } from "./loadymcloadface.js";
 import { toTop } from "./doms.js";
 import { dynamicDiv } from "./dynamicdiv.js";
+import {calWithEvents, parseCalendar } from "./cal.js"
 
 const DEBUG = false;
 
@@ -479,6 +480,13 @@ function iterateDOM(node, mode) {
       //}
       continue;
     }
+    if(child.nodeName == "TABLE" && child.classList.contains("calendar")){
+      const events = parseCalendar(child)
+      const stringified = JSON.stringify(events)
+      const md = `\`[div] .calendar ${stringified}\``;
+      generated.push(md);
+      continue;
+    }
     if (child.nodeName != "LI" && mode != "foldNL") {
       isFirstList = true;
     }
@@ -636,6 +644,10 @@ const parseDiv = (divData) => {
     node.innerText = splits[4];
     div.appendChild(node);
     return div;
+  }
+  if(klass === ".calendar"){
+    const events = JSON.parse(splits.slice(1).join(" "));
+    return calWithEvents(events);
   }
   if (klass === ".dynamic-div") {
     const text = splits.slice(1).join(" ");

@@ -783,10 +783,12 @@ table.calendar {
 
 .calendar .date {
   color: var(--bright-orange);
+  cursor: default;
 }
 
 .calendar .day {
   color: var(--wired-code);
+  cursor: default;
 }
 
 .calendar.day-head {
