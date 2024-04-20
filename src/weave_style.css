@@ -742,25 +742,58 @@ div.wrap {
 
 table.calendar {
 	width: 100%;
-	/*height: calc(100% - 2.5em);*/
 	border-collapse: separate;
-	border-spacing: .5em 0;
+	border-spacing: 0.5em 1.5em;
 	color: var(--grey-text);
 }
 .calendar td, th {
 	font-weight: normal;
 	text-transform: uppercase;
-	border-bottom: 1px solid #888;
-	/*padding: 2.5em;*/ /*.3vmin .3vmin;*/
-	font-size: 80%;
+	border-bottom: 1px solid var(--slighty-lighter-dark-background);
 	font-weight: 300;
-	color: var(--grey-text);
+}
+
+.calendar .stuff td {
+  text-transform: none;
+  color: var(--gray-text);
+}
+
+
+.calendar.stuff {
+  height: 3em !important;
+}
+
+.weekend {
+  background: var(--slighty-lighter-dark-background);
+  border-radius: 3px 3px 0 0;
+}
+
+.calendar .heading tr {
+  height: 2em;
 }
 
 .calendar tr {
 	width: 100%;
 }
 
+.calendar .stuff tr {
+  /* TDs don't work with min-height */
+  height: 3em !important;
+}
+
+.calendar .date {
+  color: var(--bright-orange);
+}
+
+.calendar .day {
+  color: var(--wired-code);
+}
+
+.calendar.day-head {
+  margin-top: 0.5em;
+}
+
+/*
 th.calendar {
 	font-size: 1.1vmin;
 	padding: 0;
@@ -770,33 +803,30 @@ th.calendar {
 }
 
 .calendar .day-head {
-  width: fit-content !important;
+  width: 2em;
 }
 .calendar .date {
 	display: inline-block;
-	width: 1em;
+	width: 0.5em;
 }
 .calendar .placeholder {
   min-height: 1em;
-	display: inline-block;
-	width: 100%;
+  display: inline-block;
+  width: fit-content;
+  min-width: 5em;
 }
 
 .calendar .day {
 	display: inline-block;
 	text-align: center;
-	width: 1em;
+	width: 1.25em;
 	color: var(--bright-yellow);
 }
 .calendar .weekend {
 	background: #d8d8d8;
 	font-weight: 400;
 }
-.calendar p {
-	margin: 0 0 .5em 0;
-	text-align: center;
-}
-
+*/
 /* Mobile styling */
 
 @media only screen and (max-width: 768px) { /* Adjust the max-width as needed */

@@ -2,7 +2,7 @@ export { live };
 
 import weave from "./weave.js";
 import { common } from "./commands_base.js";
-import { mono, fontdown } from "./formatters.js";
+import { mono } from "./formatters.js";
 // The following is based on https://github.com/tambien/Piano, including the
 // excellent Internet Archive samples.
 

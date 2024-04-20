@@ -28,6 +28,7 @@ import { live } from "./tone-live.js";
 import { GuillotineJS } from "./guillotine.js";
 import { id, eval_, sql } from "./code.js";
 import { raw } from "./raw.js";
+import { cal } from "./cal.js"
 // import { highlight } from "./highlight.js";
 weave.idb = {
   keys: () => {
@@ -514,6 +515,7 @@ const buttons = (parentId) => {
     lists,
     arrow,
     live,
+    cal
     //highlight
   ];
 };
