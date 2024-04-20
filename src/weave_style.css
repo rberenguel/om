@@ -186,8 +186,7 @@ Uses font-awesome for styling, but requires also a label for it so it can be che
 .ad::before {
   font-family: "Font Awesome 6 Free Solid";
   display: inline-block;
-  margin-right: 0.3em; 
-  font-size: 1.2em; 
+  margin-right: 0.4em; 
   position: absolute;
   left: 0.3em;
   top: 50%;
@@ -247,6 +246,35 @@ Uses font-awesome for styling, but requires also a label for it so it can be che
   content: "\f057"; /* Exclamation point inside a triangle */
   color: #c00; 
 }
+
+.ad.flyd {
+  border: 1px solid var(--gray-text);
+}
+
+.ad.flyd::before {
+  content: "\f5b0"; /* Plane out */
+  color: var(--gray-text); 
+}
+
+.ad.flya {
+  border: 1px solid var(--gray-text);
+}
+
+.ad.flya::before {
+  content: "\f5af"; /* Plane in */
+  color: var(--gray-text); 
+}
+
+.ad.drac {
+  border: 1px solid var(--gray-text);
+}
+
+.ad.drac::before {
+  content: "\f6d5"; /* Dragon */
+  color: darkgreen; 
+}
+
+
 
 /** Admonition DIV **/
 

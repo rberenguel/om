@@ -15,7 +15,7 @@ import { toTop } from "./doms.js";
 import { dynamicDiv } from "./dynamicdiv.js";
 import {calWithEvents, parseCalendar } from "./cal.js"
 
-const DEBUG = false;
+const DEBUG = true;
 
 const parseProperties = (lines) => {
   let properties = {};
@@ -198,6 +198,8 @@ const linkStateMachine = (line, body, mode = "") => {
         if(linkText.length > 0 || closedReference > 0){
           accum.push(`[${linkText}])`)
           closedReference = 0
+        } else {
+          accum.push(")")
         }
         continue
       }
@@ -267,6 +269,7 @@ const linkStateMachine = (line, body, mode = "") => {
       return;
     }
     if (accumed == line && accumed.trim().length > 0) {
+      if(DEBUG)console.log(`Accumed: ${accumed}, line: ${line}`)
       if (mode.includes("preserve")) {
         if (DEBUG)
           console.debug(`Preserving accumulator (no new div) "${accumed}"`);
@@ -284,7 +287,12 @@ const linkStateMachine = (line, body, mode = "") => {
   }
 };
 
-const parseInto = (text, body, mode) => {
+const parseInto = (text, body, mode="") => {
+  // mode: noDrag
+  if(!text){
+    console.error("No text provided for parseInto")
+    return
+  }
   if (text.length == 0) {
     return;
   }
@@ -371,11 +379,12 @@ const parseInto = (text, body, mode) => {
     const [simple, hasDiv] = parseTillTick(line);
     if (DEBUG) console.debug(`simple: ${simple}, hasDiv: ${hasDiv}`);
     let wd = body;
-    if (mode != "preserve") {
+    if (!mode.includes("preserve")) {
       // "preserve" means stay in the same context we have been provided instead of creating a new one.
       // I use this to keep a div-per-line structure
       wd = document.createElement("DIV");
     }
+    if (DEBUG) console.debug(wd.classList);
     if (!hasDiv) {
       if (simple === null) {
         if(DEBUG) console.debug(`No div: ${line}`);
@@ -386,6 +395,7 @@ const parseInto = (text, body, mode) => {
     }
     if (hasDiv) {
       if (DEBUG) console.debug(`hasDiv: ${hasDiv}`);
+      if (DEBUG) console.debug(wd);
       // Propagate the mode, we might want to preserve the link state machine output without adding any new divs
       linkStateMachine(simple, wd, `longer|${mode}`);
       //const tn = document.createTextNode(simple);
@@ -395,10 +405,10 @@ const parseInto = (text, body, mode) => {
       const divNode = parseDiv(div);
       wd.appendChild(divNode);
       if (DEBUG) console.log("Appended");
-      parseInto(rest, wd, "preserve");
+      parseInto(rest, wd, `preserve|${mode}`);
     }
     if (DEBUG) console.log(wd);
-    if (mode != "preserve") {
+    if (!mode.includes("preserve")) {
       body.appendChild(wd);
     }
   }
@@ -458,13 +468,13 @@ const toMarkdown = (element) => {
   return markdown + "\n"; // Always add a new line at the end
 };
 
-function iterateDOM(node, mode) {
+function iterateDOM(node, mode="") {
   // If mode == foldNL it will convert new lines into \n
   // If mode == noNL no new lines will be added to naked divs
   // The generated structures are never more than 2 levels deep, seems, for now
   let generated = [];
   let isFirstList = true;
-  if (mode == "foldNL") {
+  if (mode.includes("foldNL")) {
     // Lists (alone) in divs only work well if they don't take into account this
     isFirstList = false;
   }
@@ -487,7 +497,7 @@ function iterateDOM(node, mode) {
       generated.push(md);
       continue;
     }
-    if (child.nodeName != "LI" && mode != "foldNL") {
+    if (child.nodeName != "LI" && !mode.includes("foldNL")) {
       isFirstList = true;
     }
     if (child.classList.contains("wrap")) {
@@ -524,7 +534,7 @@ function iterateDOM(node, mode) {
         console.log(child.parentNode.nodeName);
         console.log(mode);
       }
-      if (child.parentNode.nodeName != "LI" && mode != "noNL") {
+      if (child.parentNode.nodeName != "LI" && !mode.includes("noNL")) {
         if (DEBUG) console.log("Adding new line");
         generated.push("\n");
       }
@@ -546,7 +556,7 @@ function iterateDOM(node, mode) {
       const inner = iterateDOM(child).join("");
       //const text = child.innerText;
       let nl = "\n";
-      if (mode === "foldNL") {
+      if (mode.includes("foldNL")) {
         nl = "\\n";
       }
       if (child.nextSibling === null) {
@@ -599,7 +609,15 @@ function iterateDOM(node, mode) {
         .filter((c) => c != "dynamic-div")
         .map((c) => `.${c}`)
         .join(" ");
-      const inner = iterateDOM(child, "foldNL").join("").trim();
+      // AAAAAAA
+      const iterated = iterateDOM(child, "foldNL").map(e => {
+        if(e == "\n"){
+          return "\\n"
+        }
+        return e
+      })
+      if (DEBUG) console.debug(`Iterated: ${iterated}`);
+      const inner = iterated.join("").trim();
       if (DEBUG) console.debug(`Inner: ${inner}`);
       const toAdd = [allClasses, inner].join(" ").trim();
       if (DEBUG) console.debug(toAdd);
@@ -623,9 +641,16 @@ function iterateDOM(node, mode) {
 
 const divBlock = "[div]";
 
-const parseDiv = (divData) => {
-  if (DEBUG) console.debug(`Parsing div: ${divData}`);
+const parseDiv = (divData, mode = "") => {
+  if (DEBUG) console.debug(`Parsing div: ${divData}, mode: ${mode}`);
+  if(!divData){
+    console.error("This is bad, no div data")
+    const div = document.createElement("div")
+    div.id = "failure-processing-div"
+    return div
+  }
   if (!divData.startsWith(divBlock)) {
+    if (DEBUG) console.debug(`Not a div`);
     return divData; // This eventually should create a textNode for code blocks in Markdown
   }
   const splits = divData
@@ -646,12 +671,14 @@ const parseDiv = (divData) => {
     return div;
   }
   if(klass === ".calendar"){
+    if (DEBUG) console.debug(`Calendar`);
     const events = JSON.parse(splits.slice(1).join(" "));
-    return calWithEvents(events);
+    return calWithEvents(events, mode);
   }
   if (klass === ".dynamic-div") {
+    if (DEBUG) console.debug(`Dynamic div`);
     const text = splits.slice(1).join(" ");
-    return dynamicDiv(text);
+    return dynamicDiv(text, mode);
   }
   // [div] .wired .code id=c1711131479729 kind=javascript evalString={{44 + 12}} value={56}`
   if (klass === ".wired") {

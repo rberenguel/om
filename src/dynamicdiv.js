@@ -7,7 +7,7 @@ import { parseInto, toMarkdown } from "./parser.js";
 import { common } from "./commands_base.js";
 import { postfix } from "./doms.js";
 
-const DEBUG = false
+const DEBUG = true
 
 const div = {
   text: ["div"],
@@ -41,7 +41,7 @@ const div = {
   },
 };
 
-const dynamicDiv = (text) => {
+const dynamicDiv = (text, mode="") => {
   if(DEBUG) console.info(`Preparing dynamic div with "${text}"`)
   const div = document.createElement("div");
   // First extract the classes present
@@ -88,7 +88,12 @@ const dynamicDiv = (text) => {
   }
   const cleanText = splits.slice(i).join(" ").replaceAll("\\n", "\n");
   if(DEBUG) console.log(`Text ready to be parsed into a div: ${cleanText}`);
-  parseInto(cleanText, div);
+  parseInto(cleanText, div, `foldNL|${mode}`.replace("preserve", ""));
+  if(mode.includes("noDrag")){
+    // TODO add drag operations on tasks on calendar
+    // TODO make modes constants
+    return div
+  }
   draggy(div);
   return div;
 };

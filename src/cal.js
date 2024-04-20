@@ -20,19 +20,19 @@ const cal = {
     let today = new Date();
     const month = today.getMonth();
     const year = today.getFullYear();
-    const table = calWithEvents({"month": month, "year": year }, body);
+    const table = calWithEvents({ month: month, year: year }, body);
     body.appendChild(table);
   },
   description: "Add a calendar on this panel",
   el: "u",
 };
 
-const calWithEvents = (events, body) => {
+const calWithEvents = (events, mode) => {
   // TODO read selection to know which month, default to current
-  const year = events.year
-  const month = events.month
-  const date = new Date(year, events.month, 1)
-  const monthName = date.toLocaleString('default', { month: 'long' })
+  const year = events.year;
+  const month = events.month;
+  const date = new Date(year, events.month, 1);
+  const monthName = date.toLocaleString("default", { month: "long" });
   const firstDayOfMonth = new Date(year, month, 1).getDate();
   const lastDayOfMonth = new Date(year, month + 1, 0).getDate(); // Will this work for December?
   console.log(firstDayOfMonth, lastDayOfMonth);
@@ -44,14 +44,13 @@ const calWithEvents = (events, body) => {
     daygrid.push({ day: day.getDate(), short: dayShort[dayD] });
   }
 
-
   const table = document.createElement("table");
   table.classList.add("calendar");
   const caption = document.createElement("caption");
   caption.classList.add("calendar");
-  caption.textContent = `${monthName} ${year}`
-  caption.contentEditable = false
-  table.appendChild(caption)
+  caption.textContent = `${monthName} ${year}`;
+  caption.contentEditable = false;
+  table.appendChild(caption);
   const tbody = document.createElement("tbody");
   tbody.classList.add("calendar");
   let trh, trp;
@@ -106,7 +105,10 @@ const calWithEvents = (events, body) => {
     //plsp.classList.add("placeholder")
     const event = events[dayPair.day];
     if (event) {
-      parseInto(event, plsp);
+      const divd = event.replaceAll("´", "`");
+      const nonl1 = divd.replaceAll("\n\n", "\n");
+      const nonl2 = nonl1.replaceAll("\n\n", "\n");
+      parseInto(nonl2, plsp, "noDrag");
     } else {
       plsp.innerHTML = "&nbsp;";
     }
@@ -121,17 +123,17 @@ const calWithEvents = (events, body) => {
 };
 
 const parseCalendar = (table) => {
-  const caption = table.querySelector("caption")
-  const [monthName, year] = caption.textContent.split(' ');
-  const monthIndex = new Date(monthName + ' 1, ' + year).getMonth(); // Assumes the first of the month
+  const caption = table.querySelector("caption");
+  const [monthName, year] = caption.textContent.split(" ");
+  const monthIndex = new Date(monthName + " 1, " + year).getMonth(); // Assumes the first of the month
   const stuffz = Array.from(table.querySelectorAll("td.stuff"));
-  let events = {"month": monthIndex, "year": year};
+  let events = { month: monthIndex, year: year };
   for (const stuff of stuffz) {
     if (stuff.textContent.trim() != "") {
       // TODO the fixer for multi-new lines might be needed in these situations?
       const parsed = iterateDOM(stuff, "foldNL").join("");
       const date = stuff.id.replace("for-day-", "");
-      events[date] = parsed;
+      events[date] = parsed.replaceAll("`", "´"); // TODO it's a horrible trick, but gets the work done
     }
   }
   return events;
