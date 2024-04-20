@@ -206,6 +206,63 @@ const createPanel = (parentId, id, buttons, weave) => {
   betterHandle.classList.add("better-handle");
   const body = document.createElement("div");
   body.classList.add("body");
+
+  /*
+<tbody>
+<tr>
+<td>
+<span class="date">1</span>
+<span class="day">M</span>
+</td>
+<td>
+<span class="date">1</span>
+<span class="day">T</span>
+</td>
+<td>
+<span class="date">1</span>
+<span class="day">F</span>
+  */
+  const table = document.createElement("table")
+  table.classList.add("calendar")
+  const tbody = document.createElement("tbody")
+  tbody.classList.add("calendar")
+  const tr = document.createElement("tr")
+  tr.classList.add("calendar")
+  const dayShort = ["M", "T","W","T","F","S","S"]
+  for(let i = 1; i< 7; i++){
+    const td = document.createElement("td")
+    td.classList.add("calendar")
+    td.classList.add("day-head")
+    td.contentEditable = false
+    const dtsp = document.createElement("span")
+    dtsp.classList.add("calendar")
+    dtsp.classList.add("date")
+    dtsp.textContent = i
+    const dysp = document.createElement("span")
+    dysp.classList.add("calendar")
+    dysp.classList.add("day")
+    dysp.textContent = dayShort[i]
+    dtsp.contentEditable = false
+    dysp.contentEditable = false
+    const pl = document.createElement("td")
+    const plsp = document.createElement("span")
+    pl.classList.add("calendar")
+    pl.classList.add("placeholder")
+    plsp.classList.add("placeholder")
+    plsp.textContent = " "
+    pl.appendChild(plsp)
+    td.appendChild(dtsp)
+    td.appendChild(dysp)
+    tr.appendChild(td)
+    tr.appendChild(pl)
+  }
+  tbody.appendChild(tr)
+  table.appendChild(tbody)
+  body.appendChild(table)
+
+  //const divHeight = body.offsetHeight;
+  //td.style.fontSize = (divHeight / 3) + 'px';
+
   if (weave.config.dark) {
     body.classList.add("dark");
     bodyContainer.classList.add("dark");
@@ -383,7 +440,6 @@ const createPanel = (parentId, id, buttons, weave) => {
         if(DEBUG) console.debug(`dragleave: ${bodyContainer.querySelector(".body").id}`)
         bodyContainer.dragMethods[bodyContainer.dragMethod].leave(ev)
       }
-
     },
   });
   // TODO: this might be better in weave directly

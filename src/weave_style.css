@@ -738,6 +738,65 @@ div.wrap {
   pointer-events: none;
 }
 
+/* Calendar styling */
+
+table.calendar {
+	width: 100%;
+	/*height: calc(100% - 2.5em);*/
+	border-collapse: separate;
+	border-spacing: .5em 0;
+	color: var(--grey-text);
+}
+.calendar td, th {
+	font-weight: normal;
+	text-transform: uppercase;
+	border-bottom: 1px solid #888;
+	/*padding: 2.5em;*/ /*.3vmin .3vmin;*/
+	font-size: 80%;
+	font-weight: 300;
+	color: var(--grey-text);
+}
+
+.calendar tr {
+	width: 100%;
+}
+
+th.calendar {
+	font-size: 1.1vmin;
+	padding: 0;
+}
+.calendar td:empty {
+	border: 0;
+}
+
+.calendar .day-head {
+  width: fit-content !important;
+}
+.calendar .date {
+	display: inline-block;
+	width: 1em;
+}
+.calendar .placeholder {
+  min-height: 1em;
+	display: inline-block;
+	width: 100%;
+}
+
+.calendar .day {
+	display: inline-block;
+	text-align: center;
+	width: 1em;
+	color: var(--bright-yellow);
+}
+.calendar .weekend {
+	background: #d8d8d8;
+	font-weight: 400;
+}
+.calendar p {
+	margin: 0 0 .5em 0;
+	text-align: center;
+}
+
 /* Mobile styling */
 
 @media only screen and (max-width: 768px) { /* Adjust the max-width as needed */
