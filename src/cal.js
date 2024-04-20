@@ -105,7 +105,7 @@ const calWithEvents = (events, mode) => {
     //plsp.classList.add("placeholder")
     const event = events[dayPair.day];
     if (event) {
-      const divd = event.replaceAll("´", "`");
+      const divd = event.replaceAll("´", "`").replace(/^(\\n)+/, "");
       const nonl1 = divd.replaceAll("\n\n", "\n");
       const nonl2 = nonl1.replaceAll("\n\n", "\n");
       parseInto(nonl2, plsp, "noDrag");
@@ -132,6 +132,7 @@ const parseCalendar = (table) => {
     if (stuff.textContent.trim() != "") {
       // TODO the fixer for multi-new lines might be needed in these situations?
       const parsed = iterateDOM(stuff, "foldNL").join("");
+      //console.log(parsed)
       const date = stuff.id.replace("for-day-", "");
       events[date] = parsed.replaceAll("`", "´"); // TODO it's a horrible trick, but gets the work done
     }

@@ -147,7 +147,7 @@ const linkStateMachine = (line, body, mode = "") => {
           const href = reference.join("");
           link.href = href;
           const title = weave.internal.fileTitles[href];
-          link.innerText = title;
+          link.innerText = reference.join(""); // TODO was title, why?
           link.dataset.internal = true;
           reference = [];
           if (DEBUG) {
@@ -609,7 +609,6 @@ function iterateDOM(node, mode="") {
         .filter((c) => c != "dynamic-div")
         .map((c) => `.${c}`)
         .join(" ");
-      // AAAAAAA
       const iterated = iterateDOM(child, "foldNL").map(e => {
         if(e == "\n"){
           return "\\n"
@@ -617,7 +616,9 @@ function iterateDOM(node, mode="") {
         return e
       })
       if (DEBUG) console.debug(`Iterated: ${iterated}`);
-      const inner = iterated.join("").trim();
+      const head = iterated.join("").trim()
+      if (DEBUG) console.debug(`head: ${head}`)
+      const inner = head.replace(/^(\\n)+/, "").replaceAll("\\n\\n", "\\n");
       if (DEBUG) console.debug(`Inner: ${inner}`);
       const toAdd = [allClasses, inner].join(" ").trim();
       if (DEBUG) console.debug(toAdd);

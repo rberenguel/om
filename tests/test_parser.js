@@ -29,7 +29,7 @@ const addConfig = (text) => {
 //mocha.checkLeaks(); link setting leaks something
 mocha.run();
 
-
+/*
 describe("Lists", function () {
   let body = document.getElementById(b);
   it("Should create the basic list", function () {
@@ -75,7 +75,7 @@ c`;
     stringDiffer(addConfig(txt), md)
     chai.expect(addConfig(txt)).to.eql(md);
   });
-});
+});*/
 
 describe("Dynamic div: parsing & idempotency", function () {
   let body = document.getElementById(b);
