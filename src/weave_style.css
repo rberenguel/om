@@ -283,6 +283,15 @@ Uses font-awesome for styling, but requires also a label for it so it can be che
   color: var(--gray-text); 
 }
 
+.ad.cal {
+  border: 1px solid var(--gray-text);
+}
+
+.ad.cal::before {
+  content: "\f133"; /* Calendar */
+  color: var(--gray-text); 
+}
+
 .ad.temp {
   border: 1px solid var(--gray-text);
   --before-color: var(--gray-text);
@@ -818,7 +827,8 @@ div.wrap {
 
 .weather-table caption {
   color: var(--gray-text);
-  font-size: 105%;
+  margin-top: 0.8em;
+  font-size: 125%;
 }
 
 .weather-table .clock td {
