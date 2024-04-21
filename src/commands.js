@@ -13,6 +13,7 @@ import { headers, code, lists, link, hr, gfont, mono, fontup, fontdown, serif, u
 import { iload, gload, dbload } from "./loadymcloadface.js";
 // Buttons
 import { div } from "./dynamicdiv.js";
+import { weather } from "./weather.js";
 import {
   saveAll_,
   save,
@@ -515,7 +516,8 @@ const buttons = (parentId) => {
     lists,
     arrow,
     live,
-    cal
+    cal,
+    weather
     //highlight
   ];
 };

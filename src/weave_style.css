@@ -274,8 +274,51 @@ Uses font-awesome for styling, but requires also a label for it so it can be che
   color: darkgreen; 
 }
 
+.ad.clock {
+  border: 1px solid var(--gray-text);
+}
 
+.ad.clock::before {
+  content: "\f017"; /* Clock */
+  color: var(--gray-text); 
+}
 
+.ad.temp {
+  border: 1px solid var(--gray-text);
+  --before-color: var(--gray-text);
+}
+
+.ad.temp::before {
+  content: "\f2c8"; /* temp 3/4 */
+  color: var(--before-color);
+}
+
+.ad.umbr {
+  border: 1px solid var(--gray-text);
+}
+
+.ad.umbr::before {
+  content: "\f0e9"; /* Umbrella */
+  color: var(--bright-blue); 
+}
+
+.ad.drop {
+  border: 1px solid var(--gray-text);
+}
+
+.ad.drop::before {
+  content: "\f043"; /* drop */
+  color: var(--bright-blue); 
+}
+
+.ad.pct {
+  border: 1px solid var(--gray-text);
+}
+
+.ad.pct::before {
+  content: "\25"; /* Percent */
+  color: var(--gray-text); 
+}
 /** Admonition DIV **/
 
 .outer-light {
@@ -766,13 +809,29 @@ div.wrap {
   pointer-events: none;
 }
 
+/* Weather table styling */
+
+.weather-table td {
+  /*width: 5em;*/
+  color: var(--gray-text);
+}
+
+.weather-table caption {
+  color: var(--gray-text);
+  font-size: 105%;
+}
+
+.weather-table .clock td {
+  width: 10em;
+}
+
 /* Calendar styling */
 
 table.calendar {
 	width: 100%;
 	border-collapse: separate;
 	border-spacing: 0.5em 1.5em;
-	color: var(--grey-text);
+	color: var(--gray-text);
 }
 .calendar td, th {
 	font-weight: normal;
