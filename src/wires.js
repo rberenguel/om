@@ -4,6 +4,7 @@ import weave from "./weave.js";
 import { reset } from "./commands_base.js";
 import { toMarkdown, parseInto  } from "./parser.js";
 import { wireEverything } from "./load.js";
+import { loadRow } from "./loadymcloadface.js";
 
 const wireBodies = (buttons) => {
   for (let body of weave.bodies()) {
