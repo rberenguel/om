@@ -1,6 +1,7 @@
 import { createPanel } from "./panel.js"
 
 const weave = {
+  version: "0.1.0",
   bodies: () => document.getElementsByClassName("body"),
   containers: () => document.getElementsByClassName("body-container"),
   buttons: () => [],

@@ -9,7 +9,21 @@ import { manipulation } from "./manipulation.js";
 import { parseIntoWrapper, toMarkdown } from "./parser.js";
 import { keys, del, set, entries } from "./libs/idb-keyval.js";
 import { arrow } from "./arrow.js";
-import { headers, code, lists, link, hr, gfont, mono, fontup, fontdown, serif, underline, italic, bold } from "./formatters.js";
+import {
+  headers,
+  code,
+  lists,
+  link,
+  hr,
+  gfont,
+  mono,
+  fontup,
+  fontdown,
+  serif,
+  underline,
+  italic,
+  bold,
+} from "./formatters.js";
 import { iload, gload, dbload } from "./loadymcloadface.js";
 // Buttons
 import { div } from "./dynamicdiv.js";
@@ -20,16 +34,16 @@ import {
   isave,
   gsave,
   showModalAndGetFilename,
-  dbdump
+  dbdump,
 } from "./save.js";
-import { ititle } from "./title.js"
+import { ititle } from "./title.js";
 import { addGoogFont } from "./load.js";
 import { jazz } from "./jazz.js";
 import { live } from "./tone-live.js";
 import { GuillotineJS } from "./guillotine.js";
 import { id, eval_, sql } from "./code.js";
 import { raw } from "./raw.js";
-import { cal } from "./cal.js"
+import { cal } from "./cal.js";
 // import { highlight } from "./highlight.js";
 weave.idb = {
   keys: () => {
@@ -64,118 +78,133 @@ weave.internal.triggerNotif = requestAndTriggerNotification
 document.body.onclick = w.internal.triggerNotif
 
 */
-      const arf = (text) => {
-        console.log(text)
-        let textarea = document.createElement("textarea");
-        textarea.textContent = "text";
-        textarea.style.position = "fixed";
-        textarea.style.width = '2em';
-        textarea.style.height = '2em';
-        textarea.style.padding = 0;
-        textarea.style.border = 'none';
-        textarea.style.outline = 'none';
-        textarea.style.boxShadow = 'none';
-        textarea.style.background = 'transparent';
-        return textarea
-      }
+const arf = (text) => {
+  console.log(text);
+  let textarea = document.createElement("textarea");
+  textarea.textContent = "text";
+  textarea.style.position = "fixed";
+  textarea.style.width = "2em";
+  textarea.style.height = "2em";
+  textarea.style.padding = 0;
+  textarea.style.border = "none";
+  textarea.style.outline = "none";
+  textarea.style.boxShadow = "none";
+  textarea.style.background = "transparent";
+  return textarea;
+};
 
 const barf = (textarea) => {
-  console.log(textarea)
+  console.log(textarea);
   document.body.appendChild(textarea);
-  return Promise.resolve(textarea)
-}
+  return Promise.resolve(textarea);
+};
 
 const bbarf = (textarea) => {
   textarea.focus();
   textarea.select();
-  console.log("Trying")
+  console.log("Trying");
   document.execCommand("copy");
-  console.log("Copied")
+  console.log("Copied");
   //document.body.removeChild(textarea);
-  console.log("Removed")
-}
+  console.log("Removed");
+};
 
 function ccopy(text) {
-  console.log(text)
+  console.log(text);
   return new Promise((resolve, reject) => {
     //if (typeof navigator !== "undefined" && typeof navigator.clipboard !== "undefined" && navigator.permissions !== "undefined") {
-    if(false){
-      console.log("Copying")
+    if (false) {
+      console.log("Copying");
       const type = "text/plain";
       const blob = new Blob([text], { type });
       const data = [new ClipboardItem({ [type]: blob })];
-      navigator.permissions.query({name: "clipboard-write"}).then((permission) => {
-        if (permission.state === "granted" || permission.state === "prompt") {
-          console.log("Copying")
-          navigator.clipboard.write(data).then(resolve, reject).catch(reject);
-        }
-        else {
-          console.log("Rejecting")
-          reject(new Error("Permission not granted!"));
-        }
-      });
-    }
-    else if (document.queryCommandSupported && document.queryCommandSupported("copy")) {
-      console.log("Fallback case")
+      navigator.permissions
+        .query({ name: "clipboard-write" })
+        .then((permission) => {
+          if (permission.state === "granted" || permission.state === "prompt") {
+            console.log("Copying");
+            navigator.clipboard.write(data).then(resolve, reject).catch(reject);
+          } else {
+            console.log("Rejecting");
+            reject(new Error("Permission not granted!"));
+          }
+        });
+    } else if (
+      document.queryCommandSupported &&
+      document.queryCommandSupported("copy")
+    ) {
+      console.log("Fallback case");
       let textarea = document.createElement("textarea");
       textarea.textContent = text;
       textarea.style.position = "fixed";
-      textarea.style.width = '2em';
-      textarea.style.height = '2em';
+      textarea.style.width = "2em";
+      textarea.style.height = "2em";
       textarea.style.padding = 0;
-      textarea.style.border = 'none';
-      textarea.style.outline = 'none';
-      textarea.style.boxShadow = 'none';
-      textarea.style.background = 'transparent';
+      textarea.style.border = "none";
+      textarea.style.outline = "none";
+      textarea.style.boxShadow = "none";
+      textarea.style.background = "transparent";
       document.body.appendChild(textarea);
       textarea.focus();
       textarea.select();
       try {
-        console.log("Trying")
+        console.log("Trying");
         document.execCommand("copy");
-        console.log("Copied")
+        console.log("Copied");
         document.body.removeChild(textarea);
-        console.log("Removed")
+        console.log("Removed");
         resolve();
-      }
-      catch (e) {
-        console.log(e)
+      } catch (e) {
+        console.log(e);
         document.body.removeChild(textarea);
         reject(e);
       }
-    }
-    else {
-      console.log("Fully rejecting")
-      reject(new Error("None of copying methods are supported by this browser!"));
+    } else {
+      console.log("Fully rejecting");
+      reject(
+        new Error("None of copying methods are supported by this browser!")
+      );
     }
   });
-
 }
 
 const getAllThingsAsStrings = {
   text: ["pbcopy"],
   action: (ev) => {
-    console.log("A")
+    console.log("A");
     let lines = [];
     // Thanks to https://wolfgangrittner.dev/how-to-use-clipboard-api-in-safari/
     const text = new ClipboardItem({
       "text/plain": entries()
-      .then(
-        ((entries) => {
+        .then((entries) => {
           for (const [key, value] of entries) {
             lines.push(`- ${key}: ${value}`);
           }
-          const joined = lines.join("\n")
-          console.log(joined)
-          return joined
-        }
-        )
-      )
-      .then(text => new Blob([text], { type: "text/plain" }))
-    })
-    navigator.clipboard.write([text])
+          const joined = lines.join("\n");
+          console.log(joined);
+          return joined;
+        })
+        .then((text) => new Blob([text], { type: "text/plain" })),
+    });
+    navigator.clipboard.write([text]);
   },
   description: "Copy whole database to clipboard",
+  el: "u",
+};
+
+const reload = {
+  text: ["reload"],
+  action: (ev) => {
+    if (common(ev)) {
+      return;
+    }
+    info.innerHTML = weave.version;
+    info.classList.add("fades");
+    setTimeout(() => { 
+      location.reload(true)
+    }, 500); 
+  },
+  description: "Reloads weave",
   el: "u",
 };
 
@@ -204,7 +233,7 @@ const grouping = {
     if (weave.internal.grouping) {
       weave.internal.grouping = false;
       Array.from(document.getElementsByClassName("selected")).forEach((e) =>
-        e.classList.remove("selected"),
+        e.classList.remove("selected")
       );
 
       info.innerHTML = "grouped";
@@ -280,7 +309,7 @@ const newSession = {
       return;
     }
     Array.from(document.getElementsByClassName("body-container")).map((e) =>
-      e.remove(),
+      e.remove()
     );
     weave.createPanel(weave.root, "b0", weave.buttons(weave.root), weave);
   },
@@ -340,7 +369,8 @@ const title = {
     const body = document.getElementById(weave.internal.bodyClicks[1]);
     body.dataset.filename = selection;
   },
-  description: "(deprecating?) Sets the title of this pane. Useful to store menus in the URL",
+  description:
+    "(deprecating?) Sets the title of this pane. Useful to store menus in the URL",
   el: "u",
 };
 
@@ -409,7 +439,7 @@ filePicker.addEventListener("change", (event) => {
     const content = readerEvent.target.result;
     console.log(content);
     for (const row of content.split("\n")) {
-      loadRow(row)
+      loadRow(row);
     }
   };
 });
@@ -517,7 +547,8 @@ const buttons = (parentId) => {
     arrow,
     live,
     cal,
-    weather
+    weather,
+    reload
     //highlight
   ];
 };
