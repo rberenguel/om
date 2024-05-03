@@ -86,8 +86,27 @@ const manipulation = {
         }
     }
   },
-  set(container, prop, value) {
-    const body = container.querySelector(".body");
+  set(node, prop, value) {
+    let body, container;
+    if (node.classList.contains("body")) {
+      body = node;
+      container = node.closest(".body-container");
+    } else if (node.classList.contains("body-container")) {
+      body = node.querySelector(".body");
+      container = node;
+    } else if (node === document.body) {
+      body = node;
+      container = node;
+    } else if (node.classList.contains("panel-title")) {
+      body = node;
+      container = node;
+    } else {
+      throw {
+        name: "WeaveNodeError",
+        message: `The node is neither a .body-container, .body or document.body (it is '${node.nodeName} '${node.classList}')`,
+      };
+    }
+    //const body = container.querySelector(".body");
     switch (prop) {
       case panelFields.kKind:
         container.dataset.kind = value;

@@ -4,6 +4,7 @@ import weave from "../src/weave.js";
 
 import { parseIntoWrapper, toMarkdown } from "./parser.js";
 import { wireEverything } from "./load.js";
+import { manipulation } from "./manipulation.js";
 
 const unrawPane = (body, container) => {
   parseIntoWrapper(body.innerText, body);

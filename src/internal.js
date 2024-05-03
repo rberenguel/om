@@ -30,6 +30,9 @@ const constructCurrentGroupAsMarkdown = () => {
   const current = weave.containers()
   let lines = []
   for(const container of current){
+    if(current.saveable === false){
+      continue
+    }
     const filename = manipulation.get(container, manipulation.fields.kFilename)
     const title = manipulation.get(container, manipulation.fields.kTitle)
     lines.push(`# ${filename} (${title})`)

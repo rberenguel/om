@@ -1,4 +1,4 @@
-export { createPanel, split, close_ };
+export { createPanel, createNextPanel, split, close_ };
 
 import weave from "./weave.js";
 
@@ -16,7 +16,14 @@ import { common, reset } from "./commands_base.js";
 import { createOrMoveArrowBetweenDivs } from "./arrow.js";
 import { dndDynamicDiv } from "./dynamicdiv.js";
 
-const DEBUG = true
+const DEBUG = true;
+
+const createNextPanel = (parentId) => {
+  const n = Math.max(Array.from(weave.bodies()).map((b) => +b.id.replace("b", ""))) + 1;
+  const id = `b${n}`; // TODO: This will work _badly_ with closings?
+  // This is now repeated!
+  return createPanel(parentId, id, weave.buttons(weave.root), weave); // I might as well send everything once?
+};
 
 const split = (parentId) => {
   return {
@@ -26,10 +33,7 @@ const split = (parentId) => {
       if (common(ev)) {
         return;
       }
-      const n = weave.bodies().length;
-      const id = `b${n}`; // TODO: This will work _badly_ with closings?
-      // This is now repeated!
-      return createPanel(parentId, id, weave.buttons(weave.root), weave); // I might as well send everything once?
+      return createNextPanel(parentId);
     },
     description: "Add a new editing buffer",
     el: "u",
@@ -61,7 +65,7 @@ const close_ = {
 
 const createPanel = (parentId, id, buttons, weave) => {
   const bodyContainer = document.createElement("div");
-  bodyContainer.dragMethod = "dragmove" // TODO convert to constants
+  bodyContainer.dragMethod = "dragmove"; // TODO convert to constants
   const title = document.createElement("div");
   bodyContainer.classList.add("body-container");
   bodyContainer.classList.add("unfit");
@@ -73,6 +77,7 @@ const createPanel = (parentId, id, buttons, weave) => {
   const d = new Date();
   const seconds = d.getTime();
   bodyContainer.spaceCounter = 10;
+  
   const save = () => {
     const body = bodyContainer.querySelector(".body");
     // TODO this is very repeated with isave
@@ -80,7 +85,11 @@ const createPanel = (parentId, id, buttons, weave) => {
       bodyContainer,
       manipulation.fields.kFilename
     );
+
+
+    
     const content = btoa(encodeURIComponent(toMarkdown(body)));
+
     const title = manipulation.get(body, manipulation.fields.kTitle);
     const saveString = `${title} ${content}`;
     console.log(`Saving with a title of ${title}`);
@@ -324,22 +333,22 @@ const createPanel = (parentId, id, buttons, weave) => {
       },
     },
   });
-  bodyContainer.dragMethod = "dragmove"
-  bodyContainer.dragMethods = {}
-  bodyContainer.dragMethods["dragmove"] = {}
-  bodyContainer.dragMethods["dragmove"].enter = (ev) => {}
-  bodyContainer.dragMethods["dragmove"].leave = (ev) => {}
+  bodyContainer.dragMethod = "dragmove";
+  bodyContainer.dragMethods = {};
+  bodyContainer.dragMethods["dragmove"] = {};
+  bodyContainer.dragMethods["dragmove"].enter = (ev) => {};
+  bodyContainer.dragMethods["dragmove"].leave = (ev) => {};
   bodyContainer.dragMethods["dragmove"].start = (ev) => {
     toTop(bodyContainer);
     for (const container of weave.containers()) {
       container.classList.add("no-select");
     }
-  }
+  };
   bodyContainer.dragMethods["dragmove"].end = (ev) => {
     for (const container of weave.containers()) {
       container.classList.remove("no-select");
     }
-  }
+  };
   bodyContainer.dragMethods["dragmove"].move = (ev) => {
     const f = 1 / (document.body.dataset.scale || 1);
     let x = manipulation.get(bodyContainer, manipulation.fields.kX);
@@ -353,7 +362,7 @@ const createPanel = (parentId, id, buttons, weave) => {
     for (const arrow of weave.internal.arrows) {
       createOrMoveArrowBetweenDivs(arrow);
     }
-  }
+  };
 
   interact(bodyContainer).draggable({
     allowFrom: betterHandle,
@@ -363,27 +372,37 @@ const createPanel = (parentId, id, buttons, weave) => {
     listeners: {
       leave: (ev) => {},
       start(ev) {
-        if(DEBUG) console.debug(`dragstart: ${bodyContainer.querySelector(".body").id}`)
-        bodyContainer.dragMethods[bodyContainer.dragMethod].start(ev)
+        if (DEBUG)
+          console.debug(
+            `dragstart: ${bodyContainer.querySelector(".body").id}`
+          );
+        bodyContainer.dragMethods[bodyContainer.dragMethod].start(ev);
       },
       end(ev) {
-        if(DEBUG) console.debug(`dragend: ${bodyContainer.querySelector(".body").id}`)
-        bodyContainer.dragMethods[bodyContainer.dragMethod].end(ev)
+        if (DEBUG)
+          console.debug(`dragend: ${bodyContainer.querySelector(".body").id}`);
+        bodyContainer.dragMethods[bodyContainer.dragMethod].end(ev);
       },
       move(ev) {
-        bodyContainer.dragMethods[bodyContainer.dragMethod].move(ev)
+        bodyContainer.dragMethods[bodyContainer.dragMethod].move(ev);
       },
       enter(ev) {
-        if(DEBUG) console.debug(`dragenter: ${bodyContainer.querySelector(".body").id}`)
-        const m = bodyContainer.dragMethods[bodyContainer.dragMethod].enter
-        if(m){
-          m(ev)
+        if (DEBUG)
+          console.debug(
+            `dragenter: ${bodyContainer.querySelector(".body").id}`
+          );
+        const m = bodyContainer.dragMethods[bodyContainer.dragMethod].enter;
+        if (m) {
+          m(ev);
         }
       },
       leave(ev) {
-        if(DEBUG) console.debug(`dragleave: ${bodyContainer.querySelector(".body").id}`)
-        bodyContainer.dragMethods[bodyContainer.dragMethod].leave(ev)
-      }
+        if (DEBUG)
+          console.debug(
+            `dragleave: ${bodyContainer.querySelector(".body").id}`
+          );
+        bodyContainer.dragMethods[bodyContainer.dragMethod].leave(ev);
+      },
     },
   });
   // TODO: this might be better in weave directly
@@ -414,5 +433,5 @@ const createPanel = (parentId, id, buttons, weave) => {
   wireBodies(buttons);
   manipulation.forcePositionToReality(bodyContainer);
   placeTitle(bodyContainer);
-  return bodyContainer
+  return bodyContainer;
 };

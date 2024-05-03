@@ -94,8 +94,14 @@ const parseIntoWrapper = (text, body) => {
   manipulation.reposition(container);
   manipulation.resize(container);
   placeTitle(container);
-
-  parseInto(rest.join("\n"), body);
+  const kind = manipulation.get(container, manipulation.fields.kKind)
+  if(kind.trim() === "literal"){
+    console.info("Literal document")
+    body.innerText = rest.join("\n")
+  } else {
+    console.info("Parsing markdown document")
+    parseInto(rest.join("\n"), body);
+  }
 };
 
 const linkStateMachine = (line, body, mode = "") => {
@@ -435,7 +441,14 @@ const toMarkdown = (element) => {
     console.debug("Parsing markdown on element");
     console.debug(element);
   }
-  const content = iterateDOM(element);
+  // TODO text and literal should be part of some enum-like
+  const kind = manipulation.get(element, manipulation.fields.kKind)
+  let content
+  if(kind.trim() === "literal"){
+    content = element.innerText
+  } else {
+    content = content = iterateDOM(element);
+  }
   let saveable = [];
   if (element.classList.contains("body")) {
     const container = element.closest(".body-container");
