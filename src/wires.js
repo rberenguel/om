@@ -147,6 +147,7 @@ const wireBodies = (buttons) => {
       // Paste takes a slight bit to modify the DOM, if I trigger
       // the wiring without waiting a pasted button might not be wired
       // properly.
+      console.log(event)
       const pastedText = event.clipboardData.getData("text/plain");
       if (pastedText.startsWith("- f")) {
         // TODO this is very naive, I need better data transfer options
@@ -165,7 +166,7 @@ const wireBodies = (buttons) => {
         const div = document.createElement("DIV");
         div.innerHTML = pastedHTML;
         console.log(div);
-        const md = toMarkdown(div);
+        const md = toMarkdown(div, true); // this is a fragment
         console.log(md);
         div.innerHTML = "";
         parseInto(md, div);

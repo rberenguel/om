@@ -436,13 +436,18 @@ const parseTillTick = (text) => {
   return [match[1], match[2]];
 };
 
-const toMarkdown = (element) => {
+const toMarkdown = (element, fragment=false) => {
   if (DEBUG) {
     console.debug("Parsing markdown on element");
     console.debug(element);
   }
   // TODO text and literal should be part of some enum-like
-  const kind = manipulation.get(element, manipulation.fields.kKind)
+  let kind
+  if(fragment){
+    kind = "pasted"
+  } else {
+    kind = manipulation.get(element, manipulation.fields.kKind)
+  }
   let content
   if(kind.trim() === "literal"){
     content = element.innerText

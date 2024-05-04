@@ -19,7 +19,9 @@ import { dndDynamicDiv } from "./dynamicdiv.js";
 const DEBUG = true;
 
 const createNextPanel = (parentId) => {
-  const n = Math.max(...Array.from(weave.bodies()).map((b) => +b.id.replace("b", ""))) + 1;
+  const n =
+    Math.max(...Array.from(weave.bodies()).map((b) => +b.id.replace("b", ""))) +
+    1;
   const id = `b${n}`; // TODO: This will work _badly_ with closings?
   // This is now repeated!
   return createPanel(parentId, id, weave.buttons(weave.root), weave); // I might as well send everything once?
@@ -77,7 +79,7 @@ const createPanel = (parentId, id, buttons, weave) => {
   const d = new Date();
   const seconds = d.getTime();
   bodyContainer.spaceCounter = 10;
-  
+
   const save = () => {
     const body = bodyContainer.querySelector(".body");
     // TODO this is very repeated with isave
@@ -86,8 +88,6 @@ const createPanel = (parentId, id, buttons, weave) => {
       manipulation.fields.kFilename
     );
 
-
-    
     const content = btoa(encodeURIComponent(toMarkdown(body)));
 
     const title = manipulation.get(body, manipulation.fields.kTitle);
@@ -104,6 +104,7 @@ const createPanel = (parentId, id, buttons, weave) => {
     // This auto-fits height as we type
     bodyContainer.classList.add("unfit");
     body.saved = false;
+    console.info(ev);
     if (ev.code === "Space") {
       bodyContainer.spaceCounter -= 1;
       reset();
@@ -142,6 +143,68 @@ const createPanel = (parentId, id, buttons, weave) => {
         .catch((err) =>
           console.info("Session data saving in IndexedDB failed", err)
         );
+    }
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const hgap = viewportWidth / 50;
+    const vgap = viewportHeight / 40;
+    if (ev.ctrlKey && ev.metaKey && ev.key === "e") {
+      console.log("doing");
+      manipulation.set(
+        bodyContainer,
+        manipulation.fields.kWidth,
+        viewportWidth / 2 - hgap
+      );
+      manipulation.set(
+        bodyContainer,
+        manipulation.fields.kHeight,
+        viewportHeight - vgap
+      );
+      manipulation.set(bodyContainer, manipulation.fields.kX, 0);
+      manipulation.set(bodyContainer, manipulation.fields.kY, vgap / 2);
+      manipulation.reposition(bodyContainer);
+      manipulation.resize(bodyContainer);
+    }
+    if (ev.ctrlKey && ev.metaKey && ev.key === "i") {
+      console.log("doing");
+      manipulation.set(
+        bodyContainer,
+        manipulation.fields.kWidth,
+        viewportWidth / 2 - hgap
+      );
+      manipulation.set(
+        bodyContainer,
+        manipulation.fields.kHeight,
+        viewportHeight - vgap
+      );
+      manipulation.set(
+        bodyContainer,
+        manipulation.fields.kX,
+        viewportWidth / 2 - hgap / 2
+      );
+      manipulation.set(bodyContainer, manipulation.fields.kY, vgap / 2);
+      manipulation.reposition(bodyContainer);
+      manipulation.resize(bodyContainer);
+    }
+    // Special paste processing nothing
+    if (ev.metaKey && ev.shiftKey && ev.key === "v") {
+      ev.preventDefault();
+      navigator.clipboard
+        .readText()
+        .then((text) => {
+          let sel = window.getSelection();
+          if (sel.getRangeAt && sel.rangeCount) {
+            let range = sel.getRangeAt(0);
+            range.deleteContents();
+            let div = document.createElement("div");
+            div.style.whiteSpace = "pre-wrap";
+            div.innerText = text;
+            range.insertNode(div);
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to read clipboard: ", err);
+        });
     }
   });
   interact(bodyContainer).resizable({
@@ -200,7 +263,9 @@ const createPanel = (parentId, id, buttons, weave) => {
   if (id != "b0") {
     // This is not working well: should just use timestamps
     const prevContainer = document
-      .getElementById("b" + weave.bodies()[weave.bodies().length - 1].id.replace("b", ""))
+      .getElementById(
+        "b" + weave.bodies()[weave.bodies().length - 1].id.replace("b", "")
+      )
       .closest(".body-container");
     // TODO with datasets
     let x = manipulation.get(prevContainer, manipulation.fields.kX) + 10;
