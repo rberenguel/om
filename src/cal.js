@@ -43,7 +43,7 @@ const calWithEvents = (events, mode) => {
     const dayD = day.getDay();
     daygrid.push({ day: day.getDate(), short: dayShort[dayD] });
   }
-
+  console.log(daygrid)
   const table = document.createElement("table");
   table.classList.add("calendar");
   const caption = document.createElement("caption");
@@ -65,44 +65,64 @@ const calWithEvents = (events, mode) => {
   //
   let dayCounter = 1; // Want to start on Mondays
   for (const dayPair of daygrid) {
+    
+    // We generate a new row on "monday"
+    const dayOfGrid = () => dayShort[dayCounter];
     if ((dayCounter - 1) % 7 == 0) {
       populateRow();
       tbody.appendChild(trh);
       tbody.appendChild(trp);
     }
-    console.log(dayCounter, dayPair);
-    dayCounter = dayCounter % 7;
-    const dayOfGrid = dayShort[dayCounter];
-    dayCounter += 1;
-    if (dayOfGrid != dayPair.short) {
-      continue;
+    const generateElement = (labelled) => {
+      const tdh = document.createElement("td");
+      tdh.classList.add("calendar");
+      tdh.classList.add("day-head");
+      tdh.contentEditable = false;
+      const dtsp = document.createElement("span");
+      dtsp.classList.add("calendar");
+      dtsp.classList.add("date");
+      const dysp = document.createElement("span");
+      dysp.classList.add("calendar");
+      dysp.classList.add("day");
+      dtsp.contentEditable = false;
+      dysp.contentEditable = false;
+      const pl = document.createElement("td");
+      const plsp = document.createElement("span");
+      pl.classList.add("calendar");
+      pl.classList.add("stuff");
+      if(labelled){
+        dtsp.textContent = dayPair.day;
+        dysp.textContent = dayPair.short;
+        pl.id = `for-day-${dayPair.day}`;
+        if (dayPair.short == "S") {
+          tdh.classList.add("weekend");
+        }
+      } else {
+        pl.id = `${dayPair.short}-skip`;
+      }
+      //plsp.classList.add("placeholder")
+      pl.appendChild(plsp);
+      tdh.appendChild(dtsp);
+      tdh.appendChild(dysp);
+      trh.appendChild(tdh);
+      trp.appendChild(pl);
+      return plsp
     }
-    const tdh = document.createElement("td");
-    tdh.classList.add("calendar");
-    tdh.classList.add("day-head");
-    if (dayPair.short == "S") {
-      tdh.classList.add("weekend");
+    
+
+    for(let i=0;i<7;i++){
+      if(dayOfGrid() != dayPair.short){
+        console.log(dayCounter, dayPair, dayOfGrid());
+        generateElement(false)
+        dayCounter += 1;
+        dayCounter = dayCounter % 7;
+      } else {
+        break
+      }
     }
-    tdh.contentEditable = false;
-    const dtsp = document.createElement("span");
-    dtsp.classList.add("calendar");
-    dtsp.classList.add("date");
-    dtsp.textContent = dayPair.day;
-    const dysp = document.createElement("span");
-    dysp.classList.add("calendar");
-    dysp.classList.add("day");
-    dysp.textContent = dayPair.short;
-    dtsp.contentEditable = false;
-    dysp.contentEditable = false;
-    const pl = document.createElement("td");
-    const plsp = document.createElement("span");
-    pl.classList.add("calendar");
-    pl.classList.add("stuff");
-    if (dayPair.short == "S") {
-      //pl.classList.add("weekend")
-    }
-    pl.id = `for-day-${dayPair.day}`;
-    //plsp.classList.add("placeholder")
+
+    const plsp = generateElement(true)
+
     const event = events[dayPair.day];
     if (event) {
       const divd = event.replaceAll("´", "`").replace(/^(\\n)+/, "");
@@ -112,11 +132,8 @@ const calWithEvents = (events, mode) => {
     } else {
       plsp.innerHTML = "&nbsp;";
     }
-    pl.appendChild(plsp);
-    tdh.appendChild(dtsp);
-    tdh.appendChild(dysp);
-    trh.appendChild(tdh);
-    trp.appendChild(pl);
+    dayCounter += 1;
+    dayCounter = dayCounter % 7;
   }
   table.appendChild(tbody);
   return table;
