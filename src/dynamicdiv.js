@@ -1,4 +1,4 @@
-export { div, dndDynamicDiv, dynamicDiv };
+export { div, task, dndDynamicDiv, dynamicDiv };
 
 import weave from "./weave.js";
 import { draggy } from "./betterDragging.js";
@@ -7,21 +7,21 @@ import { parseInto, toMarkdown } from "./parser.js";
 import { common } from "./commands_base.js";
 import { postfix } from "./doms.js";
 
-const DEBUG = true
+const DEBUG = false
 
-const div = {
-  text: ["div"],
-  action: (ev) => {
+const div = (function() {
+  const _action = (ev, inject="") => {
     if(weave.internal.held === undefined){
-    return
+      return
     }
     if (common(ev, weave.internal.held)) {
       return;
     }
     const selection = window.getSelection();
     const htmlContainer = document.createElement("div");
+    htmlContainer.appendChild(document.createTextNode(inject))
     htmlContainer.appendChild(selection.getRangeAt(0).cloneContents());
-    const div = dynamicDiv(toMarkdown(htmlContainer));
+    const div = dynamicDiv(toMarkdown(htmlContainer, true));
     let range = selection.getRangeAt(0);
     draggy(div);
     // The following is to remove the phantom divs that can appear when editing in a contenteditable.
@@ -38,6 +38,18 @@ const div = {
     range.insertNode(div);
     // Either I do inline-block and postfix or don't postfix
     postfix(div);
+  }
+  return {
+    text: ["div"],
+    _action: _action,
+    action: ev => _action(ev)
+  }
+})();
+
+const task = {
+  text: ["task"],
+  action: (ev) => {
+    div._action(ev, ".task ")
   },
 };
 

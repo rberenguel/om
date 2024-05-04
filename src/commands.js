@@ -26,7 +26,7 @@ import {
 } from "./formatters.js";
 import { iload, gload, dbload } from "./loadymcloadface.js";
 // Buttons
-import { div } from "./dynamicdiv.js";
+import { div, task } from "./dynamicdiv.js";
 import { weather } from "./weather.js";
 import {
   saveAll_,
@@ -530,6 +530,7 @@ const buttons = (parentId) => {
     iload,
     title,
     div,
+    task,
     sql, // tested
     id,
     jazz,
