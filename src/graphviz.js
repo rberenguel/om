@@ -77,11 +77,13 @@ digraph G {
 
 const graphviz = {
   text: ["graphviz"],
-  action: async (ev) => {
+  action: async (ev, body) => {
     if (common(ev)) {
       return;
     }
-    const body = document.getElementById(weave.lastBodyClickId());
+    if(!body){
+      body = document.getElementById(weave.lastBodyClickId());
+    }
     body.style.whiteSpace = "pre-wrap"
     if (!weave.graphviz) {
       weave.graphviz = await Graphviz.load();
@@ -100,7 +102,8 @@ const graphviz = {
         container.dot;
     }
     if(!container.dot){
-      container.addEventListener("keydown", ev => {
+      container.render = render
+      container.addEventListener("keyup", ev => {
         render()
       })
     }

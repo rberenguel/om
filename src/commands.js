@@ -45,6 +45,7 @@ import { id, eval_, sql } from "./code.js";
 import { raw } from "./raw.js";
 import { cal } from "./cal.js";
 import { graphviz } from "./graphviz.js";
+import { cmap } from "./cmap.js";
 
 // import { highlight } from "./highlight.js";
 weave.idb = {
@@ -551,7 +552,8 @@ const buttons = (parentId) => {
     cal,
     weather,
     reload,
-    graphviz
+    graphviz,
+    cmap
     //highlight
   ];
 };

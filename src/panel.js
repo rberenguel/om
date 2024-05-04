@@ -19,7 +19,7 @@ import { dndDynamicDiv } from "./dynamicdiv.js";
 const DEBUG = true;
 
 const createNextPanel = (parentId) => {
-  const n = Math.max(Array.from(weave.bodies()).map((b) => +b.id.replace("b", ""))) + 1;
+  const n = Math.max(...Array.from(weave.bodies()).map((b) => +b.id.replace("b", ""))) + 1;
   const id = `b${n}`; // TODO: This will work _badly_ with closings?
   // This is now repeated!
   return createPanel(parentId, id, weave.buttons(weave.root), weave); // I might as well send everything once?
@@ -200,7 +200,7 @@ const createPanel = (parentId, id, buttons, weave) => {
   if (id != "b0") {
     // This is not working well: should just use timestamps
     const prevContainer = document
-      .getElementById("b" + (weave.bodies().length - 1))
+      .getElementById("b" + weave.bodies()[weave.bodies().length - 1].id.replace("b", ""))
       .closest(".body-container");
     // TODO with datasets
     let x = manipulation.get(prevContainer, manipulation.fields.kX) + 10;
