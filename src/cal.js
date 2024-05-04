@@ -1,8 +1,10 @@
-export { cal, calWithEvents, parseCalendar };
+export { cal, month, calWithEvents, parseCalendar };
 
 import weave from "./weave.js";
 import { common } from "./commands_base.js";
 import { parseInto, iterateDOM } from "./parser.js";
+
+const yearMonthRegex = /([0-9]{4})([0-9]{2})/
 
 const cal = {
   text: ["cal"],
@@ -17,9 +19,20 @@ const cal = {
       25: "[link](google.com)",
       12: "- foo\n- bar\n- baz",
     };*/
-    let today = new Date();
-    const month = today.getMonth();
-    const year = today.getFullYear();
+    const selection = window.getSelection();
+    const selectedText = (selection+"").trim()
+    let month, year
+    if(selectedText.length > 0 && yearMonthRegex.test(selectedText)){
+      const matches = yearMonthRegex .exec(selectedText)
+      year = +matches[1]
+      month = +matches[2] - 1 // Seriously JavaScript?
+    } else {
+      let today = new Date();
+      month = today.getMonth();
+      year = today.getFullYear();
+    }
+    let range = selection.getRangeAt(0);
+    range.deleteContents();
     const table = calWithEvents({ month: month, year: year }, body);
     body.appendChild(table);
   },
@@ -27,16 +40,26 @@ const cal = {
   el: "u",
 };
 
+const month = {
+  matcher: yearMonthRegex ,
+  creator: () => {
+    cal.action()
+  },
+  description: "Quickmonth calendar",
+};
+
+
 const calWithEvents = (events, mode) => {
   // TODO read selection to know which month, default to current
   const year = events.year;
   const month = events.month;
+  console.log(events)
   const date = new Date(year, events.month, 1);
   const monthName = date.toLocaleString("default", { month: "long" });
   const firstDayOfMonth = new Date(year, month, 1).getDate();
   const lastDayOfMonth = new Date(year, month + 1, 0).getDate(); // Will this work for December?
   console.log(firstDayOfMonth, lastDayOfMonth);
-  const dayShort = ["S", "M", "T", "W", "T", "F", "S"];
+  const dayShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   let daygrid = [];
   for (let i = firstDayOfMonth; i <= lastDayOfMonth; i++) {
     const day = new Date(year, month, i);
@@ -92,9 +115,9 @@ const calWithEvents = (events, mode) => {
       pl.classList.add("stuff");
       if(labelled){
         dtsp.textContent = dayPair.day;
-        dysp.textContent = dayPair.short;
+        dysp.textContent = dayPair.short[0];
         pl.id = `for-day-${dayPair.day}`;
-        if (dayPair.short == "S") {
+        if (dayPair.short == "Sun" || dayPair.short == "Sat") {
           tdh.classList.add("weekend");
         }
       } else {

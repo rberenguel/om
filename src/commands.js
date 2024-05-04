@@ -43,7 +43,7 @@ import { live } from "./tone-live.js";
 import { GuillotineJS } from "./guillotine.js";
 import { id, eval_, sql } from "./code.js";
 import { raw } from "./raw.js";
-import { cal } from "./cal.js";
+import { cal, month } from "./cal.js";
 import { graphviz } from "./graphviz.js";
 import { cmap } from "./cmap.js";
 
@@ -550,6 +550,7 @@ const buttons = (parentId) => {
     arrow,
     live,
     cal,
+    month,
     weather,
     reload,
     graphviz,
