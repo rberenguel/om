@@ -297,7 +297,7 @@ document.body.addEventListener("keydown", (ev) => {
 interact(document.body)
   .pointerEvents({ ignoreFrom: ".body-container" })
   .on("hold", (ev) => {
-    if(ev.button != 1){
+    if(ev.button != 0){
       // Want to avoid right-click-menu counting as hold, very annoying
       return
     }
