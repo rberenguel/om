@@ -223,7 +223,7 @@ const convert = (text) => {
       result.push(tab + line + compoundEdge)
       continue
     }
-    const linkUTF = hasURL(attrs[1]) ? " &#128279;" : ""
+    const linkUTF = hasURL(attrs[1]) ? " 🔗" : ""
     let [label, props] = attrs[1].split(";")
     if(hasArrow(line) && label.trim() == "!"){
       label = ""
