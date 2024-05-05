@@ -128,7 +128,7 @@ const createPanel = (parentId, id, buttons, weave) => {
     if (ev.key === "t" && ev.ctrlKey) {
       ititle.action(ev);
     }
-    if (ev.code === "KeyC" && ev.ctrlKey) {
+    if (ev.key === "c" && ev.ctrlKey) {
       // Note: this is not weird-layout safe, C just happens to be the same in QWERTY and Colemak
       exportCurrent.action();
       info.innerHTML = "Exported current panel";

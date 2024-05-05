@@ -152,9 +152,10 @@ const wireBodies = (buttons) => {
       const pastedText = event.clipboardData.getData("text/plain");
       if (pastedText.startsWith("- f")) {
         // TODO this is very naive, I need better data transfer options
-        loadRow(pastedText).then((f) => {
-          console.info(`Loaded ${f} in IndexedDB (possibly replacing it)`);
-          info.innerHTML = `Added ${f}`;
+        loadRow(pastedText).then((value) => {
+          console.log(value)
+          console.info(`Loaded ${value.title} in IndexedDB (possibly replacing it)`);
+          info.innerHTML = `Added ${value.title}`;
           info.classList.add("fades");
         });
         event.preventDefault();

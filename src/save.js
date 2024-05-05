@@ -48,7 +48,8 @@ const exportCurrent = {
     const container = body.closest(".body-container")
     const saveString = btoa(encodeURIComponent(toMarkdown(body)));
     const filename = manipulation.get(container, manipulation.fields.kFilename)
-    const exportLine = `- ${filename}: ${saveString}`
+    const title = manipulation.get(container, manipulation.fields.kTitle)
+    const exportLine = `- ${filename}: ${title} ${saveString}`
     const text = new ClipboardItem({
       "text/plain": Promise.resolve(exportLine).then(text => new Blob([text], { type: "text/plain" }))})
     console.log(text)

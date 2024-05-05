@@ -26,11 +26,12 @@ const dbload = {
 const loadRow = (row) => {
   const splits = row.split(" ");
   const filename = splits[1].slice(0, -1);
-  const data = splits[2];
+  const data = splits.slice(2).join(" ");
   return set(filename, data)
     .then(() => {
+      const filedata = convertNonGroupFileData(filename, data)
       console.info(`Data for ${filename} stored in IndexedDb`)
-      return Promise.resolve(filename)
+      return Promise.resolve(filedata)
     })
     .catch((err) =>
       console.info(`Saving in IndexedDb failed for ${filename}`, err),
