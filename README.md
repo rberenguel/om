@@ -92,3 +92,7 @@ Useful to take somewhat transient and local notes, without needing a text editor
 I have set up tests using Mocha/Chai running directly in the browser. They create a "Weave" instance hidden, and run commands against that. Works surprisingly effective. You can see them all [here](http://rberenguel.github.io/weave/tests/all_the_tests.html). Each panel corresponds to a separate iframe with a set of tests.
 
 The tests don't run independently (for example, testing that `split` splits depends on testing that `split` becomes a button), so clicking on the "isolation" will fail.
+
+### Libraries used (incomplete, sorry, will eventually fill these up)
+
+# [svg-pan-zoom](https://github.com/bumbu/svg-pan-zoom)
