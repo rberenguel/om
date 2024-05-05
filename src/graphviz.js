@@ -91,6 +91,7 @@ const graphviz = {
     const gvPanel = createNextPanel(weave.root);
     manipulation.set(gvPanel, manipulation.fields.kTitle, "graph output");
     gvPanel.saveable = false;
+    gvPanel.querySelector(".body").contentEditable = "false"
     manipulation.set(body, manipulation.fields.kKind, "literal");
     const gvBody = gvPanel.querySelector(".body");
     const container = body.closest(".body-container");
@@ -104,10 +105,24 @@ const graphviz = {
       try {
         const rendered = weave.graphviz.layout(dot, "svg", "dot");
         container.dot = rendered;
-        document.getElementById(container.graphvizDestination).innerHTML =
+        const div = document.createElement("DIV")
+        document.getElementById(container.graphvizDestination).innerHTML = ""
+        document.getElementById(container.graphvizDestination).appendChild(div)
+        let pan, zoom
+        if(gvPanel.panzoom){
+          pan = gvPanel.panzoom.getPan()
+          zoom = gvPanel.panzoom.getZoom()
+          console.log(pan, zoom)
+        }
+        div.innerHTML =
           container.dot;
-        document
-          .getElementById(container.graphvizDestination)
+        gvPanel.panzoom = svgPanZoom(document.getElementById(container.graphvizDestination, {zoomScaleSensitivity: 1.5}).querySelector("svg"))
+        if(pan){
+          // Beware of order!
+          gvPanel.panzoom.zoom(zoom)
+          gvPanel.panzoom.pan(pan)
+        }
+        div
           .addEventListener("dblclick", (ev) => {
             const svgString = new XMLSerializer().serializeToString(
               document.getElementById(container.graphvizDestination)

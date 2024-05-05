@@ -67,6 +67,7 @@ const close_ = {
 
 const createPanel = (parentId, id, buttons, weave) => {
   const bodyContainer = document.createElement("div");
+  bodyContainer.tabIndex = 0
   bodyContainer.dragMethod = "dragmove"; // TODO convert to constants
   const title = document.createElement("div");
   bodyContainer.classList.add("body-container");
@@ -489,6 +490,7 @@ const createPanel = (parentId, id, buttons, weave) => {
   bodyContainer.addEventListener("click", () => {
     toggleTitling(bodyContainer);
     toTop(bodyContainer)();
+    bodyContainer.focus()
     for (const container of weave.containers()) {
       container.classList.remove("unfit");
     }
