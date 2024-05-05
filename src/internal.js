@@ -1,16 +1,9 @@
 export { enableSelectionOnAll, disableSelectionOnAll, constructCurrentGroupAsMarkdown, constructCurrentGroup, parseGroupFromMarkdown };
 import weave from "./weave.js";
-import { wireEverything } from "./load.js";
-import { reset } from "./commands_base.js";
 
 import { iloadIntoBody} from "./loadymcloadface.js";
-import { unrawPane } from "./raw.js";
 import { createPanel } from "./panel.js";
 import { manipulation } from "./manipulation.js";
-import {loadRow} from "./loadymcloadface.js"
-
-import { toMarkdown,parseInto } from "./parser.js";
-
 
 const enableSelectionOnAll = () => {
   const containers = document.getElementsByClassName("body-container");
@@ -30,7 +23,8 @@ const constructCurrentGroupAsMarkdown = () => {
   const current = weave.containers()
   let lines = []
   for(const container of current){
-    if(current.saveable === false){
+    console.log(container)
+    if(container.saveable === false){
       continue
     }
     const filename = manipulation.get(container, manipulation.fields.kFilename)

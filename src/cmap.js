@@ -92,6 +92,7 @@ const headerT = `
     labelloc="t";
   `;
 
+
 // Spec
 
 // Node definition
@@ -104,117 +105,138 @@ const headerT = `
 // foo=bar // With no spaces, has no conversion
 // { } are ignored if they are the only character aside from spaces
 // Handles compound and subgraphs, automatically creates an invisible
-// node in the cluster.
+// node in the cluster. 
 
 // This runs one single pass, so clusters need to be defined before the
 // compound nodes are used
 
 const hasArrow = (text) => {
-  const flag = text.includes("->");
-  return flag;
-};
-const hasSubgraph = (text) => text.includes("subgraph cluster_"); // Only supporting clusters, no other
-const hasURL = (text) => text.includes("URL=");
-const isComment = (text) => /^\s*\/\/.*/.test(text);
-const onlyBraces = (text) => /^\s*{\s*$/.test(text) || /^\s*}\s*$/.test(text);
-const onlyAttrs = (text) => /^\s*\w+=\w+\s*$/.test(text);
-const getAttrsArrow = (text) => /^\s*\w+\s*->\s*\w+\s+(.*)$/.exec(text);
-const getAttrsNode = (text) => /^\s*\w+\s+(.*)$/.exec(text);
-const getCluster = (text) => /^\s*subgraph cluster_(\w+).*{.*$/.exec(text);
-const isRGBAHex = (text) => /^#[0-9a-f]{8}$/.test(text.trim());
+  const flag = text.includes('->')
+  return flag
+}
 
-const labelBreaker = (text) => {
-  if (text.length > 30 && !text.includes("\\n")) {
-    const words = text.split(" ");
-    let lines = [];
-    let line = "";
-    for (let word of words) {
-      line += `${word} `;
-      if (line.length > 30) {
-        lines.push(line);
-        line = "";
+const hasSubgraph = text => text.includes("subgraph cluster_") // Only supporting clusters, no other
+const hasCluster = text => text.trim().startsWith("cluster ")
+const hasReplacement = text => /^\s*\$\S+\s*=\s*.*$/.test(text)
+const getReplacement = text => /^\s*(\$\S+)\s*=\s*(\S+)\s*$/.exec(text)
+const hasURL = text => text.includes("URL=")
+const isComment = text => /^\s*\/\/.*/.test(text)
+const onlyBraces = text => /^\s*{\s*$/.test(text) || /^\s*}\s*$/.test(text)
+const onlyAttrs = text => /^\s*\w+=.*\s*$/.test(text)
+const getAttrsArrow = text => /^\s*\S+\s*->\s*\S+\s+(.*)$/.exec(text)
+const getAttrsNode = text => /^\s*\S+\s+(.*)$/.exec(text)
+const getSubgraphCluster = text => /^\s*subgraph cluster_(\w+).*{.*$/.exec(text)
+const getLoneCluster = text => /^\s*cluster\s+(\S+).*{.*$/.exec(text)
+const isRGBAHex = text => /^#[0-9a-f]{8}$/.test(text.trim())
+
+const labelBreaker = text => {
+  const leftAlign = "\\l"
+  if(text.length>30 && !text.includes("\\n")){
+    const words = text.split(" ")
+    let lines = []
+    let line = ""
+    for(let word of words){
+      line += `${word} `
+      if(line.length>30){
+        lines.push(line)
+        line = ""
       }
     }
-    return lines.join("\\l");
-  } else {
-    return text;
+    lines.push(line)
+    lines.push("")
+    return lines.join(leftAlign)
+  }else{
+    return text
   }
-};
+}
 
 const convert = (text) => {
-  let result = [];
-  const lines = text.split("\n");
-  const tab = "  ";
-  const ttab = tab + tab;
-  let clusters = [];
-  result.push(tab + `label="\\n${lines[0].replace("# ", "")}\\n\\n";`);
-  for (let line of lines.slice(1)) {
-    if (onlyBraces(line) || onlyAttrs(line) || isComment(line)) {
-      result.push(tab + line);
-      continue;
+  let result = []
+  let replacements = []
+  const lines = text.split('\n')
+  const tab = "  "
+  const ttab = tab + tab
+  let clusters = []
+  result.push(tab + `label="\\n${lines[0].replace('# ', '')}\\n\\n";`)
+  for(let line of lines.slice(1)){
+    if(onlyBraces(line) || onlyAttrs(line) || isComment(line)){
+      result.push(tab + line)
+      continue
     }
-    if (hasSubgraph(line)) {
-      const cluster = getCluster(line)[1];
-      clusters.push(cluster);
+    if(hasReplacement(line)){
+      const key = getReplacement(line)[1]
+      const value = getReplacement(line)[2]
+      replacements.push([key, value])
+      continue
+    }
+    for(let replacement of replacements){
+      let [key, value] = replacement
+      line = line.replace(key, value)
+    }
+     
+    if(hasSubgraph(line) || hasCluster(line)){
+      let cluster
+      if(hasSubgraph(line)){
+        cluster = getSubgraphCluster(line)[1]
+      } else {
+        cluster = getLoneCluster(line)[1]
+      }
+      clusters.push(cluster)
       // Add standard formatting
-      let fill;
-      for (let word of line.split(" ")) {
-        if (isRGBAHex(word)) {
-          fill = ttab + `fillcolor="${word.trim()}"`;
-          line = line.replace(word.trim(), "");
+      let fill
+      for(let word of line.split(" ")){
+        if(isRGBAHex(word)){
+         fill = ttab + `fillcolor="${word.trim()}"`
+         line = line.replace(word.trim(), "")
         }
       }
-      result.push(tab + line);
-      result.push(ttab + `style="filled, rounded, dotted"`);
-      if (fill !== undefined) {
-        result.push(fill);
+      result.push(tab + `subgraph cluster_${cluster} {`)
+      result.push(ttab + `style="filled, rounded, dotted"`)
+      if(fill !== undefined){
+        result.push(fill)
       }
-      // Add invisible cluster name node and label
-      result.push(ttab + `label="${cluster}"`);
-      result.push(
-        ttab + `${cluster} [style="invis",width="0",label="",fixedsize="true"]`
-      );
-      continue;
+       // Add invisible cluster name node and label
+      result.push(ttab + `label="${cluster}"`)
+      result.push(ttab + `${cluster} [style=invis,width=0,label="",fixedsize=true]`)
+      continue
     }
-    let attrs, src, dst;
-    if (hasArrow(line)) {
+    let attrs, src, dst
+    if(hasArrow(line)){
       attrs = getAttrsArrow(line);
-      const match = /^\s*(\w+)\s*->\s*(\w+).*$/.exec(line);
-      src = match[1];
-      dst = match[2];
-      src = src.trim();
-      dst = dst.trim();
+      const match = /^\s*(\w+)\s*->\s*(\w+).*$/.exec(line)
+      src = match[1]
+      dst = match[2]
+      src = src.trim()
+      dst = dst.trim()
     } else {
-      attrs = getAttrsNode(line);
+      attrs = getAttrsNode(line)
     }
-    let addendum = "";
-    if (src && clusters.includes(src)) {
-      addendum = ` ltail="cluster_${src}"`;
+    let addendum = ""
+    if(src && clusters.includes(src)){
+      addendum = ` ltail="cluster_${src}"`
     }
-    if (dst && clusters.includes(dst)) {
-      addendum = ` lhead="cluster_${dst}"`;
+    if(dst && clusters.includes(dst)){
+      addendum = ` lhead="cluster_${dst}"`
     }
-    if (!attrs || attrs.length == 1) {
-      const compoundEdge = addendum != "" ? ` [${addendum}]` : "";
-      result.push(tab + line + compoundEdge);
-      continue;
+    if(!attrs || attrs.length == 1){
+      const compoundEdge = addendum != "" ? ` [${addendum}]` : ""
+      result.push(tab + line + compoundEdge)
+      continue
     }
-    const linkUTF = hasURL(attrs[1]) ? " &#128279;" : "";
-    let [label, props] = attrs[1].split(";");
-    if (hasArrow(line) && label.trim() == "!") {
-      label = "";
-      props = props ? props : "" + `style="invis"`;
+    const linkUTF = hasURL(attrs[1]) ? " &#128279;" : ""
+    let [label, props] = attrs[1].split(";")
+    if(hasArrow(line) && label.trim() == "!"){
+      label = ""
+      props = props ? props : "" + "style=invis"
     }
-    const labelPropper = (label, props) =>
-      `[label="${labelBreaker(label)}${linkUTF}"${
-        props ? " " + props : ""
-      }${addendum}]`;
-    const operation = line.replace(" " + attrs[1], " ");
-    let converted = `${operation} ${labelPropper(label, props)}`;
-    if (!hasArrow(line) && label.trim() == "=") {
-      converted = `${operation} ${labelPropper(operation.trim(), props)}`;
+    const labelPropper = (label, props) => `[label="${labelBreaker(label)}${linkUTF}"${props ? " " + props : ""}${addendum}]`
+    const operation = line.replace(" " + attrs[1], " ")
+    let converted = `${operation} ${labelPropper(label, props)}`
+    if(!hasArrow(line) && label.trim() == "="){
+      converted =  `${operation} ${labelPropper(operation.trim(), props)}`
     }
-    result.push(tab + converted);
+    result.push(tab + converted)
   }
-  return result.join("\n");
-};
+  let joined = result.join("\n")
+  return joined
+}

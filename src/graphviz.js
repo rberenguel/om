@@ -4,7 +4,7 @@ import weave from "./weave.js";
 import { common } from "./commands_base.js";
 import { createNextPanel } from "./panel.js";
 import { Graphviz } from "./libs/graphviz.js";
-import { manipulation } from "./manipulation.js"
+import { manipulation } from "./manipulation.js";
 
 const dotExample = `
 digraph G {
@@ -81,33 +81,66 @@ const graphviz = {
     if (common(ev)) {
       return;
     }
-    if(!body){
+    if (!body) {
       body = document.getElementById(weave.lastBodyClickId());
     }
-    body.style.whiteSpace = "pre-wrap"
+    body.style.whiteSpace = "pre-wrap";
     if (!weave.graphviz) {
       weave.graphviz = await Graphviz.load();
     }
     const gvPanel = createNextPanel(weave.root);
+    manipulation.set(gvPanel, manipulation.fields.kTitle, "graph output");
     gvPanel.saveable = false;
-    manipulation.set(body, manipulation.fields.kKind, "literal")
+    manipulation.set(body, manipulation.fields.kKind, "literal");
     const gvBody = gvPanel.querySelector(".body");
     const container = body.closest(".body-container");
-    const render = () => {
-      const dot = body.innerText.split("\n").map(l => l.trim()).join("\n")
-      console.log(dot)
-      container.dot = weave.graphviz.layout(dot, "svg", "dot");
+    const render = async () => {
+      const dot = body.innerText
+        .split("\n")
+        .map((l) => l.trim())
+        .join("\n");
+      console.log(dot);
       container.graphvizDestination = gvBody.id;
-      document.getElementById(container.graphvizDestination).innerHTML =
-        container.dot;
+      try {
+        const rendered = weave.graphviz.layout(dot, "svg", "dot");
+        container.dot = rendered;
+        document.getElementById(container.graphvizDestination).innerHTML =
+          container.dot;
+        document
+          .getElementById(container.graphvizDestination)
+          .addEventListener("dblclick", (ev) => {
+            const svgString = new XMLSerializer().serializeToString(
+              document.getElementById(container.graphvizDestination)
+            );
+            const svgDataUri = "data:image/svg+xml;base64," + btoa(svgString);
+            const downloadLink = document.createElement("a");
+            downloadLink.href = svgDataUri;
+            downloadLink.download = "cmap.svg";
+            downloadLink.click();
+          });
+      } catch (err) {
+        const reloadWorthyErrors = [
+          "Out of bounds call_indirect",
+          "memory access out of bounds",
+          "call_indirect to a signature that does not match",
+        ];
+        const isReloadWorthy = reloadWorthyErrors.some((string) =>
+          err.message.includes(string)
+        );
+        if (err instanceof Error && isReloadWorthy) {
+          weave.graphviz = await Graphviz.load();
+          return;
+        }
+        document.getElementById(container.graphvizDestination).innerHTML = err;
+      }
+    };
+    if (!container.dot) {
+      container.render = render;
+      container.addEventListener("keyup", () => {
+        container.render();
+      });
     }
-    if(!container.dot){
-      container.render = render
-      container.addEventListener("keyup", ev => {
-        render()
-      })
-    }
-    render()
+    render();
   },
   description: "Graphviz based on gh/hpcc-systems/hpcc-js-wasm",
   el: "u",

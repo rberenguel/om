@@ -5,6 +5,7 @@ import { reset } from "./commands_base.js";
 import { toMarkdown, parseInto  } from "./parser.js";
 import { wireEverything } from "./load.js";
 import { loadRow } from "./loadymcloadface.js";
+import { enableSelectionOnAll, disableSelectionOnAll } from "./internal.js";
 
 const wireBodies = (buttons) => {
   for (let body of weave.bodies()) {

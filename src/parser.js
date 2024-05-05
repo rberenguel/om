@@ -97,6 +97,7 @@ const parseIntoWrapper = (text, body) => {
   const kind = manipulation.get(container, manipulation.fields.kKind)
   if(kind.trim() === "literal"){
     console.info("Literal document")
+    body.style.whiteSpace = "pre-wrap"
     body.innerText = rest.join("\n")
   } else {
     console.info("Parsing markdown document")
