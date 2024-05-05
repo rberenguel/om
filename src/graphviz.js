@@ -89,6 +89,10 @@ const graphviz = {
       weave.graphviz = await Graphviz.load();
     }
     const gvPanel = createNextPanel(weave.root);
+    gvPanel.addEventListener("click", () => {
+      // A hack to prevent pan-zoom to prevent keyboard commands on the panel
+      gvPanel.focus()
+    })
     manipulation.set(gvPanel, manipulation.fields.kTitle, "graph output");
     gvPanel.saveable = false;
     gvPanel.querySelector(".body").contentEditable = "false"

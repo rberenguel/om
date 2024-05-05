@@ -490,7 +490,6 @@ const createPanel = (parentId, id, buttons, weave) => {
   bodyContainer.addEventListener("click", () => {
     toggleTitling(bodyContainer);
     toTop(bodyContainer)();
-    bodyContainer.focus()
     for (const container of weave.containers()) {
       container.classList.remove("unfit");
     }
