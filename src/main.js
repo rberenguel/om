@@ -297,6 +297,11 @@ document.body.addEventListener("keydown", (ev) => {
 interact(document.body)
   .pointerEvents({ ignoreFrom: ".body-container" })
   .on("hold", (ev) => {
+    console.log(ev.type, ev.button);
+    if(ev.button != 1){
+      // Want to avoid right-click-menu counting as hold, very annoying
+      return
+    }
     const body = split(weave.root).action().querySelector(".body");
     body.focus();
   });
