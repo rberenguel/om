@@ -298,6 +298,7 @@ const parseInto = (text, body, mode="") => {
   // mode: noDrag
   if(!text){
     console.error("No text provided for parseInto")
+    console.log(body)
     return
   }
   if (text.length == 0) {
@@ -512,7 +513,7 @@ function iterateDOM(node, mode="") {
     if(child.nodeName == "TABLE" && child.classList.contains("calendar")){
       const events = parseCalendar(child)
       const stringified = JSON.stringify(events)
-      const md = `\`[div] .calendar ${stringified}\``;
+      const md = `\`[div] .calendar ${stringified}\`\n`;
       generated.push(md);
       continue;
     }
@@ -693,7 +694,11 @@ const parseDiv = (divData, mode = "") => {
   if(klass === ".calendar"){
     if (DEBUG) console.debug(`Calendar`);
     const events = JSON.parse(splits.slice(1).join(" "));
-    return calWithEvents(events, mode);
+    console.log(events)
+    const div = document.createElement("div");
+    events.span = 1
+    const tables = calWithEvents(events, mode)
+    return tables[0];
   }
   if (klass === ".dynamic-div") {
     if (DEBUG) console.debug(`Dynamic div`);

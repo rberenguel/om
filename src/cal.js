@@ -27,6 +27,9 @@ const cal = {
       year = +matches[1];
       month = +matches[2] - 1; // Seriously JavaScript?
       span = selectedText[1];
+      if(!span){
+        span = 1
+      }
     } else {
       let today = new Date();
       month = today.getMonth();
