@@ -91,11 +91,11 @@ const graphviz = {
     const gvPanel = createNextPanel(weave.root);
     gvPanel.addEventListener("click", () => {
       // A hack to prevent pan-zoom to prevent keyboard commands on the panel
-      gvPanel.focus()
-    })
-    manipulation.set(gvPanel, manipulation.fields.kTitle, "graph output");
+      gvPanel.focus();
+    });
+    manipulation.set(gvPanel, manipulation.fields.kTitle, "graphviz output");
     gvPanel.saveable = false;
-    gvPanel.querySelector(".body").contentEditable = "false"
+    gvPanel.querySelector(".body").contentEditable = "false";
     manipulation.set(body, manipulation.fields.kKind, "literal");
     const gvBody = gvPanel.querySelector(".body");
     const container = body.closest(".body-container");
@@ -109,39 +109,44 @@ const graphviz = {
       try {
         const rendered = weave.graphviz.layout(dot, "svg", "dot");
         container.dot = rendered;
-        const div = document.createElement("DIV")
-        document.getElementById(container.graphvizDestination).innerHTML = ""
-        document.getElementById(container.graphvizDestination).appendChild(div)
-        let pan, zoom
-        if(gvPanel.panzoom){
-          pan = gvPanel.panzoom.getPan()
-          zoom = gvPanel.panzoom.getZoom()
-          console.log(pan, zoom)
+        const div = document.createElement("DIV");
+        document.getElementById(container.graphvizDestination).innerHTML = "";
+        document.getElementById(container.graphvizDestination).appendChild(div);
+        let pan, zoom;
+        if (gvPanel.panzoom) {
+          pan = gvPanel.panzoom.getPan();
+          zoom = gvPanel.panzoom.getZoom();
+          console.log(pan, zoom);
         }
-        div.innerHTML =
-          container.dot;
-        gvPanel.panzoom = svgPanZoom(document.getElementById(container.graphvizDestination, {zoomScaleSensitivity: 1.5}).querySelector("svg"))
-        if(pan){
+        div.innerHTML = container.dot;
+        gvPanel.panzoom = svgPanZoom(
+          document
+            .getElementById(container.graphvizDestination, {
+              zoomScaleSensitivity: 1.5,
+            })
+            .querySelector("svg")
+        );
+        if (pan) {
           // Beware of order!
-          gvPanel.panzoom.zoom(zoom)
-          gvPanel.panzoom.pan(pan)
+          gvPanel.panzoom.zoom(zoom);
+          gvPanel.panzoom.pan(pan);
         }
-        div
-          .addEventListener("dblclick", (ev) => {
-            const svgString = new XMLSerializer().serializeToString(
-              document.getElementById(container.graphvizDestination)
-            );
-            const svgDataUri = "data:image/svg+xml;base64," + btoa(svgString);
-            const downloadLink = document.createElement("a");
-            downloadLink.href = svgDataUri;
-            downloadLink.download = "cmap.svg";
-            downloadLink.click();
-          });
+        div.addEventListener("dblclick", (ev) => {
+          const svgString = new XMLSerializer().serializeToString(
+            document.getElementById(container.graphvizDestination)
+          );
+          const svgDataUri = "data:image/svg+xml;base64," + btoa(svgString);
+          const downloadLink = document.createElement("a");
+          downloadLink.href = svgDataUri;
+          downloadLink.download = "cmap.svg";
+          downloadLink.click();
+        });
       } catch (err) {
         const reloadWorthyErrors = [
           "Out of bounds call_indirect",
           "memory access out of bounds",
           "call_indirect to a signature that does not match",
+          "table index is out of bounds",
         ];
         const isReloadWorthy = reloadWorthyErrors.some((string) =>
           err.message.includes(string)
