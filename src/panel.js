@@ -187,6 +187,14 @@ const createPanel = (parentId, id, buttons, weave) => {
       manipulation.reposition(bodyContainer);
       manipulation.resize(bodyContainer);
     }
+    if (ev.ctrlKey && ev.metaKey && ev.key === ".") {
+      console.log("Pushing up")
+      bodyContainer.style.zIndex = 10000;
+    }
+    if (ev.ctrlKey && ev.metaKey && ev.key === ",") {
+      console.log("Pushing down")
+      bodyContainer.style.zIndex = 50;
+    }
     if (ev.ctrlKey && ev.metaKey && ev.key === "Enter") {
       console.info("Resizing to center");
       manipulation.set(

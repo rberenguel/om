@@ -1,11 +1,4 @@
-export {
-  zwsr,
-  pad,
-  wrap,
-  prefix,
-  postfix,
-  toTop,
-};
+export { zwsr, pad, wrap, prefix, postfix, toTop };
 import weave from "../src/weave.js";
 
 // I use this separator in many places
@@ -32,20 +25,24 @@ const postfix = (node) => {
 
 const toTop = (b) => () => {
   // TODO this seems to not preserve ordering
+  if(b.style.zIndex >= 10000){
+    return
+  }
   const arr = Array.from(weave.containers()).map((o) =>
-    parseFloat(o.style.zIndex || 0),
+    parseFloat(o.style.zIndex || 0)
   );
-  const withZ = arr.filter((z) => z > 0);
+  // Skip the special > 10000 "on tops"
+  const withZ = arr.filter((z) => z >= 0 && z < 10000);
   const maxZ = Math.max(...withZ, 1);
   const minZ = Math.min(...withZ, maxZ);
+  console.log(minZ, maxZ)
   b.style.zIndex = maxZ + 1;
   b.titleDiv.style.zIndex = maxZ + 1;
-  Array.from(weave.containers()).forEach(
-    (b) => {
-      b.style.zIndex = Math.max(0, (b.style.zIndex || minZ) - minZ)
-      b.titleDiv.style.zIndex = Math.max(0, (b.style.zIndex || minZ) - minZ)
-    },
-  );
+  Array.from(weave.containers()).forEach((bc) => {
+    if(bc.style.zIndex >= 10000){
+      return
+    }
+    bc.titleDiv.style.zIndex = (bc.style.zIndex || minZ) - minZ;
+    bc.style.zIndex = (bc.style.zIndex || minZ) - minZ;
+  });
 };
-
-
