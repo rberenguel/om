@@ -150,7 +150,7 @@ const createPanel = (parentId, id, buttons, weave) => {
     const hgap = viewportWidth / 50;
     const vgap = viewportHeight / 40;
     if (ev.ctrlKey && ev.metaKey && ev.key === "e") {
-      console.log("doing");
+      console.info("Resizing to left");
       manipulation.set(
         bodyContainer,
         manipulation.fields.kWidth,
@@ -159,15 +159,15 @@ const createPanel = (parentId, id, buttons, weave) => {
       manipulation.set(
         bodyContainer,
         manipulation.fields.kHeight,
-        viewportHeight - vgap
+        viewportHeight - 2*vgap
       );
       manipulation.set(bodyContainer, manipulation.fields.kX, 0);
-      manipulation.set(bodyContainer, manipulation.fields.kY, vgap / 2);
+      manipulation.set(bodyContainer, manipulation.fields.kY, vgap / 3);
       manipulation.reposition(bodyContainer);
       manipulation.resize(bodyContainer);
     }
     if (ev.ctrlKey && ev.metaKey && ev.key === "i") {
-      console.log("doing");
+      console.info("Resizing to right");
       manipulation.set(
         bodyContainer,
         manipulation.fields.kWidth,
@@ -176,12 +176,33 @@ const createPanel = (parentId, id, buttons, weave) => {
       manipulation.set(
         bodyContainer,
         manipulation.fields.kHeight,
-        viewportHeight - vgap
+        viewportHeight - 2*vgap
       );
       manipulation.set(
         bodyContainer,
         manipulation.fields.kX,
         viewportWidth / 2 - hgap / 2
+      );
+      manipulation.set(bodyContainer, manipulation.fields.kY, vgap / 3);
+      manipulation.reposition(bodyContainer);
+      manipulation.resize(bodyContainer);
+    }
+    if (ev.ctrlKey && ev.metaKey && ev.key === "Enter") {
+      console.info("Resizing to center");
+      manipulation.set(
+        bodyContainer,
+        manipulation.fields.kWidth,
+        viewportWidth - hgap
+      );
+      manipulation.set(
+        bodyContainer,
+        manipulation.fields.kHeight,
+        viewportHeight - 2*vgap
+      );
+      manipulation.set(
+        bodyContainer,
+        manipulation.fields.kX,
+        hgap/2
       );
       manipulation.set(bodyContainer, manipulation.fields.kY, vgap / 2);
       manipulation.reposition(bodyContainer);

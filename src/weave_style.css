@@ -328,6 +328,25 @@ Uses font-awesome for styling, but requires also a label for it so it can be che
   content: "\25"; /* Percent */
   color: var(--gray-text); 
 }
+
+.ad.ping {
+  border: 1px solid var(--gray-text);
+}
+
+.ad.ping::before {
+  content: "\f45d"; /* drop */
+  color: var(--gray-text); 
+}
+
+.ad.hols {
+  border: 1px solid var(--gray-text);
+}
+
+.ad.hols::before {
+  content: "\e52f"; /* drop */
+  color: darkgreen; 
+}
+
 /** Admonition DIV **/
 
 .outer-light {
