@@ -46,7 +46,7 @@ import { raw } from "./raw.js";
 import { cal, month } from "./cal.js";
 import { graphviz } from "./graphviz.js";
 import { cmap } from "./cmap.js";
-
+import { _gnuplot } from "./gnuplot.js";
 // import { highlight } from "./highlight.js";
 weave.idb = {
   keys: () => {
@@ -555,7 +555,8 @@ const buttons = (parentId) => {
     weather,
     reload,
     graphviz,
-    cmap
+    cmap,
+    _gnuplot,
     //highlight
   ];
 };
@@ -565,6 +566,7 @@ weave.buttons = buttons;
 let helpTable = [`<tr><td>Command</td><td>Help</td></tr>`];
 for (let button of buttons()) {
   let commandText;
+  console.log(button)
   if (button.text) {
     commandText = button.text.join("/");
   } else {
