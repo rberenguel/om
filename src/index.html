@@ -116,13 +116,6 @@
 
     // When the module is ready
     onRuntimeInitialized: function () {
-      document.getElementById("loading").style.display = "none";
-      document.getElementById("gnuplot").style.display = "block";
-      document.getElementById("load-button").disabled = false;
-      document.getElementById("download-button").disabled = false;
-      document.getElementById("template-select").disabled = false;
-      document.getElementById("version").innerHTML =
-        "Powered by " + run_gnuplot("", "--version").stdout;
     },
 
     preRun: function () {

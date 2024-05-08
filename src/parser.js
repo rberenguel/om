@@ -15,7 +15,7 @@ import { toTop } from "./doms.js";
 import { dynamicDiv } from "./dynamicdiv.js";
 import {calWithEvents, parseCalendar } from "./cal.js"
 
-const DEBUG = true;
+const DEBUG = false;
 
 const parseProperties = (lines) => {
   let properties = {};

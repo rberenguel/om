@@ -7,6 +7,8 @@ import { wireEverything } from "./load.js";
 import { loadRow } from "./loadymcloadface.js";
 import { enableSelectionOnAll, disableSelectionOnAll } from "./internal.js";
 
+const DEBUG = false
+
 const wireBodies = (buttons) => {
   for (let body of weave.bodies()) {
     if (!body.clickAttached) {
@@ -148,7 +150,7 @@ const wireBodies = (buttons) => {
       // Paste takes a slight bit to modify the DOM, if I trigger
       // the wiring without waiting a pasted button might not be wired
       // properly.
-      console.log(event)
+      if(DEBUG)console.log(event)
       const pastedText = event.clipboardData.getData("text/plain");
       if (pastedText.startsWith("- f")) {
         // TODO this is very naive, I need better data transfer options
@@ -163,13 +165,13 @@ const wireBodies = (buttons) => {
       const pastedHTML = event.clipboardData.getData("text/html");
       if (pastedHTML) {
         event.preventDefault();
-        console.log(pastedHTML);
-        console.log("This is HTML stuff");
+        if(DEBUG)console.log(pastedHTML);
+        if(DEBUG)console.log("This is HTML stuff");
         const div = document.createElement("DIV");
         div.innerHTML = pastedHTML;
-        console.log(div);
+        if(DEBUG)console.log(div);
         const md = toMarkdown(div, true); // this is a fragment
-        console.log(md);
+        if(DEBUG)console.log(md);
         div.innerHTML = "";
         parseInto(md, div);
         const selection = window.getSelection();
@@ -201,10 +203,10 @@ const wireButtons = (buttons) => (event) => {
     return;
   }
   let node, result;
-  console.log("all buttons");
-  console.log(buttons);
+  if(DEBUG)console.log("all buttons");
+  if(DEBUG)console.log(buttons);
   for (const button of buttons) {
-    console.log(button);
+    if(DEBUG)console.log(button);
     if (button.matcher && button.matcher.test(selectedText)) {
       if (button.creator) {
         event.preventDefault();

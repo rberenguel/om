@@ -5,6 +5,7 @@ import { common } from "./commands_base.js";
 import { createNextPanel } from "./panel.js";
 import { Graphviz } from "./libs/graphviz.js";
 import { manipulation } from "./manipulation.js";
+import { toTop } from "./doms.js"
 
 const dotExample = `
 digraph G {
@@ -88,59 +89,73 @@ const graphviz = {
     if (!weave.graphviz) {
       weave.graphviz = await Graphviz.load();
     }
+    const errPanel = createNextPanel(weave.root);
     const gvPanel = createNextPanel(weave.root);
     gvPanel.addEventListener("click", () => {
       // A hack to prevent pan-zoom to prevent keyboard commands on the panel
       gvPanel.focus();
     });
     manipulation.set(gvPanel, manipulation.fields.kTitle, "graphviz output");
+    manipulation.set(errPanel, manipulation.fields.kTitle, "graphviz errors");
     gvPanel.saveable = false;
+    errPanel.saveable = false;
     gvPanel.querySelector(".body").contentEditable = "false";
+    errPanel.querySelector(".body").contentEditable = "false";
     manipulation.set(body, manipulation.fields.kKind, "literal");
     const gvBody = gvPanel.querySelector(".body");
+    const errBody = errPanel.querySelector(".body");
     const container = body.closest(".body-container");
     const render = async () => {
+      toTop(gvPanel)()
       const dot = body.innerText
         .split("\n")
         .map((l) => l.trim())
         .join("\n");
       console.log(dot);
       container.graphvizDestination = gvBody.id;
+      container.errorDestination = errBody.id;
       try {
         const rendered = weave.graphviz.layout(dot, "svg", "dot");
-        container.dot = rendered;
-        const div = document.createElement("DIV");
-        document.getElementById(container.graphvizDestination).innerHTML = "";
-        document.getElementById(container.graphvizDestination).appendChild(div);
-        let pan, zoom;
-        if (gvPanel.panzoom) {
-          pan = gvPanel.panzoom.getPan();
-          zoom = gvPanel.panzoom.getZoom();
-          console.log(pan, zoom);
-        }
-        div.innerHTML = container.dot;
-        gvPanel.panzoom = svgPanZoom(
+        console.log(rendered)
+        if (rendered.includes("<svg")) {
+          container.dot = rendered;
+          const div = document.createElement("DIV");
+          document.getElementById(container.graphvizDestination).innerHTML = "";
           document
-            .getElementById(container.graphvizDestination, {
-              zoomScaleSensitivity: 1.5,
-            })
-            .querySelector("svg")
-        );
-        if (pan) {
-          // Beware of order!
-          gvPanel.panzoom.zoom(zoom);
-          gvPanel.panzoom.pan(pan);
-        }
-        div.addEventListener("dblclick", (ev) => {
-          const svgString = new XMLSerializer().serializeToString(
-            document.getElementById(container.graphvizDestination)
+            .getElementById(container.graphvizDestination)
+            .appendChild(div);
+          let pan, zoom;
+          if (gvPanel.panzoom) {
+            pan = gvPanel.panzoom.getPan();
+            zoom = gvPanel.panzoom.getZoom();
+            console.log(pan, zoom);
+          }
+          div.innerHTML = container.dot;
+          gvPanel.panzoom = svgPanZoom(
+            document
+              .getElementById(container.graphvizDestination, {
+                zoomScaleSensitivity: 1.5,
+              })
+              .querySelector("svg")
           );
-          const svgDataUri = "data:image/svg+xml;base64," + btoa(svgString);
-          const downloadLink = document.createElement("a");
-          downloadLink.href = svgDataUri;
-          downloadLink.download = "cmap.svg";
-          downloadLink.click();
-        });
+          if (pan) {
+            // Beware of order!
+            gvPanel.panzoom.zoom(zoom);
+            gvPanel.panzoom.pan(pan);
+          }
+          div.addEventListener("dblclick", (ev) => {
+            const svgString = new XMLSerializer().serializeToString(
+              document.getElementById(container.graphvizDestination)
+            );
+            const svgDataUri = "data:image/svg+xml;base64," + btoa(svgString);
+            const downloadLink = document.createElement("a");
+            downloadLink.href = svgDataUri;
+            downloadLink.download = "cmap.svg";
+            downloadLink.click();
+          });
+        } else {
+          container.err = rendered;
+        }
       } catch (err) {
         const reloadWorthyErrors = [
           "Out of bounds call_indirect",
@@ -155,7 +170,7 @@ const graphviz = {
           weave.graphviz = await Graphviz.load();
           return;
         }
-        document.getElementById(container.graphvizDestination).innerHTML = err;
+        document.getElementById(container.errorDestination).innerHTML = err;
       }
     };
     if (!container.dot) {

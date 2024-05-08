@@ -48,6 +48,9 @@ import { graphviz } from "./graphviz.js";
 import { cmap } from "./cmap.js";
 import { _gnuplot } from "./gnuplot.js";
 // import { highlight } from "./highlight.js";
+
+const DEBUG = false;
+
 weave.idb = {
   keys: () => {
     keys().then((keys) => (weave.idb.allKeys = keys));
@@ -81,100 +84,10 @@ weave.internal.triggerNotif = requestAndTriggerNotification
 document.body.onclick = w.internal.triggerNotif
 
 */
-const arf = (text) => {
-  console.log(text);
-  let textarea = document.createElement("textarea");
-  textarea.textContent = "text";
-  textarea.style.position = "fixed";
-  textarea.style.width = "2em";
-  textarea.style.height = "2em";
-  textarea.style.padding = 0;
-  textarea.style.border = "none";
-  textarea.style.outline = "none";
-  textarea.style.boxShadow = "none";
-  textarea.style.background = "transparent";
-  return textarea;
-};
-
-const barf = (textarea) => {
-  console.log(textarea);
-  document.body.appendChild(textarea);
-  return Promise.resolve(textarea);
-};
-
-const bbarf = (textarea) => {
-  textarea.focus();
-  textarea.select();
-  console.log("Trying");
-  document.execCommand("copy");
-  console.log("Copied");
-  //document.body.removeChild(textarea);
-  console.log("Removed");
-};
-
-function ccopy(text) {
-  console.log(text);
-  return new Promise((resolve, reject) => {
-    //if (typeof navigator !== "undefined" && typeof navigator.clipboard !== "undefined" && navigator.permissions !== "undefined") {
-    if (false) {
-      console.log("Copying");
-      const type = "text/plain";
-      const blob = new Blob([text], { type });
-      const data = [new ClipboardItem({ [type]: blob })];
-      navigator.permissions
-        .query({ name: "clipboard-write" })
-        .then((permission) => {
-          if (permission.state === "granted" || permission.state === "prompt") {
-            console.log("Copying");
-            navigator.clipboard.write(data).then(resolve, reject).catch(reject);
-          } else {
-            console.log("Rejecting");
-            reject(new Error("Permission not granted!"));
-          }
-        });
-    } else if (
-      document.queryCommandSupported &&
-      document.queryCommandSupported("copy")
-    ) {
-      console.log("Fallback case");
-      let textarea = document.createElement("textarea");
-      textarea.textContent = text;
-      textarea.style.position = "fixed";
-      textarea.style.width = "2em";
-      textarea.style.height = "2em";
-      textarea.style.padding = 0;
-      textarea.style.border = "none";
-      textarea.style.outline = "none";
-      textarea.style.boxShadow = "none";
-      textarea.style.background = "transparent";
-      document.body.appendChild(textarea);
-      textarea.focus();
-      textarea.select();
-      try {
-        console.log("Trying");
-        document.execCommand("copy");
-        console.log("Copied");
-        document.body.removeChild(textarea);
-        console.log("Removed");
-        resolve();
-      } catch (e) {
-        console.log(e);
-        document.body.removeChild(textarea);
-        reject(e);
-      }
-    } else {
-      console.log("Fully rejecting");
-      reject(
-        new Error("None of copying methods are supported by this browser!")
-      );
-    }
-  });
-}
 
 const getAllThingsAsStrings = {
   text: ["pbcopy"],
   action: (ev) => {
-    console.log("A");
     let lines = [];
     // Thanks to https://wolfgangrittner.dev/how-to-use-clipboard-api-in-safari/
     const text = new ClipboardItem({
@@ -184,7 +97,6 @@ const getAllThingsAsStrings = {
             lines.push(`- ${key}: ${value}`);
           }
           const joined = lines.join("\n");
-          console.log(joined);
           return joined;
         })
         .then((text) => new Blob([text], { type: "text/plain" })),
@@ -384,7 +296,7 @@ const idel = {
   action: (ev) => {
     const body = document.getElementById(weave.internal.bodyClicks[0]);
     entries().then((entries) => {
-      console.log(entries);
+      if(DEBUG) console.log(entries);
       for (const [key, value] of entries) {
         const k = document.createTextNode(key);
         const div = document.createElement("div");
@@ -403,34 +315,6 @@ const idel = {
   el: "u",
 };
 
-const loadFromContent = (content, filename, body) => {
-  console.log(decodeURIComponent(content));
-  const base64Data = content.split(",")[1];
-  console.log(base64Data);
-  const decoded = decodeURIComponent(content);
-  console.log(decoded);
-  try {
-    const b = JSON.parse(decoded);
-    // TODO(me) This is now repeated when we load everything, too
-    console.log(weave.internal.bodyClicks);
-    body.dataset.filename = filename;
-    body.innerHTML = b["data"];
-    body.style.width = b["width"];
-    body.style.height = b["height"];
-    if (b["folded"]) {
-      body.classList.add("folded");
-    }
-    body.style.fontSize = b["fontSize"];
-    body.style.fontFamily = b["fontFamily"];
-    if (b["gfont"]) {
-      addGoogFont(b["gfont"]);
-    }
-    wireEverything(weave.buttons(weave.root));
-  } catch (error) {
-    console.error("Error parsing JSON data or building the panels", error);
-  }
-};
-
 // Kinda deprecated
 filePicker.addEventListener("change", (event) => {
   const file = event.target.files[0];
@@ -440,7 +324,7 @@ filePicker.addEventListener("change", (event) => {
 
   reader.onload = (readerEvent) => {
     const content = readerEvent.target.result;
-    console.log(content);
+    if(!DEBUG) console.log("DEPRECATE", content);
     for (const row of content.split("\n")) {
       loadRow(row);
     }
@@ -566,7 +450,7 @@ weave.buttons = buttons;
 let helpTable = [`<tr><td>Command</td><td>Help</td></tr>`];
 for (let button of buttons()) {
   let commandText;
-  console.log(button)
+  if(DEBUG) console.log(button)
   if (button.text) {
     commandText = button.text.join("/");
   } else {

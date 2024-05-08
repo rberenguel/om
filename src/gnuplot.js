@@ -4,84 +4,74 @@ import weave from "./weave.js";
 import { common } from "./commands_base.js";
 import { createNextPanel } from "./panel.js";
 import { manipulation } from "./manipulation.js";
-
+import { toTop } from "./doms.js";
 const _gnuplot = {
   text: ["gnuplot"],
   action: (ev, body) => {
     if (common(ev)) {
       return;
     }
-    const script = `
-set title 'Function Plot'
-set xlabel 'time [s]'
-set ylabel 'voltage [V]'
-set xrange[0:5]
-set yrange[-1.5:1.5]
-plot exp(-x)*sin(4*x) title 'signal', exp(-x) title 'amplitude' lt 0, -exp(-x) title '' lt 0
-    `;
-    // Write data file
-    //FS.writeFile("data.txt", );
-    // Call gnuplot
-    // Display output
-    //editorOutput.setValue(out.stdout, 1);
     if (!body) {
       body = document.getElementById(weave.lastBodyClickId());
     }
     const gpPanel = createNextPanel(weave.root);
+    const errPanel = createNextPanel(weave.root);
     gpPanel.addEventListener("click", () => {
       // A hack to prevent pan-zoom to prevent keyboard commands on the panel
       gpPanel.focus();
     });
     manipulation.set(gpPanel, manipulation.fields.kTitle, "gnuplot output");
+    manipulation.set(errPanel, manipulation.fields.kTitle, "gnuplot errors");
     gpPanel.saveable = false;
+    errPanel.saveable = false;
     gpPanel.querySelector(".body").contentEditable = "false";
+    errPanel.querySelector(".body").contentEditable = "false";
     const gpBody = gpPanel.querySelector(".body");
+    const errBody = errPanel.querySelector(".body");
     manipulation.set(body, manipulation.fields.kKind, "literal");
-    // Display plot image
-    //"<canvas id='draw_plot_on_canvas' width=500 height=400> <div id='err_msg'>No support for HTML 5 canvas element</div> </canvas>";
     const container = body.closest(".body-container");
     const render = () => {
-      const plot = body.innerText;
-      let out = run_gnuplot(plot, []);
-      container.svg = FS.readFile("plot.js", { encoding: "utf8" });
+      toTop(gpPanel)()
+      container.errDestination = errBody.id;
       container.gnuplotDestination = gpBody.id;
-      //console.log(draw_script);
-      //eval?.(draw_script);
-      //gpBody.innerHTML = svg;
-      console.log("evaluated");
-      /*if (typeof draw_plot_on_canvas == "function") {
-          draw_plot_on_canvas();
-        }*/
-      const div = document.createElement("DIV");
-      document.getElementById(container.gnuplotDestination).innerHTML = "";
-      document.getElementById(container.gnuplotDestination).appendChild(div);
-      let pan, zoom;
-      if (gpPanel.panzoom) {
-        pan = gpPanel.panzoom.getPan();
-        zoom = gpPanel.panzoom.getZoom();
-        console.log(pan, zoom);
-      }
-      div.innerHTML = container.svg;
-      gpPanel.panzoom = svgPanZoom(
-        document
-          .getElementById(container.gnuplotDestination, {
-            zoomScaleSensitivity: 1.5,
-          })
-          .querySelector("svg")
-      );
-      if (pan) {
-        // Beware of order!
-        gpPanel.panzoom.zoom(zoom);
-        gpPanel.panzoom.pan(pan);
+      const plot = body.innerText;
+      run_gnuplot(plot, []);
+      console.log(STDOUT)
+      document.getElementById(container.errDestination).innerHTML = "";
+      document.getElementById(container.errDestination).innerHTML = STDOUT.join("\n")
+      const rendered = FS.readFile("plot", { encoding: "utf8" });
+      if (rendered.includes("<svg")) {
+        container.gnuplot = rendered;
+        const div = document.createElement("DIV");
+        document.getElementById(container.gnuplotDestination).innerHTML = "";
+        document.getElementById(container.gnuplotDestination).appendChild(div);
+        let pan, zoom;
+        if (gpPanel.panzoom) {
+          pan = gpPanel.panzoom.getPan();
+          zoom = gpPanel.panzoom.getZoom();
+        }
+        div.innerHTML = container.gnuplot;
+        gpPanel.panzoom = svgPanZoom(
+          document
+            .getElementById(container.gnuplotDestination, {
+              zoomScaleSensitivity: 1.5,
+            })
+            .querySelector("svg")
+        );
+        if (pan) {
+          // Beware of order!
+          gpPanel.panzoom.zoom(zoom);
+          gpPanel.panzoom.pan(pan);
+        }
       }
     };
-    if (!container.svg) {
-        container.render = render;
-        container.addEventListener("keyup", () => {
-          container.render();
-        });
-      }
-    render()
+    if (!container.gnuplot) {
+      container.render = render;
+      container.addEventListener("keyup", () => {
+        container.render();
+      });
+    }
+    render();
   },
   description: "wasm gnuplot based on github.com/CD3/gnuplot-in-the-browser",
   el: "u",
@@ -91,7 +81,9 @@ function run_gnuplot(script, options) {
   // Create file from object
   script =
     //"set term canvas name 'draw_plot_on_canvas' size 500,400;set output 'plot.js'\n" +
-    "set term svg;set output 'plot.js'\n" + script;
+    "set term svg;set output 'plot'\n" + script;
+  script = script.split("\n").map(l => l.trim()).join("\n")
+  console.log(script)
   FS.writeFile(SCRIPT_FILE, script);
 
   // Clear previous stdout/stderr before launching gnuplot
