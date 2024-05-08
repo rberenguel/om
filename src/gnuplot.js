@@ -31,14 +31,15 @@ const _gnuplot = {
     manipulation.set(body, manipulation.fields.kKind, "literal");
     const container = body.closest(".body-container");
     const render = () => {
-      toTop(gpPanel)()
+      toTop(gpPanel)();
       container.errDestination = errBody.id;
       container.gnuplotDestination = gpBody.id;
       const plot = body.innerText;
       run_gnuplot(plot, []);
-      console.log(STDOUT)
+      console.log(STDOUT);
       document.getElementById(container.errDestination).innerHTML = "";
-      document.getElementById(container.errDestination).innerHTML = STDOUT.join("\n")
+      document.getElementById(container.errDestination).innerHTML =
+        STDOUT.join("\n");
       const rendered = FS.readFile("plot", { encoding: "utf8" });
       if (rendered.includes("<svg")) {
         container.gnuplot = rendered;
@@ -79,11 +80,21 @@ const _gnuplot = {
 
 function run_gnuplot(script, options) {
   // Create file from object
-  script =
-    //"set term canvas name 'draw_plot_on_canvas' size 500,400;set output 'plot.js'\n" +
-    "set term svg;set output 'plot'\n" + script;
-  script = script.split("\n").map(l => l.trim()).join("\n")
-  console.log(script)
+  const header = `
+set term svg
+set output 'plot'
+set datafile separator "|"
+set key textcolor rgb "white"
+set border lw 1 lc rgb "white"
+set title textcolor rgb "white"
+`;
+  //"set term canvas name 'draw_plot_on_canvas' size 500,400;set output 'plot.js'\n" +
+  script = header + "\n" + script;
+  script = script
+    .split("\n")
+    .map((l) => l.trim())
+    .join("\n");
+  console.log(script);
   FS.writeFile(SCRIPT_FILE, script);
 
   // Clear previous stdout/stderr before launching gnuplot

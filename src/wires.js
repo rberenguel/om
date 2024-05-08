@@ -150,8 +150,10 @@ const wireBodies = (buttons) => {
       // Paste takes a slight bit to modify the DOM, if I trigger
       // the wiring without waiting a pasted button might not be wired
       // properly.
-      if(DEBUG)console.log(event)
+      console.log(event)
+      console.log(event.clipboardData.types)
       const pastedText = event.clipboardData.getData("text/plain");
+      console.log(pastedText)
       if (pastedText.startsWith("- f")) {
         // TODO this is very naive, I need better data transfer options
         loadRow(pastedText).then((value) => {
@@ -164,11 +166,35 @@ const wireBodies = (buttons) => {
       }
       const pastedHTML = event.clipboardData.getData("text/html");
       if (pastedHTML) {
+        console.log(pastedHTML)
+        console.log(pastedHTML.children)
         event.preventDefault();
         if(DEBUG)console.log(pastedHTML);
         if(DEBUG)console.log("This is HTML stuff");
         const div = document.createElement("DIV");
         div.innerHTML = pastedHTML;
+        if(pastedHTML.includes("google-sheets-html-origin")){
+          // Hopefully it's a table
+          const rowToCSV = tr => {
+            const tds = Array.from(tr.children)
+            let row = []
+            for(const td of tds){
+              row.push(td.textContent)
+            }
+            return row.join(" | ")
+          }
+          const trs = Array.from(div.querySelector("tbody").children)
+          let rows = []
+          for(const tr of trs){
+            rows.push(rowToCSV(tr))
+          }
+          const gsheetPaste = rows.join("\n")
+          console.log(gsheetPaste)
+          FS.writeFile("gsheet", gsheetPaste)
+          info.innerHTML = `Pasted from google sheet to filesystem (experimental)`;
+          info.classList.add("fades");
+          return
+        }
         if(DEBUG)console.log(div);
         const md = toMarkdown(div, true); // this is a fragment
         if(DEBUG)console.log(md);
