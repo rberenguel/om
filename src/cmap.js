@@ -195,6 +195,7 @@ const labelBreaker = (text) => {
 };
 
 const convert = (text) => {
+  console.log(text)
   const tab = "  ";
   const ttab = tab + tab;
   let result = [];
@@ -214,13 +215,14 @@ const convert = (text) => {
     if(line.trim()==="$DARK"){
       continue
     }
-    if (onlyBraces(line) || onlyAttrs(line) || isComment(line)) {
-      result.push(tab + line);
-      continue;
-    }
     for (let replacement of replacements) {
       let [key, value] = replacement;
+      //console.info(`(line) Replacing ${key} by ${value}`);
       line = line.replaceAll(key, value);
+    }
+    if (onlyBraces(line) || onlyAttrs(line) || isComment(line)) {
+      result.push(tab + line + " // only");
+      continue;
     }
     if (hasReplacement(line)) {
       const key = getReplacement(line)[1];
@@ -299,7 +301,7 @@ const convert = (text) => {
   }
   for (let replacement of replacements) {
     const [key, value] = replacement;
-    console.info(`Replacing ${key} by ${value}`);
+    console.info(`(header) Replacing ${key} by ${value}`);
     header = header.replaceAll(key, value);
   }
   let joined = header + "\n" + result.join("\n");
