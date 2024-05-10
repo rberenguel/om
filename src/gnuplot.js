@@ -57,7 +57,7 @@ const _gnuplot = {
             .getElementById(container.gnuplotDestination, {
               zoomScaleSensitivity: 1.5,
             })
-            .querySelector("svg")
+            .querySelector("svg"),
         );
         if (pan) {
           // Beware of order!

@@ -21,7 +21,7 @@ const cmap = {
     manipulation.set(
       cmapPanel,
       manipulation.fields.kTitle,
-      "generated-graphviz"
+      "generated-graphviz",
     );
     cmapPanel.saveable = false;
     manipulation.set(body, manipulation.fields.kKind, "literal");
@@ -122,7 +122,7 @@ $NODECOLOR=$BASE0
 $BACKGROUNDCOLOR=$BASE03
 $NODEFILLCOLOR=$BACKGROUNDCOLOR
 $FONTCOLOR=$CYAN
-`
+`;
 
 const lightColors = `
 $BASE03=#fdf6e3FF
@@ -195,7 +195,7 @@ const labelBreaker = (text) => {
 };
 
 const convert = (text) => {
-  console.log(text)
+  console.log(text);
   const tab = "  ";
   const ttab = tab + tab;
   let result = [];
@@ -205,15 +205,15 @@ const convert = (text) => {
   result.push(tab + `label="\\n${lines[0].replace("# ", "")}\\n\\n";`);
   const sliced = solarizedColors.split("\n").concat(lines.slice(1));
   if (lines.map((l) => l.trim()).includes("$DARK")) {
-    lines = darkColors.split("\n").concat(sliced)
+    lines = darkColors.split("\n").concat(sliced);
   } else {
     lines = lightColors.split("\n").concat(sliced);
   }
-  console.log(lines)
+  console.log(lines);
   let clusters = [];
   for (let line of lines) {
-    if(line.trim()==="$DARK"){
-      continue
+    if (line.trim() === "$DARK") {
+      continue;
     }
     for (let replacement of replacements) {
       let [key, value] = replacement;
@@ -227,7 +227,7 @@ const convert = (text) => {
     if (hasReplacement(line)) {
       const key = getReplacement(line)[1];
       const value = getReplacement(line)[2];
-      console.log(`Replacement found ${key} ${value}`)
+      console.log(`Replacement found ${key} ${value}`);
       replacements.push([key, value]);
       continue;
     }
@@ -255,7 +255,7 @@ const convert = (text) => {
       // Add invisible cluster name node and label
       result.push(ttab + `label="${cluster}"`);
       result.push(
-        ttab + `${cluster} [style=invis,width=0,label="",fixedsize=true]`
+        ttab + `${cluster} [style=invis,width=0,label="",fixedsize=true]`,
       );
       continue;
     }

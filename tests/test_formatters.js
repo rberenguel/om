@@ -157,7 +157,7 @@ describe("list text / button", function () {
     chai.expect(buttonNode.dataset.action).to.eql("list");
   });
   describe("create a list", function () {
-    const text = "foo\nbar\nbaz"
+    const text = "foo\nbar\nbaz";
     const panelBody = document
       .getElementById(weave.root)
       .querySelector(".body");
@@ -168,16 +168,14 @@ describe("list text / button", function () {
       button.dispatchEvent(events.mousedown);
       const li = panelBody.querySelectorAll("li");
       chai.expect(li).to.have.length(3);
-      chai.expect(li[1].children[0].nodeName).to.equal("SPAN")
+      chai.expect(li[1].children[0].nodeName).to.equal("SPAN");
       chai.expect(li[1].innerText).to.equal("bar");
       panelBody.innerHTML = "";
     });
     // with link
-  it("should create a list with a link, preserving it", function () {
-    const txt = `foo\n<br/>\n[[internal link]]\n<br/>\n[ex](https://example.com)`;
-    parseInto(txt, panelBody);
+    it("should create a list with a link, preserving it", function () {
+      const txt = `foo\n<br/>\n[[internal link]]\n<br/>\n[ex](https://example.com)`;
+      parseInto(txt, panelBody);
     });
   });
 });
-
-

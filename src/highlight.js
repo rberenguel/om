@@ -103,7 +103,7 @@ const highlight = {
       return;
     }
     const body = document.getElementById(weave.lastBodyClickId());
-    hilite(body)
+    hilite(body);
   },
   description: "Very cheap syntax highlighting that may fail",
   el: "u",
@@ -116,7 +116,7 @@ const hilite = (b) => {
   }
   text = text.replaceAll(
     /[^>]("[^"]*")[^>]/g,
-    "<span class='string'>$1</span>"
+    "<span class='string'>$1</span>",
   );
   //text = text.replaceAll(/[^>]({)[^>]/g, "<span class='brace'>$1</span>")
   //text = text.replaceAll(/[^>](})[^>|$]/g, "<span class='brace'>$1</span>")

@@ -11,6 +11,9 @@ import { dbdump } from "./save.js";
 import { getPropertiesFromFile } from "./parser.js";
 import { manipulation } from "./manipulation.js";
 import { enableSelectionOnAll, disableSelectionOnAll } from "./internal.js";
+import { presentFiles } from "./loadymcloadface.js";
+import { showModalAndGet } from "./save.js";
+import { toTop } from "./doms.js";
 
 // Globals that are used everywhere
 const DEBUG = false;
@@ -284,22 +287,63 @@ document.body.addEventListener(
     }
     body.dataset.scale = scale;
   },
-  { passive: false }
+  { passive: false },
 );
+
+const metak = () => {
+  const showModalHandler = (destination) => {
+    console.log(`Destination: ${destination}`);
+    if (!destination) {
+      console.log("no dest");
+      return;
+    }
+    const body = document.getElementById(destination);
+    const elt = body.closest(".body-container");
+    toTop(elt)();
+    body.focus();
+  };
+  const modal = document.getElementById("modal");
+  const fileContainer = document.createElement("div");
+  fileContainer.id = "fileContainer";
+  modal.append(fileContainer);
+  const containers = weave.containers();
+  const files = Array.from(containers).map((c) => {
+    const cinfo = {
+      key: c.querySelector(".body").id,
+      value: "",
+      title: manipulation.get(c, manipulation.fields.kTitle),
+    };
+    console.log(cinfo);
+    return cinfo;
+  });
+  presentFiles(files, fileContainer);
+
+  const hr = document.createElement("hr");
+  modal.appendChild(hr);
+  modal.originalFileset = files;
+  showModalAndGet("where to jump?", fileContainer, "name:", showModalHandler, {
+    dbsearching: false,
+    filtering: true,
+  });
+};
 
 document.body.addEventListener("keydown", (ev) => {
   if (ev.key === "n" && ev.ctrlKey) {
     const body = split(weave.root).action().querySelector(".body");
     body.focus();
+    toTop(body)();
+  }
+  if (ev.key === "k" && ev.metaKey) {
+    metak();
   }
 });
 
 interact(document.body)
   .pointerEvents({ ignoreFrom: ".body-container" })
   .on("hold", (ev) => {
-    if(ev.button != 0){
+    if (ev.button != 0) {
       // Want to avoid right-click-menu counting as hold, very annoying
-      return
+      return;
     }
     const body = split(weave.root).action().querySelector(".body");
     body.focus();

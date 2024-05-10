@@ -86,7 +86,7 @@ describe("Dynamic div: parsing & idempotency", function () {
     chai.expect(div.classList).to.not.be.null;
     chai.expect(div.textContent).to.eql("foo bar baz");
     const md = toMarkdown(body);
-    stringDiffer(addConfig(txt), md)
+    stringDiffer(addConfig(txt), md);
     chai.expect(addConfig(txt)).to.eql(md);
     div.remove();
   });
@@ -100,7 +100,7 @@ describe("Dynamic div: parsing & idempotency", function () {
     chai.expect(Array.from(div.classList)).to.include("class3");
     chai.expect(div.textContent).to.eql("foo bar baz");
     const md = toMarkdown(body);
-    stringDiffer(addConfig(txt), md)
+    stringDiffer(addConfig(txt), md);
     chai.expect(addConfig(txt)).to.eql(md);
     div.remove();
   });
@@ -120,7 +120,6 @@ describe("Dynamic div: parsing & idempotency", function () {
   });
 });
 
-
 describe("Button: parsing & idempotency", function () {
   let body = document.getElementById(b);
   it("should create a button and parse it again", function () {
@@ -135,18 +134,18 @@ describe("Button: parsing & idempotency", function () {
     chai.expect(addConfig(txt)).to.eql(md);
     div.remove();
   });
-  it("should create buttons in line", function(){
-    const txt = "`[div] .wrap span .alive div div`   `[div] .wrap u .alive raw raw`   `[div] .wrap span .alive div div`"
+  it("should create buttons in line", function () {
+    const txt =
+      "`[div] .wrap span .alive div div`   `[div] .wrap u .alive raw raw`   `[div] .wrap span .alive div div`";
     parseIntoWrapper(addConfig(txt), body);
     const divs = body.querySelectorAll(".wrap");
     chai.expect(divs[0].classList).to.not.be.null;
-    chai.expect(divs).to.have.length(3)
+    chai.expect(divs).to.have.length(3);
     const md = toMarkdown(body);
-    stringDiffer(addConfig(txt), md)
+    stringDiffer(addConfig(txt), md);
     chai.expect(addConfig(txt)).to.eql(md);
-    })
+  });
 });
-
 
 describe("Code: parsing & idempotency", function () {
   let body = document.getElementById(b);
@@ -207,7 +206,7 @@ describe("Links, links, links", function () {
     const a = body.querySelector("a");
     chai.expect(a).to.be.null;
     const md = toMarkdown(body);
-    stringDiffer(md, addConfig(txt))
+    stringDiffer(md, addConfig(txt));
     chai.expect(addConfig(txt)).to.eql(md);
   });
   it("should not understand ([]) as a link", function () {
@@ -216,7 +215,7 @@ describe("Links, links, links", function () {
     const a = body.querySelector("a");
     chai.expect(a).to.be.null;
     const md = toMarkdown(body);
-    stringDiffer(md, addConfig(txt))
+    stringDiffer(md, addConfig(txt));
     chai.expect(addConfig(txt)).to.eql(md);
   });
   it("should handle links properly (1 internal link)", function () {
@@ -247,7 +246,7 @@ describe("Links, links, links", function () {
     chai.expect(ext.textContent).to.equal(elT);
     chai.expect(JSON.parse(ext.dataset.internal)).to.be.false;
     const md = toMarkdown(body);
-    stringDiffer(addConfig(txt), md)
+    stringDiffer(addConfig(txt), md);
     chai.expect(addConfig(txt)).to.eql(md);
     int.remove();
     ext.remove();
@@ -288,7 +287,7 @@ describe("Links, links, links", function () {
     a.remove();
   });
   it("should handle links properly (line, link, line)", function () {
-    const il = "internal link"
+    const il = "internal link";
     const txt = `a\n[[${il}]]\nb`;
     parseIntoWrapper(addConfig(txt), body);
     const a = body.querySelector("a");
@@ -296,7 +295,7 @@ describe("Links, links, links", function () {
     chai.expect(a.textContent).to.equal(il);
     chai.expect(JSON.parse(a.dataset.internal)).to.be.true;
     const md = toMarkdown(body);
-    stringDiffer(md, addConfig(txt))
+    stringDiffer(md, addConfig(txt));
     chai.expect(addConfig(txt)).to.eql(md);
     a.remove();
   });

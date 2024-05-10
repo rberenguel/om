@@ -24,7 +24,7 @@ import {
   italic,
   bold,
 } from "./formatters.js";
-import { iload, gload, dbload } from "./loadymcloadface.js";
+import { iload, iload2, gload, dbload } from "./loadymcloadface.js";
 // Buttons
 import { div, task } from "./dynamicdiv.js";
 import { weather } from "./weather.js";
@@ -33,7 +33,7 @@ import {
   save,
   isave,
   gsave,
-  showModalAndGetFilename,
+  showModalAndGet,
   dbdump,
 } from "./save.js";
 import { ititle } from "./title.js";
@@ -115,9 +115,9 @@ const reload = {
     }
     info.innerHTML = weave.version;
     info.classList.add("fades");
-    setTimeout(() => { 
-      location.reload(true)
-    }, 500); 
+    setTimeout(() => {
+      location.reload(true);
+    }, 500);
   },
   description: "Reloads weave",
   el: "u",
@@ -148,7 +148,7 @@ const grouping = {
     if (weave.internal.grouping) {
       weave.internal.grouping = false;
       Array.from(document.getElementsByClassName("selected")).forEach((e) =>
-        e.classList.remove("selected")
+        e.classList.remove("selected"),
       );
 
       info.innerHTML = "grouped";
@@ -224,7 +224,7 @@ const newSession = {
       return;
     }
     Array.from(document.getElementsByClassName("body-container")).map((e) =>
-      e.remove()
+      e.remove(),
     );
     weave.createPanel(weave.root, "b0", weave.buttons(weave.root), weave);
   },
@@ -296,7 +296,7 @@ const idel = {
   action: (ev) => {
     const body = document.getElementById(weave.internal.bodyClicks[0]);
     entries().then((entries) => {
-      if(DEBUG) console.log(entries);
+      if (DEBUG) console.log(entries);
       for (const [key, value] of entries) {
         const k = document.createTextNode(key);
         const div = document.createElement("div");
@@ -324,7 +324,7 @@ filePicker.addEventListener("change", (event) => {
 
   reader.onload = (readerEvent) => {
     const content = readerEvent.target.result;
-    if(!DEBUG) console.log("DEPRECATE", content);
+    if (!DEBUG) console.log("DEPRECATE", content);
     for (const row of content.split("\n")) {
       loadRow(row);
     }
@@ -412,6 +412,7 @@ const buttons = (parentId) => {
     dbload,
     dbdump,
     iload,
+    iload2,
     title,
     div,
     task,
@@ -450,7 +451,7 @@ weave.buttons = buttons;
 let helpTable = [`<tr><td>Command</td><td>Help</td></tr>`];
 for (let button of buttons()) {
   let commandText;
-  if(DEBUG) console.log(button)
+  if (DEBUG) console.log(button);
   if (button.text) {
     commandText = button.text.join("/");
   } else {

@@ -7,19 +7,19 @@ import { parseInto, toMarkdown } from "./parser.js";
 import { common } from "./commands_base.js";
 import { postfix } from "./doms.js";
 
-const DEBUG = false
+const DEBUG = false;
 
-const div = (function() {
-  const _action = (ev, inject="") => {
-    if(weave.internal.held === undefined){
-      return
+const div = (function () {
+  const _action = (ev, inject = "") => {
+    if (weave.internal.held === undefined) {
+      return;
     }
     if (common(ev, weave.internal.held)) {
       return;
     }
     const selection = window.getSelection();
     const htmlContainer = document.createElement("div");
-    htmlContainer.appendChild(document.createTextNode(inject))
+    htmlContainer.appendChild(document.createTextNode(inject));
     htmlContainer.appendChild(selection.getRangeAt(0).cloneContents());
     const div = dynamicDiv(toMarkdown(htmlContainer, true));
     let range = selection.getRangeAt(0);
@@ -38,31 +38,31 @@ const div = (function() {
     range.insertNode(div);
     // Either I do inline-block and postfix or don't postfix
     postfix(div);
-  }
+  };
   return {
     text: ["div"],
     _action: _action,
-    action: ev => _action(ev)
-  }
+    action: (ev) => _action(ev),
+  };
 })();
 
 const task = {
   text: ["task"],
   action: (ev) => {
-    div._action(ev, ".task ")
+    div._action(ev, ".task ");
   },
 };
 
-const dynamicDiv = (text, mode="") => {
-  if(DEBUG) console.info(`Preparing dynamic div with "${text}"`)
+const dynamicDiv = (text, mode = "") => {
+  if (DEBUG) console.info(`Preparing dynamic div with "${text}"`);
   const div = document.createElement("div");
   // First extract the classes present
   const splits = text.split(/\s+/);
-  if(DEBUG) console.log(splits);
+  if (DEBUG) console.log(splits);
   let i = 0,
     classes = [];
   while (splits.length >= i + 1 && splits[i].startsWith(".")) {
-    if(DEBUG) console.log(`Extracted class: ${splits[i]}`);
+    if (DEBUG) console.log(`Extracted class: ${splits[i]}`);
     classes.push(splits[i].trim());
     i += 1;
   }
@@ -99,12 +99,12 @@ const dynamicDiv = (text, mode="") => {
     });
   }
   const cleanText = splits.slice(i).join(" ").replaceAll("\\n", "\n");
-  if(DEBUG) console.log(`Text ready to be parsed into a div: ${cleanText}`);
+  if (DEBUG) console.log(`Text ready to be parsed into a div: ${cleanText}`);
   parseInto(cleanText, div, `foldNL|${mode}`.replace("preserve", ""));
-  if(mode.includes("noDrag")){
+  if (mode.includes("noDrag")) {
     // TODO add drag operations on tasks on calendar
     // TODO make modes constants
-    return div
+    return div;
   }
   draggy(div);
   return div;

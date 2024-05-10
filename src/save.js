@@ -1,12 +1,4 @@
-export {
-  gsave,
-  isave,
-  save,
-  saveAll_,
-  showModalAndGetFilename,
-  exportCurrent,
-  dbdump
-};
+export { gsave, isave, save, saveAll_, showModalAndGet, exportCurrent, dbdump };
 
 import weave from "./weave.js";
 import { common, enterKeyDownEvent } from "./commands_base.js";
@@ -40,25 +32,29 @@ const dbdump = {
   el: "u",
 };
 
-
 const exportCurrent = {
   text: ["export"],
   action: (ev) => {
     const body = document.getElementById(weave.internal.bodyClicks[0]);
-    const container = body.closest(".body-container")
+    const container = body.closest(".body-container");
     const saveString = btoa(encodeURIComponent(toMarkdown(body)));
-    const filename = manipulation.get(container, manipulation.fields.kFilename)
-    const title = manipulation.get(container, manipulation.fields.kTitle)
-    const exportLine = `- ${filename}: ${title} ${saveString}`
+    const filename = manipulation.get(container, manipulation.fields.kFilename);
+    const title = manipulation.get(container, manipulation.fields.kTitle);
+    const exportLine = `- ${filename}: ${title} ${saveString}`;
     const text = new ClipboardItem({
-      "text/plain": Promise.resolve(exportLine).then(text => new Blob([text], { type: "text/plain" }))})
-    console.log(text)
-    navigator.clipboard.write([text]).then(()=>console.info("Copied successfully")).catch(err => console.error(err))
+      "text/plain": Promise.resolve(exportLine).then(
+        (text) => new Blob([text], { type: "text/plain" }),
+      ),
+    });
+    console.log(text);
+    navigator.clipboard
+      .write([text])
+      .then(() => console.info("Copied successfully"))
+      .catch((err) => console.error(err));
   },
   description: "Copy current document as an export line",
   el: "u",
-}
-
+};
 
 const saveAll_ = {
   text: ["saveall"],
@@ -69,13 +65,19 @@ const saveAll_ = {
     processFiles();
   },
   description:
-  "Save the current changes and config in the URL, so it survives browser crashes",
+    "Save the current changes and config in the URL, so it survives browser crashes",
   el: "u",
 };
 
 // TODO: the modal should be showable without searching for
 // stuff in the files (should be optional)
-function showModalAndGetFilename(placeholder, fileContainer, prefix, callback) {
+function showModalAndGet(
+  placeholder,
+  fileContainer,
+  prefix,
+  callback,
+  options = {},
+) {
   // prefix is for search field for lunr
   const inp = document.createElement("input");
   inp.classList.add("dark");
@@ -89,52 +91,79 @@ function showModalAndGetFilename(placeholder, fileContainer, prefix, callback) {
   modal.style.display = "block";
   inp.focus();
   inp.addEventListener("blur", (ev) => {
-    console.log("blurred")
-    setTimeout(() => { 
+    console.log("blurred");
+    setTimeout(() => {
       modal.innerHTML = "";
       modal.style.display = "none";
-      modal.showing = false
+      modal.showing = false;
       callback(null);
-    }, 150); 
-  })
-  inp.addEventListener("keydown", function (ev) {
-    console.log("keyed down")
+    }, 150);
+  });
+
+  const getPresented = () => {
+    const divs = modal.querySelectorAll(".hoverable");
+    const infos = Array.from(divs).map((d) => {
+      return {
+        key: d.dataset.filekey,
+        title: d.dataset.filetitle,
+      };
+    });
+    return infos;
+  };
+
+  inp.addEventListener("keyup", function (ev) {
+    console.log("keyed up");
     const searchString = inp.value;
     let results;
-    try {
-      const search = weave.internal.idx
-        .search(prefix + searchString)
-      results = search.map((r) => {
-        return {key: r.ref, title: weave.internal.fileTitles[r.ref]}
-      });
-    } catch (err) {
-      console.error("Lunar issue:");
-      console.error(err)
-      results = [];
+    if (modal.originalFileset && ev.key === "Backspace") {
+      presentFiles(modal.originalFileset, fileContainer);
     }
-    presentFiles(results, fileContainer);
+    if (options.dbsearching) {
+      try {
+        const search = weave.internal.idx.search(prefix + searchString);
+        results = search.map((r) => {
+          return { key: r.ref, title: weave.internal.fileTitles[r.ref] };
+        });
+      } catch (err) {
+        console.error("Lunar issue:");
+        console.error(err);
+        results = [];
+      }
+      presentFiles(results, fileContainer);
+    }
+    if (options.filtering) {
+      const regex = new RegExp(`.*?${searchString}.*?`, "i");
+      const infos = getPresented();
+      const results = infos.filter((d) => regex.test(d.title));
+      presentFiles(results, fileContainer);
+    }
     if (ev.key === "Enter") {
-      loadInput.value = searchString;
+      const infos = getPresented();
+      if (infos.length === 1) {
+        loadInput.value = infos[0].key;
+      } else {
+        loadInput.value = searchString;
+      }
       modal.innerHTML = "";
       loadInput.dispatchEvent(enterKeyDownEvent);
     }
     if (ev.key === "Escape") {
       modal.innerHTML = "";
       modal.style.display = "none";
-      modal.showing = false
+      modal.showing = false;
       callback(null);
     }
   });
   loadInput.addEventListener("keydown", function (ev) {
     if (ev.key === "Enter") {
       ev.preventDefault();
-      
+
       const filename = loadInput.value;
-      console.log(filename)
+      console.log(filename);
       callback(filename);
       // TODO The following likely never runs
       modal.style.display = "none";
-      modal.showing = false
+      modal.showing = false;
       modal.innerHTML = "";
     }
   });
@@ -143,15 +172,15 @@ function showModalAndGetFilename(placeholder, fileContainer, prefix, callback) {
 // This is for saving
 
 const setFilenameInBodyDataset = (body, fileContainer) => {
-  const container = body.closest(".body-container")
+  const container = body.closest(".body-container");
   if (manipulation.get(container, manipulation.fields.kFilename)) {
-    const filename = manipulation.get(container, manipulation.fields.kFilename)
+    const filename = manipulation.get(container, manipulation.fields.kFilename);
     return Promise.resolve([filename, body]);
   }
 
   // Need filename from modal
   return new Promise((resolve) => {
-    showModalAndGetFilename(
+    showModalAndGet(
       "filename?",
       fileContainer,
       "name:",
@@ -159,9 +188,14 @@ const setFilenameInBodyDataset = (body, fileContainer) => {
         if (!filenameFromModal) {
           return;
         }
-        manipulation.set(container, manipulation.fields.kFilename, filenameFromModal)
+        manipulation.set(
+          container,
+          manipulation.fields.kFilename,
+          filenameFromModal,
+        );
         resolve([filenameFromModal, body]);
       },
+      { dbsearching: true },
     );
   });
 };
@@ -169,10 +203,10 @@ const setFilenameInBodyDataset = (body, fileContainer) => {
 // TODO combine all these
 
 const setTitleInBodyDataset = (body, fileContainer) => {
-  const container = body.closest(".body-container")
+  const container = body.closest(".body-container");
   // Need filename from modal
   return new Promise((resolve) => {
-    showModalAndGetFilename(
+    showModalAndGet(
       "title?",
       fileContainer,
       "name:",
@@ -180,9 +214,10 @@ const setTitleInBodyDataset = (body, fileContainer) => {
         if (!titleFromModal) {
           return;
         }
-        manipulation.set(container, manipulation.fields.kTitle, titleFromModal)
+        manipulation.set(container, manipulation.fields.kTitle, titleFromModal);
         resolve([titleFromModal, body]);
       },
+      { dbsearching: true },
     );
   });
 };
@@ -194,7 +229,7 @@ const filenameToSelectedBodyFromSelection = () => {
     // Selection exists, proceed (synchronous)
     const filename = selection;
     const body = document.getElementById(weave.internal.bodyClicks[1]);
-    manipulation.set(container, manipulation.fields.kFilename, filename)
+    manipulation.set(container, manipulation.fields.kFilename, filename);
     return Promise.resolve([filename, body]); // Wrap in a resolved promise
   }
 
@@ -219,9 +254,9 @@ const isave = {
     filenameToSelectedBodyFromSelection()
       .then(([filename, body]) => {
         const content = btoa(encodeURIComponent(toMarkdown(body)));
-        const title = manipulation.get(body, manipulation.fields.kTitle)
-        const saveString = `${title} ${content}`
-        console.log(`Saving with a title`)
+        const title = manipulation.get(body, manipulation.fields.kTitle);
+        const saveString = `${title} ${content}`;
+        console.log(`Saving with a title`);
         set(filename, saveString)
           .then(() => console.info("Data saved in IndexedDb"))
           .catch((err) => console.info("Saving in IndexedDb failed", err));
@@ -236,7 +271,6 @@ const isave = {
   el: "u",
 };
 
-
 function processFiles() {
   let allFiles = [];
   let promiseChain = Promise.resolve(); // Start with a resolved promise
@@ -247,7 +281,7 @@ function processFiles() {
     // Chain promises sequentially
     promiseChain = promiseChain
       .then(() => {
-        const container = body.closest(".body-container")
+        const container = body.closest(".body-container");
         container.classList.add("highlighted");
         return setFilenameInBodyDataset(body).then(([filename, _]) => {
           const saveString = btoa(encodeURIComponent(toMarkdown(body)));
@@ -292,7 +326,7 @@ const gsave = {
     fileContainer.id = "fileContainer";
     modal.append(fileContainer);
     processFiles().then((allFiles) => {
-      showModalAndGetFilename(
+      showModalAndGet(
         "group name?",
         fileContainer,
         "name:",
@@ -306,11 +340,12 @@ const gsave = {
           info.innerHTML = "&#x1F4BE;";
           info.classList.add("fades");
         },
+        { dbsearching: true },
       );
     });
   },
   description:
-  "Save a group of panes to IndexedDB. There is no equivalent for file though",
+    "Save a group of panes to IndexedDB. There is no equivalent for file though",
   el: "u",
 };
 
@@ -337,4 +372,3 @@ const save = {
   description: "Save a pane to disk, you won't be choosing where though",
   el: "u",
 };
-

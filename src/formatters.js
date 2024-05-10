@@ -1,14 +1,32 @@
-export { headers, code, lists, link, hr, mono, gfont, serif, fontup, fontdown, underline, italic, bold }
+export {
+  headers,
+  code,
+  lists,
+  link,
+  hr,
+  mono,
+  gfont,
+  serif,
+  fontup,
+  fontdown,
+  underline,
+  italic,
+  bold,
+};
 
 import weave from "./weave.js";
 import { common } from "./commands_base.js";
 import { addGoogFont } from "./load.js";
-import { presentFiles } from "./loadymcloadface.js";
+import {
+  iloadIntoBody,
+  presentFiles,
+  convertNonGroupFileData,
+} from "./loadymcloadface.js";
 import { entries } from "./libs/idb-keyval.js";
-import { toMarkdown  } from "./parser.js";
-import { showModalAndGetFilename } from "./save.js";
-import { postfix } from "./doms.js"
-import { createPanel } from "./panel.js"
+import { toMarkdown } from "./parser.js";
+import { showModalAndGet } from "./save.js";
+import { postfix, toTop } from "./doms.js";
+import { createPanel } from "./panel.js";
 
 const underline = {
   text: ["underline", "u"],
@@ -47,8 +65,6 @@ const bold = {
   el: "b",
 };
 
-
-
 const fontup = {
   text: ["font+", "f+"],
   action: (ev) => {
@@ -84,7 +100,6 @@ const fontdown = {
   el: "u",
 };
 
-
 const serif = {
   text: ["serif"],
   action: (ev) => {
@@ -100,7 +115,6 @@ const serif = {
   description: "Switch to a serif font (Reforma1969) (stored in config)",
   el: "u",
 };
-
 
 const mono = {
   text: ["mono"],
@@ -136,8 +150,6 @@ const gfont = {
   el: "u",
 };
 
-
-
 const hr = {
   text: ["---"],
   creator: () => {
@@ -161,8 +173,6 @@ const hr = {
   el: "hr",
 };
 
-
-
 const link = {
   text: ["link"],
   action: (ev) => {
@@ -172,7 +182,7 @@ const link = {
     const selection = window.getSelection();
     const text = selection + "";
     const range = selection.getRangeAt(0);
-    console.log(range)
+    console.log(range);
     const link = document.createElement("a");
     range.deleteContents();
     range.insertNode(link);
@@ -187,7 +197,7 @@ const link = {
       if (keys.includes(destination)) {
         href = destination;
         link.dataset.internal = true;
-        link.textContent = weave.internal.fileTitles[destination]
+        link.textContent = weave.internal.fileTitles[destination];
       } else {
         if (destination.startsWith("http")) {
           href = destination;
@@ -214,27 +224,27 @@ const link = {
           window.open(href, "_blank");
         }
       });
-    }
+    };
     const modal = document.getElementById("modal");
     const fileContainer = document.createElement("div");
     fileContainer.id = "fileContainer";
     modal.append(fileContainer);
-    console.log("foo")
     entries().then((entries) => {
       const keys = entries.map(([key, value]) => key);
       const files = entries
-        .filter(([key, value]) => !value.startsWith("g:"))
-        .map(([key, value]) => {return {key: key, value: value}});
+        .filter(([key, value]) => value && !value.startsWith("g:"))
+        .map(([key, value]) => convertNonGroupFileData(key, value));
       console.log(files);
       presentFiles(files, fileContainer);
 
       const hr = document.createElement("hr");
       modal.appendChild(hr);
-      showModalAndGetFilename(
+      showModalAndGet(
         "where to?",
         fileContainer,
         "name:",
         showModalHandler(keys),
+        { dbsearching: true },
       );
     });
 
@@ -248,7 +258,6 @@ const link = {
     }*/
   },
 };
-
 
 const headers = {
   matcher: /h[1-4]/,
@@ -313,11 +322,11 @@ const lists = {
       const parent = selection.anchorNode.parentNode;
       const div = document.createElement("div");
       const granny = parent.parentNode;
-      let txt = selection.anchorNode.textContent
-      if(text.length == 0){
-        txt = " "
+      let txt = selection.anchorNode.textContent;
+      if (text.length == 0) {
+        txt = " ";
       }
-      div.textContent = txt
+      div.textContent = txt;
       console.log(selection.anchorNode);
       granny.insertBefore(div, parent.nextSibling);
       parent.remove();
@@ -330,19 +339,19 @@ const lists = {
       const div = document.createElement("div");
       const cont = document.createElement("div");
       let range = selection.getRangeAt(0);
-      const frag = range.cloneContents()
-      cont.appendChild(frag)
-      console.log(cont.textContent)
-      console.log("All:")
-      console.log(cont.children)
-      console.log(cont.childNodes)
+      const frag = range.cloneContents();
+      cont.appendChild(frag);
+      console.log(cont.textContent);
+      console.log("All:");
+      console.log(cont.children);
+      console.log(cont.childNodes);
       for (const child of Array.from(cont.childNodes)) {
         const li = document.createElement("li");
-        if(child.nodeName === "DIV" && child.classList.length == 0){
-          const span = document.createElement("span")
-          Array.from(child.childNodes).forEach(c => span.appendChild(c))
-          li.appendChild(span) 
-        }else {
+        if (child.nodeName === "DIV" && child.classList.length == 0) {
+          const span = document.createElement("span");
+          Array.from(child.childNodes).forEach((c) => span.appendChild(c));
+          li.appendChild(span);
+        } else {
           li.appendChild(child); // This might need tweaking due to nested crap
         }
         div.appendChild(li);
@@ -369,5 +378,3 @@ const lists = {
   },
   description: "Code block/uncode block",
 };
-
-

@@ -148,7 +148,7 @@ const wireEvalFromScratch = (kind) => {
     tagPlain == "DIV" &&
     parentNodePlain.classList.contains("wired") &&
     parentNodePlain.classList.contains("code");
-  const code = document.createElement("DIV")
+  const code = document.createElement("DIV");
   code.classList.add("wired", "code");
   if (skipPlain || skipAssignment) {
     // If the block is wired we skip

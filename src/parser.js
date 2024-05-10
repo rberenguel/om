@@ -13,15 +13,15 @@ import { placeTitle } from "./title.js";
 import { iloadIntoBody } from "./loadymcloadface.js";
 import { toTop } from "./doms.js";
 import { dynamicDiv } from "./dynamicdiv.js";
-import {calWithEvents, parseCalendar } from "./cal.js"
+import { calWithEvents, parseCalendar } from "./cal.js";
 
 const DEBUG = false;
 
 const parseProperties = (lines) => {
   let properties = {};
   for (const line of lines) {
-    if(line.trim().length == 0){
-      continue
+    if (line.trim().length == 0) {
+      continue;
     }
     try {
       const split = line.split(" ");
@@ -94,13 +94,13 @@ const parseIntoWrapper = (text, body) => {
   manipulation.reposition(container);
   manipulation.resize(container);
   placeTitle(container);
-  const kind = manipulation.get(container, manipulation.fields.kKind)
-  if(kind.trim() === "literal"){
-    console.info("Literal document")
-    body.style.whiteSpace = "pre-wrap"
-    body.innerText = rest.join("\n")
+  const kind = manipulation.get(container, manipulation.fields.kKind);
+  if (kind.trim() === "literal") {
+    console.info("Literal document");
+    body.style.whiteSpace = "pre-wrap";
+    body.innerText = rest.join("\n");
   } else {
-    console.info("Parsing markdown document")
+    console.info("Parsing markdown document");
     parseInto(rest.join("\n"), body);
   }
 };
@@ -143,10 +143,10 @@ const linkStateMachine = (line, body, mode = "") => {
         // We have finished the link text. We still don't emit
         // anything though, we need to finish, potentially, the link.
       } else {
-        console.log("closing references")
+        console.log("closing references");
         closedReference += 1;
-        console.log(closedReference)
-        console.log(linkText)
+        console.log(closedReference);
+        console.log(linkText);
         if (closedReference == 2) {
           inReference = false; // Reference finished, emit it
           closedReference = 0;
@@ -199,18 +199,18 @@ const linkStateMachine = (line, body, mode = "") => {
     }
     if (c == ")") {
       // We can either be in a real link reference, or just getting some braces
-      if(!inLinkHref){
+      if (!inLinkHref) {
         // A link has not really been started (something like `([a])` or `([])` maybe)
-        console.log("not inlink, with", closedReference)
-        if(linkText.length > 0 || closedReference > 0){
-          accum.push(`[${linkText}])`)
-          closedReference = 0
+        console.log("not inlink, with", closedReference);
+        if (linkText.length > 0 || closedReference > 0) {
+          accum.push(`[${linkText}])`);
+          closedReference = 0;
         } else {
-          accum.push(")")
+          accum.push(")");
         }
-        continue
+        continue;
       }
-      
+
       inLinkHref = false;
       // We _potentially_ finished a link, emit it
       const link = document.createElement("a");
@@ -276,7 +276,7 @@ const linkStateMachine = (line, body, mode = "") => {
       return;
     }
     if (accumed == line && accumed.trim().length > 0) {
-      if(DEBUG)console.log(`Accumed: ${accumed}, line: ${line}`)
+      if (DEBUG) console.log(`Accumed: ${accumed}, line: ${line}`);
       if (mode.includes("preserve")) {
         if (DEBUG)
           console.debug(`Preserving accumulator (no new div) "${accumed}"`);
@@ -294,12 +294,12 @@ const linkStateMachine = (line, body, mode = "") => {
   }
 };
 
-const parseInto = (text, body, mode="") => {
+const parseInto = (text, body, mode = "") => {
   // mode: noDrag
-  if(!text){
-    console.error("No text provided for parseInto")
-    console.log(body)
-    return
+  if (!text) {
+    console.error("No text provided for parseInto");
+    console.log(body);
+    return;
   }
   if (text.length == 0) {
     return;
@@ -314,11 +314,11 @@ const parseInto = (text, body, mode="") => {
     if (DEBUG) console.debug(`Parsing line: ${line}`);
     if (line.startsWith("<br")) {
       const br = document.createElement("br");
-      if(codeBlock){
+      if (codeBlock) {
         codeBlock.appendChild(br);
       } else {
-        console.log("Appending a br")
-        console.log(line)
+        console.log("Appending a br");
+        console.log(line);
         body.appendChild(br);
       }
 
@@ -395,7 +395,7 @@ const parseInto = (text, body, mode="") => {
     if (DEBUG) console.debug(wd.classList);
     if (!hasDiv) {
       if (simple === null) {
-        if(DEBUG) console.debug(`No div: ${line}`);
+        if (DEBUG) console.debug(`No div: ${line}`);
         // Here now I need to process links. Let's just inject a small state machine
         linkStateMachine(line, wd, mode);
       } else {
@@ -438,21 +438,21 @@ const parseTillTick = (text) => {
   return [match[1], match[2]];
 };
 
-const toMarkdown = (element, fragment=false) => {
+const toMarkdown = (element, fragment = false) => {
   if (DEBUG) {
     console.debug("Parsing markdown on element");
     console.debug(element);
   }
   // TODO text and literal should be part of some enum-like
-  let kind
-  if(fragment){
-    kind = "pasted"
+  let kind;
+  if (fragment) {
+    kind = "pasted";
   } else {
-    kind = manipulation.get(element, manipulation.fields.kKind)
+    kind = manipulation.get(element, manipulation.fields.kKind);
   }
-  let content
-  if(kind.trim() === "literal"){
-    content = element.innerText
+  let content;
+  if (kind.trim() === "literal") {
+    content = element.innerText;
   } else {
     content = content = iterateDOM(element);
   }
@@ -488,7 +488,7 @@ const toMarkdown = (element, fragment=false) => {
   return markdown + "\n"; // Always add a new line at the end
 };
 
-function iterateDOM(node, mode="") {
+function iterateDOM(node, mode = "") {
   // If mode == foldNL it will convert new lines into \n
   // If mode == noNL no new lines will be added to naked divs
   // The generated structures are never more than 2 levels deep, seems, for now
@@ -510,9 +510,9 @@ function iterateDOM(node, mode="") {
       //}
       continue;
     }
-    if(child.nodeName == "TABLE" && child.classList.contains("calendar")){
-      const events = parseCalendar(child)
-      const stringified = JSON.stringify(events)
+    if (child.nodeName == "TABLE" && child.classList.contains("calendar")) {
+      const events = parseCalendar(child);
+      const stringified = JSON.stringify(events);
       const md = `\`[div] .calendar ${stringified}\`\n`;
       generated.push(md);
       continue;
@@ -531,9 +531,9 @@ function iterateDOM(node, mode="") {
     }
     if (child.nodeName === "BR") {
       //generated.push("\n"); // This might be a stretch
-      if(node.nodeName === "PRE"){
+      if (node.nodeName === "PRE") {
         // Skip BRs in PREs
-        continue
+        continue;
       }
       generated.push("\n");
       generated.push("<br id='nodename-br'/>");
@@ -629,15 +629,15 @@ function iterateDOM(node, mode="") {
         .filter((c) => c != "dynamic-div")
         .map((c) => `.${c}`)
         .join(" ");
-      const iterated = iterateDOM(child, "foldNL").map(e => {
-        if(e == "\n"){
-          return "\\n"
+      const iterated = iterateDOM(child, "foldNL").map((e) => {
+        if (e == "\n") {
+          return "\\n";
         }
-        return e
-      })
+        return e;
+      });
       if (DEBUG) console.debug(`Iterated: ${iterated}`);
-      const head = iterated.join("").trim()
-      if (DEBUG) console.debug(`head: ${head}`)
+      const head = iterated.join("").trim();
+      if (DEBUG) console.debug(`head: ${head}`);
       const inner = head.replace(/^(\\n)+/, "").replaceAll("\\n\\n", "\\n");
       if (DEBUG) console.debug(`Inner: ${inner}`);
       const toAdd = [allClasses, inner].join(" ").trim();
@@ -664,11 +664,11 @@ const divBlock = "[div]";
 
 const parseDiv = (divData, mode = "") => {
   if (DEBUG) console.debug(`Parsing div: ${divData}, mode: ${mode}`);
-  if(!divData){
-    console.error("This is bad, no div data")
-    const div = document.createElement("div")
-    div.id = "failure-processing-div"
-    return div
+  if (!divData) {
+    console.error("This is bad, no div data");
+    const div = document.createElement("div");
+    div.id = "failure-processing-div";
+    return div;
   }
   if (!divData.startsWith(divBlock)) {
     if (DEBUG) console.debug(`Not a div`);
@@ -691,13 +691,13 @@ const parseDiv = (divData, mode = "") => {
     div.appendChild(node);
     return div;
   }
-  if(klass === ".calendar"){
+  if (klass === ".calendar") {
     if (DEBUG) console.debug(`Calendar`);
     const events = JSON.parse(splits.slice(1).join(" "));
-    console.log(events)
+    console.log(events);
     const div = document.createElement("div");
-    events.span = 1
-    const tables = calWithEvents(events, mode)
+    events.span = 1;
+    const tables = calWithEvents(events, mode);
     return tables[0];
   }
   if (klass === ".dynamic-div") {

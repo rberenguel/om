@@ -86,7 +86,6 @@ Dynamic div:
 Draggable div useful for "anything", technically
 **/
 
-
 .dynamic-div {
   border: 1px solid var(--bright-yellow);
   border-radius: 5px;
@@ -103,7 +102,6 @@ Draggable div useful for "anything", technically
   padding-left: 0.3em;
 }
 
-
 .div-dnd-placeholder {
   /* Same properties as dynamic-div */
   border: 2px solid var(--bright-yellow);
@@ -117,7 +115,6 @@ Draggable div useful for "anything", technically
   padding-top: 0.1em;
   padding-bottom: 0.1em;
 }
-
 
 /** 
 Dynamic div: task
@@ -145,8 +142,8 @@ Uses font-awesome for styling, but requires also a label for it so it can be che
 .task-label::before {
   font-family: "Font Awesome 6 Free Regular";
   display: inline-block;
-  margin-right: 10px; 
-  font-size: 1.2em; 
+  margin-right: 10px;
+  font-size: 1.2em;
   position: absolute;
   left: 0.3em;
   top: 50%;
@@ -180,17 +177,17 @@ Uses font-awesome for styling, but requires also a label for it so it can be che
 }
 
 .ad.task::before {
-  margin-left: 1.1em;;
+  margin-left: 1.1em;
 }
 
 .ad::before {
   font-family: "Font Awesome 6 Free Solid";
   display: inline-block;
-  margin-right: 0.4em; 
+  margin-right: 0.4em;
   position: absolute;
   left: 0.3em;
   top: 50%;
-  transform: translateY(-50%); 
+  transform: translateY(-50%);
 }
 
 .ad.note {
@@ -198,7 +195,7 @@ Uses font-awesome for styling, but requires also a label for it so it can be che
 }
 
 .ad.note::before {
-  content: "\f05a";  
+  content: "\f05a";
   color: #06c;
 }
 
@@ -207,17 +204,17 @@ Uses font-awesome for styling, but requires also a label for it so it can be che
 }
 
 .ad.attn::before {
-  content: "\f071"; 
-  color: #c60; 
+  content: "\f071";
+  color: #c60;
 }
 
 .ad.tip {
-  border: 1px solid #6c6; 
+  border: 1px solid #6c6;
 }
 
 .ad.tip::before {
   content: "\f0eb"; /* Lightbulb icon */
-  color: #6c6; 
+  color: #6c6;
 }
 
 .ad.impo {
@@ -235,7 +232,7 @@ Uses font-awesome for styling, but requires also a label for it so it can be che
 
 .ad.warn::before {
   content: "\f071"; /* Same warning triangle icon */
-  color: #c93; 
+  color: #c93;
 }
 
 .ad.dngr {
@@ -244,7 +241,7 @@ Uses font-awesome for styling, but requires also a label for it so it can be che
 
 .ad.dngr::before {
   content: "\f057"; /* Exclamation point inside a triangle */
-  color: #c00; 
+  color: #c00;
 }
 
 .ad.flyd {
@@ -253,7 +250,7 @@ Uses font-awesome for styling, but requires also a label for it so it can be che
 
 .ad.flyd::before {
   content: "\f5b0"; /* Plane out */
-  color: var(--gray-text); 
+  color: var(--gray-text);
 }
 
 .ad.flya {
@@ -262,7 +259,7 @@ Uses font-awesome for styling, but requires also a label for it so it can be che
 
 .ad.flya::before {
   content: "\f5af"; /* Plane in */
-  color: var(--gray-text); 
+  color: var(--gray-text);
 }
 
 .ad.drac {
@@ -271,7 +268,7 @@ Uses font-awesome for styling, but requires also a label for it so it can be che
 
 .ad.drac::before {
   content: "\f6d5"; /* Dragon */
-  color: darkgreen; 
+  color: darkgreen;
 }
 
 .ad.clock {
@@ -280,7 +277,7 @@ Uses font-awesome for styling, but requires also a label for it so it can be che
 
 .ad.clock::before {
   content: "\f017"; /* Clock */
-  color: var(--gray-text); 
+  color: var(--gray-text);
 }
 
 .ad.cal {
@@ -289,7 +286,7 @@ Uses font-awesome for styling, but requires also a label for it so it can be che
 
 .ad.cal::before {
   content: "\f133"; /* Calendar */
-  color: var(--gray-text); 
+  color: var(--gray-text);
 }
 
 .ad.temp {
@@ -308,7 +305,7 @@ Uses font-awesome for styling, but requires also a label for it so it can be che
 
 .ad.umbr::before {
   content: "\f0e9"; /* Umbrella */
-  color: var(--bright-blue); 
+  color: var(--bright-blue);
 }
 
 .ad.drop {
@@ -317,7 +314,7 @@ Uses font-awesome for styling, but requires also a label for it so it can be che
 
 .ad.drop::before {
   content: "\f043"; /* drop */
-  color: var(--bright-blue); 
+  color: var(--bright-blue);
 }
 
 .ad.pct {
@@ -326,7 +323,7 @@ Uses font-awesome for styling, but requires also a label for it so it can be che
 
 .ad.pct::before {
   content: "\25"; /* Percent */
-  color: var(--gray-text); 
+  color: var(--gray-text);
 }
 
 .ad.ping {
@@ -335,7 +332,7 @@ Uses font-awesome for styling, but requires also a label for it so it can be che
 
 .ad.ping::before {
   content: "\f45d"; /* drop */
-  color: var(--gray-text); 
+  color: var(--gray-text);
 }
 
 .ad.hols {
@@ -344,7 +341,7 @@ Uses font-awesome for styling, but requires also a label for it so it can be che
 
 .ad.hols::before {
   content: "\e52f"; /* drop */
-  color: darkgreen; 
+  color: darkgreen;
 }
 
 /** Admonition DIV **/
@@ -488,11 +485,9 @@ a[data-internal="false"]::after {
   -webkit-box-orient: vertical;
 }
 
-
 .body-container.light {
   border: 2px solid var(--bright-orange);
 }
-
 
 /* For panels */
 .dragging {
@@ -523,30 +518,28 @@ a[data-internal="false"]::after {
 
 .arrow-line {
   stroke: var(--bright-yellow);
-  fill: var(--bright-yellow); 
+  fill: var(--bright-yellow);
   stroke-width: 2;
   marker-end: url(#arrowhead); /* Keep marker reference */
 }
 .arrow-placeholder {
-  stroke: #d33682;/*var(--solarized-pink);*.
+  stroke: #d33682; /*var(--solarized-pink);*.
   fill: #d33682;/*var(--solarized-pink); */
   stroke-width: 2;
   marker-end: url(#arrowhead); /* Keep marker reference */
 }
 .arrow-red {
   stroke: var(--bright-red);
-  fill: var(--bright-red); 
+  fill: var(--bright-red);
   stroke-width: 2;
   marker-end: url(#arrowhead); /* Keep marker reference */
 }
 .arrow-blue {
   stroke: var(--bright-blue);
-  fill: var(--bright-blue); 
+  fill: var(--bright-blue);
   stroke-width: 2;
   marker-end: url(#arrowhead); /* Keep marker reference */
 }
-
-
 
 #svgContainer.show {
   opacity: 0.8;
@@ -622,19 +615,19 @@ svg {
 }
 
 #vertical-line {
-  position: fixed; 
+  position: fixed;
   top: 0;
   height: 100vh;
-  background-color:var(--bright-yellow);
+  background-color: var(--bright-yellow);
   display: none;
   z-index: 10000;
 }
 
 #horizontal-line {
-  position: fixed; 
+  position: fixed;
   left: 0;
   width: 100vh;
-  background-color:var(--bright-yellow);
+  background-color: var(--bright-yellow);
   display: none;
   z-index: 10000;
 }
@@ -714,7 +707,7 @@ div.wrap {
   filter: blur(3px);
 }
 
-.body  pre {
+.body pre {
   font-family: "monoidregular";
   padding-left: 2em;
   font-size: 60%;
@@ -857,23 +850,23 @@ div.wrap {
 /* Calendar styling */
 
 table.calendar {
-	width: 100%;
-	border-collapse: separate;
-	border-spacing: 0.5em 1.5em;
-	color: var(--gray-text);
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0.5em 1.5em;
+  color: var(--gray-text);
 }
-.calendar td, th {
-	font-weight: normal;
-	text-transform: uppercase;
-	border-bottom: 1px solid var(--slighty-lighter-dark-background);
-	font-weight: 300;
+.calendar td,
+th {
+  font-weight: normal;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--slighty-lighter-dark-background);
+  font-weight: 300;
 }
 
 .calendar .stuff td {
   text-transform: none;
   color: var(--gray-text);
 }
-
 
 .calendar.stuff {
   height: 3em !important;
@@ -889,7 +882,7 @@ table.calendar {
 }
 
 .calendar tr {
-	width: 100%;
+  width: 100%;
 }
 
 .calendar .stuff tr {
@@ -947,11 +940,12 @@ th.calendar {
 */
 /* Mobile styling */
 
-@media only screen and (max-width: 768px) { /* Adjust the max-width as needed */
+@media only screen and (max-width: 768px) {
+  /* Adjust the max-width as needed */
   .body-container {
-      width: 100%; /* Make it take full width on mobile */
-      height: 66%;
-      margin: 0;
+    width: 100%; /* Make it take full width on mobile */
+    height: 66%;
+    margin: 0;
   }
   #info {
     right: 1em;

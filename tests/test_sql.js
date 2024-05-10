@@ -4,7 +4,7 @@ import {
   createButton,
   events,
   assertTwoWayConversion,
-  stringDiffer
+  stringDiffer,
 } from "./test_helpers.js";
 
 weave.root = "weave-target";
@@ -46,7 +46,7 @@ describe("sql text / button", function () {
       chai.expect(evaluated).to.exist;
     });
     it("should hold the CREATE statement in text", function () {
-      stringDiffer(create, evaluated.textContent)
+      stringDiffer(create, evaluated.textContent);
       chai.expect(evaluated.textContent).to.equal(create);
     });
     it("should hold the number of affected rows as the value assigned to the evaluation", function () {
@@ -77,7 +77,7 @@ describe("sql text / button", function () {
       // assertTwoWayConversion(panelBody) This adds the data twice, sadly
     });
     it("should hold the CREATE+INSERT statements in text", function () {
-      stringDiffer(evaluated.textContent, evaluation)
+      stringDiffer(evaluated.textContent, evaluation);
       chai.expect(evaluated.textContent).to.equal(evaluation);
     });
 
@@ -91,7 +91,7 @@ describe("sql text / button", function () {
         .to.equal(evaluation);
     });
   });
-/*
+  /*
   describe("rows returned (SELECT after CREATE, INSERT)", function () {
     const evaluation = select;
     const panelBody = document

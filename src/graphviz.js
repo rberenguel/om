@@ -5,7 +5,7 @@ import { common } from "./commands_base.js";
 import { createNextPanel } from "./panel.js";
 import { Graphviz } from "./libs/graphviz.js";
 import { manipulation } from "./manipulation.js";
-import { toTop } from "./doms.js"
+import { toTop } from "./doms.js";
 
 const dotExample = `
 digraph G {
@@ -106,7 +106,7 @@ const graphviz = {
     const errBody = errPanel.querySelector(".body");
     const container = body.closest(".body-container");
     const render = async () => {
-      toTop(gvPanel)()
+      toTop(gvPanel)();
       const dot = body.innerText
         .split("\n")
         .map((l) => l.trim())
@@ -116,7 +116,7 @@ const graphviz = {
       container.errorDestination = errBody.id;
       try {
         const rendered = weave.graphviz.layout(dot, "svg", "dot");
-        console.log(rendered)
+        console.log(rendered);
         if (rendered.includes("<svg")) {
           container.dot = rendered;
           const div = document.createElement("DIV");
@@ -136,7 +136,7 @@ const graphviz = {
               .getElementById(container.graphvizDestination, {
                 zoomScaleSensitivity: 1.5,
               })
-              .querySelector("svg")
+              .querySelector("svg"),
           );
           if (pan) {
             // Beware of order!
@@ -145,7 +145,7 @@ const graphviz = {
           }
           div.addEventListener("dblclick", (ev) => {
             const svgString = new XMLSerializer().serializeToString(
-              document.getElementById(container.graphvizDestination)
+              document.getElementById(container.graphvizDestination),
             );
             const svgDataUri = "data:image/svg+xml;base64," + btoa(svgString);
             const downloadLink = document.createElement("a");
@@ -164,7 +164,7 @@ const graphviz = {
           "table index is out of bounds",
         ];
         const isReloadWorthy = reloadWorthyErrors.some((string) =>
-          err.message.includes(string)
+          err.message.includes(string),
         );
         if (err instanceof Error && isReloadWorthy) {
           weave.graphviz = await Graphviz.load();

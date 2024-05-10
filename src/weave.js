@@ -1,4 +1,4 @@
-import { createPanel } from "./panel.js"
+import { createPanel } from "./panel.js";
 
 const weave = {
   version: "0.1.0",
@@ -19,7 +19,7 @@ const weave = {
     clickedId: ["b0", "b0"],
     held: false,
     arrows: [],
-    fileTitles: {}
+    fileTitles: {},
   },
   liveTone: {},
   lastBodyClickId: function () {

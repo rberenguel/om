@@ -82,10 +82,12 @@
       Fonts used:
       <a
         href="https://larsenwork.com/monoid/"
-        style="font-family: 'monoidregular'"
+        style="font-family: &quot;monoidregular&quot;"
         >Monoid</a
       >
-      <a href="https://pampatype.com/reforma" style="font-family: 'Reforma1969'"
+      <a
+        href="https://pampatype.com/reforma"
+        style="font-family: &quot;Reforma1969&quot;"
         >Reforma 1969</a
       >
     </p>
@@ -115,8 +117,7 @@
     printErr: (stderr) => STDOUT.push(stderr),
 
     // When the module is ready
-    onRuntimeInitialized: function () {
-    },
+    onRuntimeInitialized: function () {},
 
     preRun: function () {
       function stdin() {

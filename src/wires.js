@@ -2,12 +2,12 @@ export { wireBodies, wireButtons };
 
 import weave from "./weave.js";
 import { reset } from "./commands_base.js";
-import { toMarkdown, parseInto  } from "./parser.js";
+import { toMarkdown, parseInto } from "./parser.js";
 import { wireEverything } from "./load.js";
 import { loadRow } from "./loadymcloadface.js";
 import { enableSelectionOnAll, disableSelectionOnAll } from "./internal.js";
 
-const DEBUG = false
+const DEBUG = false;
 
 const wireBodies = (buttons) => {
   for (let body of weave.bodies()) {
@@ -20,7 +20,7 @@ const wireBodies = (buttons) => {
         reset();
         weave.internal.clickedId.unshift(body.id);
         Array.from(
-          document.getElementsByClassName("mildly-highlighted")
+          document.getElementsByClassName("mildly-highlighted"),
         ).forEach((e) => e.classList.remove("mildly-highlighted"));
         weave.internal.clickedId.length = 2;
         if (weave.internal.grouping) {
@@ -66,7 +66,7 @@ const wireBodies = (buttons) => {
           .replace(/\s+/g, "").length;
         if (selection.length > 0) {
           console.debug(
-            `You have selected something ('${selection}'), not folding`
+            `You have selected something ('${selection}'), not folding`,
           );
           return;
         } else {
@@ -134,7 +134,6 @@ const wireBodies = (buttons) => {
       } else {
         wireButtons(buttons)(ev);
       }
-      
     });
     interact(body).on("hold", (ev) => {
       console.info("Wiring on hold");
@@ -150,15 +149,17 @@ const wireBodies = (buttons) => {
       // Paste takes a slight bit to modify the DOM, if I trigger
       // the wiring without waiting a pasted button might not be wired
       // properly.
-      console.log(event)
-      console.log(event.clipboardData.types)
+      console.log(event);
+      console.log(event.clipboardData.types);
       const pastedText = event.clipboardData.getData("text/plain");
-      console.log(pastedText)
+      console.log(pastedText);
       if (pastedText.startsWith("- f")) {
         // TODO this is very naive, I need better data transfer options
         loadRow(pastedText).then((value) => {
-          console.log(value)
-          console.info(`Loaded ${value.title} in IndexedDB (possibly replacing it)`);
+          console.log(value);
+          console.info(
+            `Loaded ${value.title} in IndexedDB (possibly replacing it)`,
+          );
           info.innerHTML = `Added ${value.title}`;
           info.classList.add("fades");
         });
@@ -166,38 +167,38 @@ const wireBodies = (buttons) => {
       }
       const pastedHTML = event.clipboardData.getData("text/html");
       if (pastedHTML) {
-        console.log(pastedHTML)
-        console.log(pastedHTML.children)
+        console.log(pastedHTML);
+        console.log(pastedHTML.children);
         event.preventDefault();
-        if(DEBUG)console.log(pastedHTML);
-        if(DEBUG)console.log("This is HTML stuff");
+        if (DEBUG) console.log(pastedHTML);
+        if (DEBUG) console.log("This is HTML stuff");
         const div = document.createElement("DIV");
         div.innerHTML = pastedHTML;
-        if(pastedHTML.includes("google-sheets-html-origin")){
+        if (pastedHTML.includes("google-sheets-html-origin")) {
           // Hopefully it's a table
-          const rowToCSV = tr => {
-            const tds = Array.from(tr.children)
-            let row = []
-            for(const td of tds){
-              row.push(td.textContent)
+          const rowToCSV = (tr) => {
+            const tds = Array.from(tr.children);
+            let row = [];
+            for (const td of tds) {
+              row.push(td.textContent);
             }
-            return row.join(" | ")
+            return row.join(" | ");
+          };
+          const trs = Array.from(div.querySelector("tbody").children);
+          let rows = [];
+          for (const tr of trs) {
+            rows.push(rowToCSV(tr));
           }
-          const trs = Array.from(div.querySelector("tbody").children)
-          let rows = []
-          for(const tr of trs){
-            rows.push(rowToCSV(tr))
-          }
-          const gsheetPaste = rows.join("\n")
-          console.log(gsheetPaste)
-          FS.writeFile("gsheet", gsheetPaste)
+          const gsheetPaste = rows.join("\n");
+          console.log(gsheetPaste);
+          FS.writeFile("gsheet", gsheetPaste);
           info.innerHTML = `Pasted from google sheet to filesystem (experimental)`;
           info.classList.add("fades");
-          return
+          return;
         }
-        if(DEBUG)console.log(div);
+        if (DEBUG) console.log(div);
         const md = toMarkdown(div, true); // this is a fragment
-        if(DEBUG)console.log(md);
+        if (DEBUG) console.log(md);
         div.innerHTML = "";
         parseInto(md, div);
         const selection = window.getSelection();
@@ -229,10 +230,10 @@ const wireButtons = (buttons) => (event) => {
     return;
   }
   let node, result;
-  if(DEBUG)console.log("all buttons");
-  if(DEBUG)console.log(buttons);
+  if (DEBUG) console.log("all buttons");
+  if (DEBUG) console.log(buttons);
   for (const button of buttons) {
-    if(DEBUG)console.log(button);
+    if (DEBUG) console.log(button);
     if (button.matcher && button.matcher.test(selectedText)) {
       if (button.creator) {
         event.preventDefault();
@@ -264,7 +265,7 @@ const wireButtons = (buttons) => (event) => {
   if (node) {
     // The event needs to be stopped _if_ we successfully generated a button
     event.preventDefault();
-    event.stopPropagation()
+    event.stopPropagation();
     let div = document.createElement("div");
     node.innerHTML = `${selectedText}`.trim();
     div.contentEditable = false;

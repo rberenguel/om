@@ -28,10 +28,10 @@ const stringDiffer = (s1, s2) => {
     console.log(s1);
     console.log(s2);
   }
-  if(!diff && s1.length != s2.length){
+  if (!diff && s1.length != s2.length) {
     console.info(s1);
     console.info(s2);
-    console.info("Diff found at the extra characters")
+    console.info("Diff found at the extra characters");
   }
 };
 
@@ -87,19 +87,19 @@ const events = {
     const event = new KeyboardEvent("keydown", {
       key: key,
       bubbles: false,
-      ctrlKey: true
+      ctrlKey: true,
     });
-    return event
+    return event;
   },
   esc: new KeyboardEvent("keydown", {
     key: "Escape",
-    bubbles: false
+    bubbles: false,
   }),
   enter: new KeyboardEvent("keydown", {
-  key: "Enter",
-  code: "Enter",
-  which: 13,
-  keyCode: 13,
-  bubbles: false,
-}) 
+    key: "Enter",
+    code: "Enter",
+    which: 13,
+    keyCode: 13,
+    bubbles: false,
+  }),
 };

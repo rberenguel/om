@@ -197,4 +197,3 @@ describe("dark text / button", function () {
     chai.expect(lastPanel.classList.contains("dark")).to.be.true;
   });
 });
-

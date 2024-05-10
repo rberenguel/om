@@ -21,8 +21,8 @@ const reset = () => {
 
 const common = (ev, held) => {
   reset();
-  if(!ev){
-    return held
+  if (!ev) {
+    return held;
   }
-  return held || ev.button !== 0 ;
+  return held || ev.button !== 0;
 };

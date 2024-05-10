@@ -67,7 +67,7 @@ const close_ = {
 
 const createPanel = (parentId, id, buttons, weave) => {
   const bodyContainer = document.createElement("div");
-  bodyContainer.tabIndex = 0
+  bodyContainer.tabIndex = 0;
   bodyContainer.dragMethod = "dragmove"; // TODO convert to constants
   const title = document.createElement("div");
   bodyContainer.classList.add("body-container");
@@ -86,7 +86,7 @@ const createPanel = (parentId, id, buttons, weave) => {
     // TODO this is very repeated with isave
     const filename = manipulation.get(
       bodyContainer,
-      manipulation.fields.kFilename
+      manipulation.fields.kFilename,
     );
 
     const content = btoa(encodeURIComponent(toMarkdown(body)));
@@ -142,7 +142,7 @@ const createPanel = (parentId, id, buttons, weave) => {
       set("weave:last-session", session)
         .then(() => console.info("Session data saved in IndexedDB"))
         .catch((err) =>
-          console.info("Session data saving in IndexedDB failed", err)
+          console.info("Session data saving in IndexedDB failed", err),
         );
     }
     const viewportWidth = window.innerWidth;
@@ -154,12 +154,12 @@ const createPanel = (parentId, id, buttons, weave) => {
       manipulation.set(
         bodyContainer,
         manipulation.fields.kWidth,
-        viewportWidth / 2 - hgap
+        viewportWidth / 2 - hgap,
       );
       manipulation.set(
         bodyContainer,
         manipulation.fields.kHeight,
-        viewportHeight - 2*vgap
+        viewportHeight - 2 * vgap,
       );
       manipulation.set(bodyContainer, manipulation.fields.kX, 0);
       manipulation.set(bodyContainer, manipulation.fields.kY, vgap / 3);
@@ -171,28 +171,28 @@ const createPanel = (parentId, id, buttons, weave) => {
       manipulation.set(
         bodyContainer,
         manipulation.fields.kWidth,
-        viewportWidth / 2 - hgap
+        viewportWidth / 2 - hgap,
       );
       manipulation.set(
         bodyContainer,
         manipulation.fields.kHeight,
-        viewportHeight - 2*vgap
+        viewportHeight - 2 * vgap,
       );
       manipulation.set(
         bodyContainer,
         manipulation.fields.kX,
-        viewportWidth / 2 - hgap / 2
+        viewportWidth / 2 - hgap / 2,
       );
       manipulation.set(bodyContainer, manipulation.fields.kY, vgap / 3);
       manipulation.reposition(bodyContainer);
       manipulation.resize(bodyContainer);
     }
     if (ev.ctrlKey && ev.metaKey && ev.key === ".") {
-      console.log("Pushing up")
+      console.log("Pushing up");
       bodyContainer.style.zIndex = 10000;
     }
     if (ev.ctrlKey && ev.metaKey && ev.key === ",") {
-      console.log("Pushing down")
+      console.log("Pushing down");
       bodyContainer.style.zIndex = 50;
     }
     if (ev.ctrlKey && ev.metaKey && ev.key === "Enter") {
@@ -200,18 +200,14 @@ const createPanel = (parentId, id, buttons, weave) => {
       manipulation.set(
         bodyContainer,
         manipulation.fields.kWidth,
-        viewportWidth - hgap
+        viewportWidth - hgap,
       );
       manipulation.set(
         bodyContainer,
         manipulation.fields.kHeight,
-        viewportHeight - 2*vgap
+        viewportHeight - 2 * vgap,
       );
-      manipulation.set(
-        bodyContainer,
-        manipulation.fields.kX,
-        hgap/2
-      );
+      manipulation.set(bodyContainer, manipulation.fields.kX, hgap / 2);
       manipulation.set(bodyContainer, manipulation.fields.kY, vgap / 2);
       manipulation.reposition(bodyContainer);
       manipulation.resize(bodyContainer);
@@ -265,12 +261,12 @@ const createPanel = (parentId, id, buttons, weave) => {
         manipulation.set(
           target,
           manipulation.fields.kWidth,
-          f * event.rect.width
+          f * event.rect.width,
         );
         manipulation.set(
           target,
           manipulation.fields.kHeight,
-          f * event.rect.height
+          f * event.rect.height,
         );
         manipulation.resize(target);
         // translate when resizing from top or left edges
@@ -294,7 +290,7 @@ const createPanel = (parentId, id, buttons, weave) => {
     // This is not working well: should just use timestamps
     const prevContainer = document
       .getElementById(
-        "b" + weave.bodies()[weave.bodies().length - 1].id.replace("b", "")
+        "b" + weave.bodies()[weave.bodies().length - 1].id.replace("b", ""),
       )
       .closest(".body-container");
     // TODO with datasets
@@ -416,7 +412,7 @@ const createPanel = (parentId, id, buttons, weave) => {
           set("weave:last-session", session)
             .then(() => console.info("Session data saved in IndexedDB"))
             .catch((err) =>
-              console.info("Session data saving in IndexedDB failed", err)
+              console.info("Session data saving in IndexedDB failed", err),
             );
         }
         if (ev.scale > 1.2) {
@@ -469,7 +465,7 @@ const createPanel = (parentId, id, buttons, weave) => {
       start(ev) {
         if (DEBUG)
           console.debug(
-            `dragstart: ${bodyContainer.querySelector(".body").id}`
+            `dragstart: ${bodyContainer.querySelector(".body").id}`,
           );
         bodyContainer.dragMethods[bodyContainer.dragMethod].start(ev);
       },
@@ -484,7 +480,7 @@ const createPanel = (parentId, id, buttons, weave) => {
       enter(ev) {
         if (DEBUG)
           console.debug(
-            `dragenter: ${bodyContainer.querySelector(".body").id}`
+            `dragenter: ${bodyContainer.querySelector(".body").id}`,
           );
         const m = bodyContainer.dragMethods[bodyContainer.dragMethod].enter;
         if (m) {
@@ -494,7 +490,7 @@ const createPanel = (parentId, id, buttons, weave) => {
       leave(ev) {
         if (DEBUG)
           console.debug(
-            `dragleave: ${bodyContainer.querySelector(".body").id}`
+            `dragleave: ${bodyContainer.querySelector(".body").id}`,
           );
         bodyContainer.dragMethods[bodyContainer.dragMethod].leave(ev);
       },

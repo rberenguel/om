@@ -27,8 +27,8 @@ const cal = {
       year = +matches[1];
       month = +matches[2] - 1; // Seriously JavaScript?
       span = selectedText[1];
-      if(!span){
-        span = 1
+      if (!span) {
+        span = 1;
       }
     } else {
       let today = new Date();
@@ -38,8 +38,11 @@ const cal = {
     }
     let range = selection.getRangeAt(0);
     range.deleteContents();
-    const tables = calWithEvents({ month: month, year: year, span: span }, body);
-    for(const table of tables) {
+    const tables = calWithEvents(
+      { month: month, year: year, span: span },
+      body,
+    );
+    for (const table of tables) {
       body.appendChild(table);
     }
   },
@@ -61,16 +64,16 @@ const calWithEvents = (events, mode) => {
   const dayShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const yea = events.year;
   let mon = events.month;
-  const span = +events.span-1;
+  const span = +events.span - 1;
 
   // Need to add Luxon to handle this better
-  let tables = []
+  let tables = [];
   for (let month = mon; month <= mon + span; month++) {
     const date = new Date(yea, month, 1);
     let daygrid = [];
     const firstDayOfMonth = new Date(yea, month, 1).getDate();
     const lastDayOfMonth = new Date(yea, month + 1, 0).getDate(); // Will this work for December?
-    const year = date.getFullYear()
+    const year = date.getFullYear();
     console.log(firstDayOfMonth, lastDayOfMonth);
     const monthName = date.toLocaleString("default", { month: "long" });
     for (let i = firstDayOfMonth; i <= lastDayOfMonth; i++) {
@@ -169,7 +172,7 @@ const calWithEvents = (events, mode) => {
       dayCounter = dayCounter % 7;
     }
     table.appendChild(tbody);
-    tables.push(table)
+    tables.push(table);
   }
 
   return tables;
