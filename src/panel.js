@@ -18,13 +18,13 @@ import { dndDynamicDiv } from "./dynamicdiv.js";
 
 const DEBUG = true;
 
-const createNextPanel = (parentId) => {
+const createNextPanel = (parentId, options={}) => {
   const n =
     Math.max(...Array.from(weave.bodies()).map((b) => +b.id.replace("b", ""))) +
     1;
   const id = `b${n}`; // TODO: This will work _badly_ with closings?
   // This is now repeated!
-  return createPanel(parentId, id, weave.buttons(weave.root), weave); // I might as well send everything once?
+  return createPanel(parentId, id, weave.buttons(weave.root), weave, options); // I might as well send everything once?
 };
 
 const split = (parentId) => {
@@ -65,7 +65,7 @@ const close_ = {
   el: "u",
 };
 
-const createPanel = (parentId, id, buttons, weave) => {
+const createPanel = (parentId, id, buttons, weave, options) => {
   const bodyContainer = document.createElement("div");
   bodyContainer.tabIndex = 0;
   bodyContainer.dragMethod = "dragmove"; // TODO convert to constants
@@ -321,6 +321,9 @@ const createPanel = (parentId, id, buttons, weave) => {
   betterHandle.appendChild(body);
   bodyContainer.appendChild(betterHandle);
   body.addEventListener("touchstart", function (event) {
+    if(options.noGestures){
+      return;
+    }
     // TODO wtf
     console.log(event.touches.length);
     if (event.touches.length < 2) {
@@ -332,6 +335,9 @@ const createPanel = (parentId, id, buttons, weave) => {
   });
 
   body.addEventListener("touchend", function (event) {
+    if(options.noGestures){
+      return;
+    }
     body.endX = event.changedTouches[0].clientX;
     body.endY = event.changedTouches[0].clientY;
 
@@ -398,6 +404,9 @@ const createPanel = (parentId, id, buttons, weave) => {
   interact(bodyContainer).gesturable({
     listeners: {
       move(ev) {
+        if(options.noGestures){
+          return;
+        }
         // Pinch to load and save
         // Scale > 1 is opening up, load
         // Scale < 1 is closing, save

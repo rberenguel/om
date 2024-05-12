@@ -90,7 +90,7 @@ const graphviz = {
       weave.graphviz = await Graphviz.load();
     }
     const errPanel = createNextPanel(weave.root);
-    const gvPanel = createNextPanel(weave.root);
+    const gvPanel = createNextPanel(weave.root, {noGestures: true});
     gvPanel.addEventListener("click", () => {
       // A hack to prevent pan-zoom to prevent keyboard commands on the panel
       gvPanel.focus();
