@@ -137,7 +137,7 @@ const graphviz = {
                 zoomScaleSensitivity: 1.5,
               })
               .querySelector("svg"),
-          );
+            {controlIconsEnabled: true});
           if (pan) {
             // Beware of order!
             gvPanel.panzoom.zoom(zoom);
