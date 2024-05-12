@@ -13,4 +13,4 @@ const pens = ["Lamy Dialog", "Kaweco Liliput", "Twist Mystic", "Kaweco Sport Rub
 // Adjust week number for zero-based array, and handle case of week 53:
 const choice = (weekNumber - 1) % pens.length; 
 
-pens[choice]
+return pens[choice]
