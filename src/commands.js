@@ -35,6 +35,7 @@ import {
   gsave,
   showModalAndGet,
   dbdump,
+  exportCurrent,
 } from "./save.js";
 import { ititle } from "./title.js";
 import { addGoogFont } from "./load.js";
@@ -442,6 +443,7 @@ const buttons = (parentId) => {
     graphviz,
     cmap,
     _gnuplot,
+    exportCurrent,
     //highlight
   ];
 };
