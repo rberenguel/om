@@ -9,9 +9,22 @@ import weave from "./weave.js";
 // Allow access to a common context for accessing the internals.
 // I may make this more extensive, for interesting "libraries"
 function contextualEval(code, data) {
-  console.log(`Evaluating in context, ${code} with context ${data}`);
-  const evaluation = eval?.(code);
-  return evaluation;
+  console.log(`Evaluating in context, ${code} with context`);
+  console.log(data)
+  /*function evaling(code){
+    const evaluation = eval?.(code);
+    return evaluation
+  }
+  return evaling.call(data, code);*/
+  const foo = {
+    foo: Function(code),
+    data: data
+  }
+  const func = foo.foo.bind(foo)
+  const evaluation = func()
+  console.log("evaluation result:")
+  console.log(evaluation)
+  return evaluation
 }
 
 const evalSQL = (selectionText) => {
@@ -80,13 +93,14 @@ const evalSQL = (selectionText) => {
   }
 };
 
-const evalJS = (selectionText) => {
+const evalJS = (selectionText, body, node) => {
   try {
-    const evaluation = contextualEval(selectionText, { weave: weave }); //eval?.(selectionText);
+    const evaluation = contextualEval(selectionText, { weave: weave, body: body, node: node }); //eval?.(selectionText);
     const lines = selectionText.split("\n");
     const multiline = lines.length > 1;
     let assignment, rvalue;
     if (!multiline) {
+      console.log("not multiline")
       const matchesAssignment = selectionText.match(/(\w*)\s*=\s*(.*)/);
       if (matchesAssignment) {
         const variable = matchesAssignment[1];
@@ -98,57 +112,31 @@ const evalJS = (selectionText) => {
         assignment.appendChild(assignmentText);
       }
       const text = document.createTextNode(JSON.stringify(evaluation));
-      return [assignment, rvalue, [text], null];
+      return [assignment, rvalue, [text], null, evaluation];
     }
     const texts = lines.map((line) => document.createTextNode(line));
-    return [assignment, rvalue, texts, null];
+    return [assignment, rvalue, texts, null, evaluation];
   } catch (error) {
-    console.error("Evaluation (JS) failed: ", error);
+    console.error("Evaluation of (JS) failed: ", error);
     return [null, null, null, error];
   }
 };
 
-const evalExpr = (selectionText, kind) => {
+const evalExpr = (selectionText, kind, body, node) => {
   console.log("Evaluating " + selectionText);
   const whitespaceRegex = /^\s+$/;
   if (whitespaceRegex.test(selectionText)) {
     return [null, null, null, null, null];
   }
   if (kind == "javascript") {
-    return evalJS(selectionText);
+    return evalJS(selectionText, body, node);
   }
   if (kind == "sql") {
     return evalSQL(selectionText);
   }
 };
 
-const wireEvalFromScratch = (kind) => {
-  const selection = window.getSelection();
-  const selectionText = selection + "";
-  console.log(`Wiring eval, first time: ${selectionText}`);
-  let [assignment, rvalue, return_text, error, evaluation] = evalExpr(
-    selectionText,
-    kind,
-  );
-  console.info(kind);
-  console.info("A, R, R_T, Er, Ev:");
-  console.info(assignment, rvalue, return_text, error, evaluation);
-  let range = selection.getRangeAt(0);
-  // We need to skip the assignment span to get to the code block…
-  // Or stay one below for no-assignments :shrug:
-  const parentNodeAssignment = range.startContainer.parentNode.parentNode;
-  const parentNodePlain = range.startContainer.parentNode;
-  const tagAssignment = parentNodeAssignment.tagName;
-  const tagPlain = parentNodePlain.tagName;
-  const skipAssignment =
-    tagAssignment == "DIV" &&
-    parentNodeAssignment.classList.contains("wired") &&
-    parentNodeAssignment.classList.contains("code");
-  const skipPlain =
-    tagPlain == "DIV" &&
-    parentNodePlain.classList.contains("wired") &&
-    parentNodePlain.classList.contains("code");
-  const code = document.createElement("DIV");
+const formatEvaluation = (code, selectionText, kind, assignment, rvalue, return_text, error, evaluation, skipAssignment, skipPlain) => {
   code.classList.add("wired", "code");
   if (skipPlain || skipAssignment) {
     // If the block is wired we skip
@@ -161,11 +149,9 @@ const wireEvalFromScratch = (kind) => {
       return undefined;
     }
   } else {
-    range.deleteContents();
-    range.insertNode(code);
     code.dataset.evalString = selectionText.split("\n").join("\\n");
     console.info("Setting data string to ", code.dataset.evalString);
-    code.hover_title = code.dataset.evalString.replace("\\n", "\n");
+    code.hover_title = code.dataset.evalString.replaceAll("\\n", "\n");
     code.id = "c" + Date.now();
     if (error) {
       code.appendChild(document.createTextNode(selectionText));
@@ -202,6 +188,14 @@ const wireEvalFromScratch = (kind) => {
         postfix(code);
       }
       console.log("Multiline evaluation returned");
+      console.log(return_text)
+      if(kind==="javascript"){
+        console.log("Creating node with")
+        console.log(evaluation)
+        const tn = document.createTextNode(evaluation)
+        code.appendChild(tn);
+        return code
+      }
       for (let i = 0; i < return_text.length; i++) {
         const line = return_text[i];
         code.appendChild(line);
@@ -212,8 +206,44 @@ const wireEvalFromScratch = (kind) => {
       }
     }
   }
-
   return code;
+}
+
+const wireEvalFromScratch = (kind) => {
+  const selection = window.getSelection();
+  const selectionText = selection + "";
+  const body = selection.anchorNode.parentElement.closest(".body").id  //anchorNode.closest(".body").id
+  console.log(body)
+  console.log(`Wiring eval, first time: ${selectionText}`);
+  let code = document.createElement("DIV");
+  let [assignment, rvalue, return_text, error, evaluation] = evalExpr(
+    selectionText,
+    kind,
+    body,
+    code
+  );
+  console.info(kind);
+  console.info("A, R, R_T, Er, Ev:");
+  console.info(assignment, rvalue, return_text, error, evaluation);
+  let range = selection.getRangeAt(0);
+  // We need to skip the assignment span to get to the code block…
+  // Or stay one below for no-assignments :shrug:
+  const parentNodeAssignment = range.startContainer.parentNode.parentNode;
+  const parentNodePlain = range.startContainer.parentNode;
+  const tagAssignment = parentNodeAssignment.tagName;
+  const tagPlain = parentNodePlain.tagName;
+  const skipAssignment =
+    tagAssignment == "DIV" &&
+    parentNodeAssignment.classList.contains("wired") &&
+    parentNodeAssignment.classList.contains("code");
+  const skipPlain =
+    tagPlain == "DIV" &&
+    parentNodePlain.classList.contains("wired") &&
+    parentNodePlain.classList.contains("code");
+  range.deleteContents();
+  range.insertNode(code);
+  code = formatEvaluation(code, selectionText, kind, assignment, rvalue, return_text, error, evaluation, skipAssignment, skipPlain)
+  return code
 };
 
 const codeInfo = document.querySelector(".code-info");
@@ -244,20 +274,21 @@ const wireEval = (code) => {
     src.classList.remove("dirty");
     src.classList.remove("error");
     if (!content) {
-      content = src.dataset.evalString.replace("\\n", "\n");
+      content = src.dataset.evalString;
     }
+    content = content.replaceAll("\\n", "\n")
     console.log("Have evaluation string set to", src.dataset.evalString);
     src.dataset.index = "[?]";
     // TODO(me) Should add the index already on construction as empty and
     // populate on iteration
-    src.hover_title = src.dataset.evalString.replace("\\n", "\n");
-    let [assignment, rvalue, evaluation, error] = evalExpr(content, kind);
+    src.hover_title = src.dataset.evalString.replaceAll("\\n", "\n");
+    let [assignment, rvalue, return_text, error, evaluation] = evalExpr(content, kind, code.closest(".body").id, code);
     if (error) {
       src.hover_title = error;
       src.classList.add("error");
       return;
     }
-    src.innerHTML = "";
+    /*src.innerHTML = "";
     if (assignment) {
       src.appendChild(assignment);
       src.appendChild(rvalue);
@@ -271,7 +302,9 @@ const wireEval = (code) => {
           src.appendChild(lineBreak);
         }
       }
-    }
+    }*/
+    src.innerHTML = ""
+    formatEvaluation(src, content, kind, assignment, rvalue, return_text, error, evaluation)
   };
 
   observer.observe(code, {
@@ -296,8 +329,9 @@ const wireEval = (code) => {
     }
     if (src.classList.contains("wired")) {
       // I can't do HTML here: otherwise I lose all the event handlers
+      console.log("Wired, clicked")
       src.oldText = src.innerText;
-      src.textContent = src.dataset.evalString.replace("\\n", "\n");
+      src.textContent = src.dataset.evalString.replaceAll("\\n", "\n");
       src.editing = true;
       console.info("Adding current id to stack, stack is");
       weave.internal.clickedId.unshift(code.id);
@@ -361,7 +395,7 @@ const reevaluate = (ev) => {
   for (let cod of codes) {
     // TODO(me) This would look way better as an HTML hover
     cod.dataset.index = `[${i}]`;
-    cod.hover_title = `${cod.dataset.index} ${cod.dataset.evalString.replace("\\n", "\n")}`;
+    cod.hover_title = `${cod.dataset.index} ${cod.dataset.evalString.replaceAll("\\n", "\n")}`;
     i++;
     if (cod == src) {
       console.log("Skipping self");
