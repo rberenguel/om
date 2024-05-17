@@ -219,7 +219,7 @@ const link = {
           const body = document.getElementById(bodyId);
           console.log(link);
           iloadIntoBody(href, body);
-          toTop(body);
+          toTop(body)();
         } else {
           window.open(href, "_blank");
         }

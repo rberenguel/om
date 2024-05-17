@@ -329,9 +329,9 @@ const metak = () => {
 
 document.body.addEventListener("keydown", (ev) => {
   if (ev.key === "n" && ev.ctrlKey) {
-    const body = split(weave.root).action().querySelector(".body");
-    body.focus();
-    toTop(body)();
+    const bodyContainer = split(weave.root).action();
+    bodyContainer.querySelector(".body").focus();
+    toTop(bodyContainer)();
   }
   if (ev.key === "k" && ev.metaKey) {
     metak();

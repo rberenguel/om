@@ -439,7 +439,7 @@ const createPanel = (parentId, id, buttons, weave, options) => {
   bodyContainer.dragMethods["dragmove"].enter = (ev) => {};
   bodyContainer.dragMethods["dragmove"].leave = (ev) => {};
   bodyContainer.dragMethods["dragmove"].start = (ev) => {
-    toTop(bodyContainer);
+    toTop(bodyContainer)();
     for (const container of weave.containers()) {
       container.classList.add("no-select");
     }
