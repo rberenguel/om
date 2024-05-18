@@ -9,6 +9,7 @@ import { manipulation } from "./manipulation.js";
 import { parseIntoWrapper, toMarkdown } from "./parser.js";
 import { keys, del, set, entries } from "./libs/idb-keyval.js";
 import { arrow } from "./arrow.js";
+import { xgid } from "./xgid.js";
 import {
   headers,
   code,
@@ -444,6 +445,7 @@ const buttons = (parentId) => {
     cmap,
     _gnuplot,
     exportCurrent,
+    xgid
     //highlight
   ];
 };

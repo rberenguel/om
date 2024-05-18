@@ -14,8 +14,9 @@ import { iloadIntoBody } from "./loadymcloadface.js";
 import { toTop } from "./doms.js";
 import { dynamicDiv } from "./dynamicdiv.js";
 import { calWithEvents, parseCalendar } from "./cal.js";
+import { xgidRenderer } from "./xgid.js";
 
-const DEBUG = false;
+const DEBUG = true;
 
 const parseProperties = (lines) => {
   let properties = {};
@@ -184,7 +185,7 @@ const linkStateMachine = (line, body, mode = "") => {
                 console.debug(link);
               }
               iloadIntoBody(href, body);
-              toTop(body);
+              toTop(body)();
             } else {
               window.open(href, "_blank");
             }
@@ -242,7 +243,7 @@ const linkStateMachine = (line, body, mode = "") => {
           const body = document.getElementById(bodyId);
           if (DEBUG) console.debug(link);
           iloadIntoBody(href, body);
-          toTop(body);
+          toTop(body)();
         } else {
           window.open(href, "_blank");
         }
@@ -656,6 +657,12 @@ function iterateDOM(node, mode = "") {
       generated.push(md);
       continue;
     }
+    if(child.classList.contains("bg-board-wrapper")){
+      const xgid = child.dataset.xgid
+      const md = `\`[div] .bg-board xgid=${xgid}\``
+      generated.push(md)
+      continue;
+    }
   }
   return generated.flat(Infinity);
 }
@@ -704,6 +711,12 @@ const parseDiv = (divData, mode = "") => {
     if (DEBUG) console.debug(`Dynamic div`);
     const text = splits.slice(1).join(" ");
     return dynamicDiv(text, mode);
+  }
+  if (klass === ".bg-board"){
+    const xgid = divData.replace("[div] .bg-board xgid=", "")
+    console.log(divData, xgid)
+    const board = xgidRenderer.render(xgid)
+    return board
   }
   // [div] .wired .code id=c1711131479729 kind=javascript evalString={{44 + 12}} value={56}`
   if (klass === ".wired") {

@@ -1,0 +1,292 @@
+.bg-board-wrapper {
+  margin-top: 1em;
+}
+
+.bg-xgid-rendered {
+  margin: auto;
+  display: block;
+  width: fit-content;
+  color: #657b83;
+  margin-top: 1em;
+  font-size: 70%;
+}
+
+.bg-player-top {
+  background-color: #dc322f;
+  border: 2px solid red;
+}
+
+.bg-player-bottom {
+  background-color: #586e75;
+  border: 2px solid white;
+}
+
+.bg-player-top-color {
+  color: #dc322f !important;
+  font-size: 105%;
+  font-weight: bold;
+}
+
+.bg-player-bottom-color {
+  color: #586e75 !important;
+  font-size: 105%;
+  font-weight: bold;
+}
+
+#bg-dies {
+  display: none;
+}
+
+#bg-dice1 {
+  height: 2em;
+  width: 2em;
+  opacity: 0.8;
+  z-index: 10000;
+  border-radius: 0.3em;
+  margin-bottom: 0.5em;
+}
+
+#bg-dice2 {
+  margin-top: 0.5em;
+  height: 2em;
+  width: 2em;
+  opacity: 0.8;
+  z-index: 10000;
+  border-radius: 0.3em;
+}
+
+.bg-bar {
+  width: 2em;
+}
+#bg-table-header .bg-bar {
+  height: 2em;
+}
+#bg-table-footer .bg-bar {
+  height: 2em;
+}
+#bg-doubling {
+  background: white;
+  font-size: 70%;
+  height: 1.3em;
+  width: 1.8em;
+  opacity: 0.8;
+  z-index: 10000;
+  border-radius: 0.3em;
+  text-align: center;
+  padding-top: 0.5em;
+  padding-bottom: 0.1em;
+  display: block;
+  margin: auto;
+}
+
+.bg-dot {
+  display: block;
+  width: 0.6em;
+  height: 0.6em;
+  border-radius: 50%;
+  background-color: black;
+}
+
+/* https://codepen.io/LandonSchropp/pen/KpzzGo */
+
+.bg-f1 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bg-f2 {
+  display: flex;
+  justify-content: space-between;
+}
+
+.bg-f2 .bg-dot:nth-of-type(2) {
+  align-self: flex-end;
+}
+
+.bg-f3 {
+  display: flex;
+  justify-content: space-between;
+}
+
+.bg-f3 .bg-dot:nth-of-type(2) {
+  align-self: center;
+}
+
+.bg-f3 .bg-dot:nth-of-type(3) {
+  align-self: flex-end;
+}
+
+.bg-f4,
+.bg-f6 {
+  display: flex;
+  justify-content: space-between;
+}
+
+.bg-f4 .bg-column,
+.bg-f6 .bg-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.bg-f5 {
+  display: flex;
+  justify-content: space-between;
+}
+
+.bg-f5 .bg-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.bg-f5 .bg-column:nth-of-type(2) {
+  justify-content: center;
+}
+
+.bg-player-top-piece {
+  width: 66%;
+  height: calc(66%);
+  aspect-ratio: 1/1;
+  background-color: #dc322f;
+  opacity: 0.8;
+  border: 1px solid red;
+  z-index: 10000;
+  border-radius: 50%;
+  display: block;
+  margin: auto;
+}
+
+.bg-bar .bg-player-top-piece {
+  width: 50%;
+}
+
+.bg-player-bottom-piece {
+  width: 66%;
+  height: calc(66%);
+  aspect-ratio: 1/1;
+  background-color: #586e75;
+  opacity: 0.8;
+  border: 1px solid white;
+  z-index: 10000;
+  border-radius: 50%;
+  display: block;
+  margin: auto;
+}
+
+.bg-bar.player-bottom-piece {
+  width: 50%;
+}
+
+.bg-board-wrapper table {
+  border-spacing: 0;
+  width: 100%;
+  margin: 0 auto;
+  font-size: 1.5vw;
+}
+
+@media (orientation: landscape) {
+  .bg-board-wrapper table {
+    width: auto; /* Let table shrink to content width */
+    max-width: 100%; /* Prevent overflow */
+    margin: 0 auto;
+    font-size: 1.5vw;
+  }
+}
+
+.bg-board-wrapper td {
+  border: 1px solid #657b83ff;
+  text-align: center; /* Center the numbers within the cells */
+}
+
+.bg-board > td.bg-top {
+  vertical-align: top;
+}
+
+.bg-board > td.bg-bottom {
+  vertical-align: bottom;
+}
+
+td.bg-bar.bg-top {
+  vertical-align: bottom;
+}
+
+td.bg-bar.bg-bottom {
+  vertical-align: top;
+}
+
+#bg-table-footer {
+  height: 1em;
+  vertical-align: center;
+}
+#bg-table-header {
+  height: 1em;
+  vertical-align: center;
+}
+
+#bg-table-header td:nth-child(odd) {
+  color: #d33682ff; /* Color for odd-numbered cells */
+}
+
+#bg-table-header td:nth-child(even) {
+  color: #6c71c4ff; /* Color for even-numbered cells */
+}
+
+#bg-table-middle td:nth-child(odd) {
+  color: #d33682ff; /* Color for odd-numbered cells */
+}
+
+#bg-table-middle td:nth-child(even) {
+  color: #6c71c4ff; /* Color for even-numbered cells */
+}
+
+#bg-table-footer td:nth-child(odd) {
+  color: #d33682ff; /* Color for odd-numbered cells */
+}
+
+#bg-table-footer td:nth-child(even) {
+  color: #6c71c4ff; /* Color for even-numbered cells */
+}
+
+#bg-table-header > .bg-top.bg-placeholder {
+  border: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+}
+
+#bg-table-footer > .bg-bottom.bg-placeholder {
+  border: none;
+  border-right: none;
+  border-left: none;
+  border-bottom: none;
+}
+
+.bg-nob {
+  border: none;
+}
+
+.bg-board {
+  height: 12vh;
+}
+
+.bg-round-top-left {
+  border-radius: 30% 0 0 0;
+}
+
+.bg-round-left {
+  border-radius: 30% 0 0 30%;
+}
+
+.bg-round-bottom-left {
+  border-radius: 0 0 0 30%;
+}
+
+.bg-round-top-right {
+  border-radius: 0 30% 0 0;
+}
+
+.bg-round-bottom-right {
+  border-radius: 0 0 30% 0;
+}
