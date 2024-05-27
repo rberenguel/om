@@ -52,7 +52,7 @@ const cmap = {
       });
     }
     render();
-    graphviz.action(null, cmapBody);
+    graphviz.action(null, cmapBody, cmapBody.id);
   },
   description: "Graphviz based on gh/hpcc-systems/hpcc-js-wasm",
   el: "u",

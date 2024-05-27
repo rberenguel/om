@@ -63,6 +63,10 @@ const setTitleInBodyDataset = (body, fileContainer) => {
         manipulation.set(container, manipulation.fields.kTitle, titleFromModal);
         resolve([titleFromModal, body]);
       },
+      {
+        dbsearching: false,
+        filtering: true,
+      }
     );
   });
 };

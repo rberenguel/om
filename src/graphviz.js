@@ -78,7 +78,7 @@ digraph G {
 
 const graphviz = {
   text: ["graphviz"],
-  action: async (ev, body) => {
+  action: async (ev, body, source) => {
     if (common(ev)) {
       return;
     }
@@ -90,7 +90,7 @@ const graphviz = {
       weave.graphviz = await Graphviz.load();
     }
     const errPanel = createNextPanel(weave.root);
-    const gvPanel = createNextPanel(weave.root, {noGestures: true});
+    const gvPanel = createNextPanel(weave.root, { noGestures: true });
     gvPanel.addEventListener("click", () => {
       // A hack to prevent pan-zoom to prevent keyboard commands on the panel
       gvPanel.focus();
@@ -131,13 +131,35 @@ const graphviz = {
             console.log(pan, zoom);
           }
           div.innerHTML = container.dot;
+
+          const nodes = Array.from(div.querySelectorAll(".node"));
+          // This is not a particularly elegant solution, but searches the corresponding node.
+          // _Very_ convenient
+          nodes.map((n) => {
+            interact(n).on("hold", (ev) => {
+              if (ev.button != 0) {
+                // Want to avoid right-click-menu counting as hold, very annoying
+                return;
+              }
+              const title = n.querySelector("title").textContent;
+              ev.preventDefault();
+              ev.stopPropagation();
+              ev.stopImmediatePropagation();
+              const body = document.getElementById(source)
+              body.focus();
+              // aString, aCaseSensitive, aBackwards, aWrapAround, aWholeWord, aSearchInFrames, aShowDialog
+              window.find(title, true, true, false, true, false, true);
+            });
+          });
+
           gvPanel.panzoom = svgPanZoom(
             document
               .getElementById(container.graphvizDestination, {
                 zoomScaleSensitivity: 1.5,
               })
               .querySelector("svg"),
-            {controlIconsEnabled: true});
+            { controlIconsEnabled: true }
+          );
           if (pan) {
             // Beware of order!
             gvPanel.panzoom.zoom(zoom);
@@ -145,7 +167,7 @@ const graphviz = {
           }
           div.addEventListener("dblclick", (ev) => {
             const svgString = new XMLSerializer().serializeToString(
-              document.getElementById(container.graphvizDestination),
+              document.getElementById(container.graphvizDestination)
             );
             const svgDataUri = "data:image/svg+xml;base64," + btoa(svgString);
             const downloadLink = document.createElement("a");
@@ -164,7 +186,7 @@ const graphviz = {
           "table index is out of bounds",
         ];
         const isReloadWorthy = reloadWorthyErrors.some((string) =>
-          err.message.includes(string),
+          err.message.includes(string)
         );
         if (err instanceof Error && isReloadWorthy) {
           weave.graphviz = await Graphviz.load();

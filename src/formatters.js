@@ -158,14 +158,6 @@ const hr = {
     range.deleteContents();
     const hr = document.createElement("hr");
     range.insertNode(hr);
-    // TODO This is not working reliably, commented
-    //const sib = hr.previousElementSibling
-    //const emptyText = sib != null && sib.nodeName === "#text" && sib.textContent === ""
-    //console.log(sib)
-    //if(sib === null || emptyText){
-    //  prefix(hr)
-    //}
-    //postfix(hr);
     prefix(hr);
     postfix(hr);
   },
