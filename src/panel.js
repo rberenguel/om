@@ -527,6 +527,10 @@ const createPanel = (parentId, id, buttons, weave, options) => {
     for (const container of weave.containers()) {
       container.classList.remove("unfit");
     }
+    const body = bodyContainer.querySelector(".body")
+    if(body.mark){
+      body.mark.unmark()
+    }
   });
   document.getElementById(parentId).appendChild(bodyContainer);
   document.getElementById(parentId).appendChild(title);

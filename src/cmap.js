@@ -16,6 +16,7 @@ const cmap = {
       return;
     }
     const body = document.getElementById(weave.lastBodyClickId());
+    const bodyId = body.id // TODO this should come from manipulation too
     body.style.whiteSpace = "pre-wrap";
     const cmapPanel = createNextPanel(weave.root);
     manipulation.set(
@@ -52,7 +53,7 @@ const cmap = {
       });
     }
     render();
-    graphviz.action(null, cmapBody, cmapBody.id);
+    graphviz.action(null, cmapBody, bodyId);
   },
   description: "Graphviz based on gh/hpcc-systems/hpcc-js-wasm",
   el: "u",

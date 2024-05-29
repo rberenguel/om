@@ -131,7 +131,9 @@ const graphviz = {
             console.log(pan, zoom);
           }
           div.innerHTML = container.dot;
-
+          const body = document.getElementById(source)
+          div.mark = new Mark(body)
+          body.mark = div.mark
           const nodes = Array.from(div.querySelectorAll(".node"));
           // This is not a particularly elegant solution, but searches the corresponding node.
           // _Very_ convenient
@@ -142,13 +144,12 @@ const graphviz = {
                 return;
               }
               const title = n.querySelector("title").textContent;
+              console.log(`Marking on ${source} for ${title}`)
               ev.preventDefault();
               ev.stopPropagation();
               ev.stopImmediatePropagation();
-              const body = document.getElementById(source)
-              body.focus();
-              // aString, aCaseSensitive, aBackwards, aWrapAround, aWholeWord, aSearchInFrames, aShowDialog
-              window.find(title, true, true, false, true, false, true);
+              div.mark.unmark()
+              div.mark.mark(title, {accuracy: "exactly"})
             });
           });
 
