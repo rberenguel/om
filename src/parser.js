@@ -15,6 +15,7 @@ import { toTop } from "./doms.js";
 import { dynamicDiv } from "./dynamicdiv.js";
 import { calWithEvents, parseCalendar } from "./cal.js";
 import { xgidRenderer } from "./xgid.js";
+import { cmap } from "./cmap.js";
 
 const DEBUG = true;
 
@@ -94,6 +95,25 @@ const parseIntoWrapper = (text, body) => {
   }
   manipulation.reposition(container);
   manipulation.resize(container);
+  const startup = properties[manipulation.fields.kStartup];
+  if (startup) {
+    if (startup.includes("cmap")) {
+      cmap.action(null, body).then(() => {
+        body.click();
+
+        toTop(body)();
+        console.log("DISPATCHING");
+        console.log(body);
+        const container = body.closest(".body-container");
+        body.focus();
+        container.render();
+        setTimeout(() => {
+          container.render();
+          container.render();
+        }, 1);
+      });
+    }
+  }
   placeTitle(container);
   const kind = manipulation.get(container, manipulation.fields.kKind);
   if (kind.trim() === "literal") {

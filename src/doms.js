@@ -45,7 +45,9 @@ const toTop = (b) => () => {
   const minZ = Math.min(...withZ, maxZ);
   if (DEBUG) console.log(minZ, maxZ);
   b.style.zIndex = maxZ + 1;
-  b.titleDiv.style.zIndex = maxZ + 1;
+  if (b.titleDiv) {
+    b.titleDiv.style.zIndex = maxZ + 1;
+  }
   Array.from(weave.containers()).forEach((bc) => {
     if (bc.style.zIndex >= 10000) {
       return;

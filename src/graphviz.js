@@ -6,6 +6,7 @@ import { createNextPanel } from "./panel.js";
 import { Graphviz } from "./libs/graphviz.js";
 import { manipulation } from "./manipulation.js";
 import { toTop } from "./doms.js";
+import { toRight } from "./panel.js";
 
 const dotExample = `
 digraph G {
@@ -131,19 +132,21 @@ const graphviz = {
             console.log(pan, zoom);
           }
           div.innerHTML = container.dot;
-          const body = document.getElementById(source);
-          div.mark = new Mark(body);
-          body.mark = div.mark;
+          const cmap = document.getElementById(source);
+          div.mark = new Mark(cmap);
+          cmap.mark = div.mark;
           const nodes = Array.from(div.querySelectorAll(".node"));
           // This is not a particularly elegant solution, but searches the corresponding node.
           // _Very_ convenient
           nodes.map((n) => {
+            const title = n.querySelector("text").textContent;
+            console.log(title);
             interact(n).on("hold", (ev) => {
               if (ev.button != 0) {
                 // Want to avoid right-click-menu counting as hold, very annoying
                 return;
               }
-              const title = n.querySelector("title").textContent;
+
               console.log(`Marking on ${source} for ${title}`);
               ev.preventDefault();
               ev.stopPropagation();
@@ -151,6 +154,53 @@ const graphviz = {
               div.mark.unmark();
               div.mark.mark(title, { accuracy: "exactly" });
             });
+            if (title.startsWith("[")) {
+              const id = n.closest("g").id;
+              const xmlns = "http://www.w3.org/2000/svg"; // SVG namespace URI
+              const tspan = document.createElementNS(xmlns, "tspan");
+              tspan.classList.add("fawesome");
+              if (title.startsWith("[]") || title.startsWith("[ ]")) {
+                // Open checkbox case
+                tspan.innerHTML = ""; // fontawesome glyph for open checkbox. For some reason unicode was not working
+                tspan.checked = false;
+                n.querySelector("text").textContent = title
+                  .replace("[]", "")
+                  .replace("[ ]", "");
+                n.querySelector("text").prepend(tspan);
+              }
+              if (title.toLowerCase().startsWith("[x]")) {
+                // Closed checkbox case
+                tspan.innerHTML = ""; // fontawesome glyph for open checkbox. For some reason unicode was not working
+                tspan.checked = true;
+                n.querySelector("text").textContent = title
+                  .replace("[X]", "")
+                  .replace("[x]", "");
+                n.querySelector("text").prepend(tspan);
+              }
+              tspan.addEventListener("click", (ev) => {
+                if (!tspan.checked) {
+                  console.log(cmap.childNodes);
+                  tspan.innerHTML = ""; // fontawesome glyph for closed checkbox
+                  for (let node of cmap.childNodes) {
+                    if (node.textContent.includes(`id="${id}"`)) {
+                      node.textContent = node.textContent
+                        .replace("[]", "[X]")
+                        .replace("[ ]", "[X]");
+                    }
+                  }
+                } else {
+                  tspan.innerHTML = ""; // fontawesome glyph for open checkbox
+                  for (let node of cmap.childNodes) {
+                    if (node.textContent.includes(`id="${id}"`)) {
+                      node.textContent = node.textContent
+                        .replace("[x]", "[ ]")
+                        .replace("[X]", "[ ]");
+                    }
+                  }
+                }
+                tspan.checked = !tspan.checked;
+              });
+            }
           });
 
           gvPanel.panzoom = svgPanZoom(
@@ -203,6 +253,7 @@ const graphviz = {
       });
     }
     render();
+    toRight(gvPanel);
   },
   description: "Graphviz based on gh/hpcc-systems/hpcc-js-wasm",
   el: "u",

@@ -8,14 +8,17 @@ import { createNextPanel } from "./panel.js";
 import { manipulation } from "./manipulation.js";
 
 import { graphviz } from "./graphviz.js";
+import { toRight } from "./panel.js";
 
 const cmap = {
   text: ["cmap"],
-  action: (ev) => {
+  action: async (ev, body) => {
     if (common(ev)) {
       return;
     }
-    const body = document.getElementById(weave.lastBodyClickId());
+    if (!body) {
+      body = document.getElementById(weave.lastBodyClickId());
+    }
     const bodyId = body.id; // TODO this should come from manipulation too
     body.style.whiteSpace = "pre-wrap";
     const cmapPanel = createNextPanel(weave.root);
@@ -46,14 +49,19 @@ const cmap = {
       const gv = convert(normalize(cmap)) + "\n}";
       document.getElementById(container.cmapDestination).innerText = gv;
     };
+
+    const fullRender = () => {
+      render();
+      cmapPanel.render();
+    };
+    container.render = fullRender;
     if (!container.cmap) {
       container.addEventListener("keyup", (ev) => {
-        render();
-        cmapPanel.render();
+        fullRender();
       });
     }
-    render();
-    graphviz.action(null, cmapBody, bodyId);
+    //render();
+    await graphviz.action(null, cmapBody, bodyId);
   },
   description: "Graphviz based on gh/hpcc-systems/hpcc-js-wasm",
   el: "u",

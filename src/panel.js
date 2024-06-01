@@ -1,4 +1,4 @@
-export { createPanel, createNextPanel, split, close_ };
+export { createPanel, createNextPanel, split, close_, toRight, toLeft };
 
 import weave from "./weave.js";
 
@@ -151,41 +151,11 @@ const createPanel = (parentId, id, buttons, weave, options) => {
     const vgap = viewportHeight / 40;
     if (ev.ctrlKey && ev.metaKey && ev.key === "e") {
       console.info("Resizing to left");
-      manipulation.set(
-        bodyContainer,
-        manipulation.fields.kWidth,
-        viewportWidth / 2 - hgap,
-      );
-      manipulation.set(
-        bodyContainer,
-        manipulation.fields.kHeight,
-        viewportHeight - 2 * vgap,
-      );
-      manipulation.set(bodyContainer, manipulation.fields.kX, 0);
-      manipulation.set(bodyContainer, manipulation.fields.kY, vgap / 3);
-      manipulation.reposition(bodyContainer);
-      manipulation.resize(bodyContainer);
+      toLeft(bodyContainer);
     }
     if (ev.ctrlKey && ev.metaKey && ev.key === "i") {
       console.info("Resizing to right");
-      manipulation.set(
-        bodyContainer,
-        manipulation.fields.kWidth,
-        viewportWidth / 2 - hgap,
-      );
-      manipulation.set(
-        bodyContainer,
-        manipulation.fields.kHeight,
-        viewportHeight - 2 * vgap,
-      );
-      manipulation.set(
-        bodyContainer,
-        manipulation.fields.kX,
-        viewportWidth / 2 - hgap / 2,
-      );
-      manipulation.set(bodyContainer, manipulation.fields.kY, vgap / 3);
-      manipulation.reposition(bodyContainer);
-      manipulation.resize(bodyContainer);
+      toRight(bodyContainer);
     }
     if (ev.ctrlKey && ev.metaKey && ev.key === ".") {
       console.log("Pushing up");
@@ -538,4 +508,52 @@ const createPanel = (parentId, id, buttons, weave, options) => {
   manipulation.forcePositionToReality(bodyContainer);
   placeTitle(bodyContainer);
   return bodyContainer;
+};
+
+const viewportWidth = () => window.innerWidth;
+const viewportHeight = () => window.innerHeight;
+const hgap = () => viewportWidth() / 50;
+const vgap = () => viewportHeight() / 40;
+
+const toLeft = (container) => {
+  if (container.classList.contains(".body")) {
+    container = container.closest(".body-container");
+  }
+  console.log(container);
+  manipulation.set(
+    container,
+    manipulation.fields.kWidth,
+    viewportWidth() / 2 - hgap(),
+  );
+  manipulation.set(
+    container,
+    manipulation.fields.kHeight,
+    viewportHeight() - 2 * vgap(),
+  );
+  manipulation.set(container, manipulation.fields.kX, 0);
+  manipulation.set(container, manipulation.fields.kY, vgap() / 3);
+  manipulation.reposition(container);
+  manipulation.resize(container);
+};
+
+const toRight = (container) => {
+  console.log(viewportWidth());
+  manipulation.set(
+    container,
+    manipulation.fields.kWidth,
+    viewportWidth() / 2 - hgap(),
+  );
+  manipulation.set(
+    container,
+    manipulation.fields.kHeight,
+    viewportHeight() - 2 * vgap(),
+  );
+  manipulation.set(
+    container,
+    manipulation.fields.kX,
+    viewportWidth() / 2 - hgap() / 2,
+  );
+  manipulation.set(container, manipulation.fields.kY, vgap() / 3);
+  manipulation.reposition(container);
+  manipulation.resize(container);
 };

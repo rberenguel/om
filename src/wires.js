@@ -125,6 +125,13 @@ const wireBodies = (buttons) => {
     }
     // TODO: check what range.extractContents() can simplify
     body.addEventListener("contextmenu", (ev) => {
+      if (ev.target.closest("svg")) {
+        const selection = window.getSelection();
+        if (selection) {
+          selection.removeAllRanges();
+        }
+        return;
+      }
       const selection = window.getSelection();
       if (selection.toString() === "") {
         const range = document.createRange();
@@ -136,6 +143,13 @@ const wireBodies = (buttons) => {
       }
     });
     interact(body).on("hold", (ev) => {
+      if (ev.target.closest("svg")) {
+        const selection = window.getSelection();
+        if (selection) {
+          selection.removeAllRanges();
+        }
+        return;
+      }
       console.info("Wiring on hold");
       weave.internal.held = true;
       const selection = window.getSelection() + "";

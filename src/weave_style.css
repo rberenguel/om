@@ -116,6 +116,20 @@ Draggable div useful for "anything", technically
   padding-bottom: 0.1em;
 }
 
+/**
+
+Crazy SVG stuff
+
+**/
+
+svg .fawesome {
+  font-family: "Font Awesome 6 Free Regular";
+  font-weight: 100;
+  margin-right: 5px;
+  fill: #c60;
+  cursor: default;
+}
+
 /** 
 Dynamic div: task
 Uses font-awesome for styling, but requires also a label for it so it can be checked.

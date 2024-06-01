@@ -14,6 +14,7 @@ const panelFields = Object.freeze({
   kX: "x",
   kY: "y",
   kKind: "kind",
+  kStartup: "startup",
 });
 
 const manipulation = {
@@ -77,7 +78,12 @@ const manipulation = {
         } else {
           return Math.floor(currentRect.x);
         }
-
+      case panelFields.kStartup:
+        if (container.dataset.startup) {
+          return JSON.stringify(container.dataset.startup);
+        } else {
+          return JSON.stringify([]);
+        }
       case panelFields.kY:
         if (container.dataset.y) {
           return parseFloat(container.dataset.y);
@@ -167,6 +173,15 @@ const manipulation = {
         break;
       case panelFields.kY:
         container.dataset.y = Math.floor(parseFloat(value));
+        break;
+      case panelFields.kStartup:
+        console.log(value);
+        if (!value) {
+          container.dataset.startup = [];
+        } else {
+          container.dataset.startup = JSON.parse(value);
+        }
+
         break;
     }
   },
