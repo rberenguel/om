@@ -1,6 +1,7 @@
 export {
   loadRow,
   iload,
+  idel,
   iloadIntoBody,
   presentFiles,
   gload,
@@ -11,7 +12,7 @@ export {
 };
 
 import weave from "./weave.js";
-import { set, get, entries } from "./libs/idb-keyval.js";
+import { del, set, get, entries } from "./libs/idb-keyval.js";
 import { showModalAndGet } from "./save.js";
 import { enterKeyDownEvent } from "./commands_base.js";
 import { getPropertiesFromFile, parseIntoWrapper } from "./parser.js";
@@ -19,7 +20,7 @@ import { parseGroupFromMarkdown } from "./internal.js";
 import { manipulation } from "./manipulation.js";
 import { wireEverything } from "./load.js";
 import { createPanel } from "./panel.js";
-
+import { parseInto } from "./parser.js";
 const DEBUG = false;
 
 const dbload = {
@@ -72,7 +73,12 @@ const presentFiles = (files, container) => {
   // Expects files as { key: key, value: content, title: title }
   const modal = document.getElementById("modal");
   container.innerHTML = "";
+  const hovering = document.createElement("div");
+  hovering.classList.add("raw-preview");
+  container.appendChild(hovering);
+  console.log(files);
   for (const file of files) {
+    console.log;
     const key = file["key"];
     const title = file["title"];
     const k = document.createTextNode(title);
@@ -91,6 +97,30 @@ const presentFiles = (files, container) => {
       modal.innerHTML = "";
       inp.dispatchEvent(enterKeyDownEvent);
     });
+    div.addEventListener("mouseover", (ev) => {
+      console.log(file);
+      hovering.innerHTML = "";
+      console.log(file["value"]);
+      const content = decodeURIComponent(atob(file["value"])).split("\n");
+      let count = -1;
+      for (const line of content) {
+        if (count >= 0) {
+          const p = document.createElement("P");
+          p.textContent = line;
+          hovering.appendChild(p);
+          count += 1;
+        }
+        if (line == "-->") {
+          count = 0;
+        }
+        if (count == 4) {
+          return;
+        }
+      }
+    });
+    div.addEventListener("mouseout", (ev) => {
+      hovering.innerHTML = "";
+    });
   }
 };
 
@@ -101,6 +131,8 @@ const convertNonGroupFileData = (key, value) => {
     // Store also the title at the beginning so it's more readable
     const splits = value.split(" ");
     const len = splits.length;
+    console.log(splits);
+    console.log(len);
     if (splits.length > 1) {
       title = splits.slice(0, len - 1).join(" ");
       content = splits.slice(-1)[0]; // Last one, the rest is assumed to be title
@@ -109,6 +141,7 @@ const convertNonGroupFileData = (key, value) => {
     }
   }
   title = title ? title : key;
+  console.log(content);
   return { key: key, value: content, title: title };
 };
 
@@ -125,8 +158,12 @@ const iload = {
     modal.append(fileContainer);
     entries()
       .then((entries) => {
+        console.log(entries);
         const files = entries
-          .filter(([key, value]) => value && !value.startsWith("g:"))
+          .filter(
+            ([key, value]) =>
+              value && !value.startsWith("g:") && !key.startsWith("d"),
+          )
           .map(([key, value]) => convertNonGroupFileData(key, value));
         presentFiles(files, fileContainer);
         const hr = document.createElement("hr");
@@ -148,7 +185,71 @@ const iload = {
       })
       .catch((err) => console.error(err));
   },
-  description: "???",
+  description: "Load stuff",
+  el: "u",
+};
+
+const idel = {
+  text: ["idel"],
+  action: (ev) => {
+    /*const body = document.getElementById(weave.internal.bodyClicks[0]);
+    entries().then((entries) => {
+      if (DEBUG) console.log(entries);
+      for (const [key, value] of entries) {
+        const k = document.createTextNode(key);
+        const div = document.createElement("div");
+        div.appendChild(k);
+        const modal = document.getElementById("modal");
+        modal.appendChild(div);
+        div.addEventListener("click", (ev) => {
+          del(key);
+        });
+      }
+      modal.style.display = "block";
+      // TODO dismiss modal in this case
+    });*/
+
+    console.info("iload triggered");
+    if (DEBUG) console.debug("iloading");
+    const body = document.getElementById(weave.internal.bodyClicks[0]);
+    const modal = document.getElementById("modal");
+    modal.showing = true;
+    const fileContainer = document.createElement("div");
+    fileContainer.id = "fileContainer";
+    modal.append(fileContainer);
+    entries()
+      .then((entries) => {
+        console.log(entries);
+        const files = entries
+          .filter(([key, value]) => value && !value.startsWith("g:"))
+          .map(([key, value]) => convertNonGroupFileData(key, value));
+        presentFiles(files, fileContainer);
+        const hr = document.createElement("hr");
+        modal.appendChild(hr);
+        showModalAndGet(
+          "filename?",
+          fileContainer,
+          "",
+          (filename) => {
+            if (!filename) {
+              console.info("No file selected in modal, returning empty");
+              return;
+            }
+            console.info(`Would delete ${filename} from IndexedDB`);
+            console.log(files);
+            const toDelete = files.filter((f) => f.key === filename)[0];
+            console.log(toDelete);
+            set(toDelete["key"].replace("f", "d"), toDelete["value"]).then(() =>
+              del(filename),
+            );
+            //iloadIntoBody(filename, body);
+          },
+          { dbsearching: true },
+        );
+      })
+      .catch((err) => console.error(err));
+  },
+  description: "Delete stuff from IndexedDB",
   el: "u",
 };
 

@@ -415,6 +415,19 @@ Uses font-awesome for styling, but requires also a label for it so it can be che
   z-index: 10000;
 }
 
+.raw-preview {
+  overflow: hidden;
+  font-size: 50%;
+  width: 30em;
+  margin-left: auto;
+  margin-right: auto;
+  height: 5em !important;
+  border: 1px solid var(--bright-yellow);
+  padding: 1em;
+  margin-bottom: 2em;
+  border-radius: 5px;
+}
+
 input.filename {
   display: none;
 }

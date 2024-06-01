@@ -25,7 +25,7 @@ import {
   italic,
   bold,
 } from "./formatters.js";
-import { iload, iload2, gload, dbload } from "./loadymcloadface.js";
+import { iload, idel, iload2, gload, dbload } from "./loadymcloadface.js";
 // Buttons
 import { div, task } from "./dynamicdiv.js";
 import { weather } from "./weather.js";
@@ -293,30 +293,6 @@ const title = {
 
 const filePicker = document.getElementById("filePicker");
 
-const idel = {
-  text: ["idel"],
-  action: (ev) => {
-    const body = document.getElementById(weave.internal.bodyClicks[0]);
-    entries().then((entries) => {
-      if (DEBUG) console.log(entries);
-      for (const [key, value] of entries) {
-        const k = document.createTextNode(key);
-        const div = document.createElement("div");
-        div.appendChild(k);
-        const modal = document.getElementById("modal");
-        modal.appendChild(div);
-        div.addEventListener("click", (ev) => {
-          del(key);
-        });
-      }
-      modal.style.display = "block";
-      // TODO dismiss modal in this case
-    });
-  },
-  description: "Delete stuff from IndexedDB",
-  el: "u",
-};
-
 // Kinda deprecated
 filePicker.addEventListener("change", (event) => {
   const file = event.target.files[0];
@@ -445,7 +421,7 @@ const buttons = (parentId) => {
     cmap,
     _gnuplot,
     exportCurrent,
-    xgid
+    xgid,
     //highlight
   ];
 };

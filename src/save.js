@@ -6,6 +6,7 @@ import { set, entries } from "./libs/idb-keyval.js";
 import { toMarkdown } from "./parser.js";
 import { presentFiles } from "./loadymcloadface.js";
 import { manipulation } from "./manipulation.js";
+import { convertNonGroupFileData } from "./loadymcloadface.js";
 
 const dbdump = {
   text: ["dbdump", "dumpdb"],
@@ -114,24 +115,41 @@ function showModalAndGet(
   inp.addEventListener("keyup", function (ev) {
     console.log("keyed up");
     const searchString = inp.value;
-    let results;
+    let results = [];
+    console.log("Refreshing presentation");
     if (modal.originalFileset && ev.key === "Backspace") {
       presentFiles(modal.originalFileset, fileContainer);
     }
     if (options.dbsearching) {
+      console.log("dbsearching");
       try {
         const search = weave.internal.idx.search(prefix + searchString);
-        results = search.map((r) => {
-          return { key: r.ref, title: weave.internal.fileTitles[r.ref] };
+        console.log(search);
+        const keys = search.map((r) => r.ref);
+        entries().then((entries) => {
+          const files = entries
+            .filter(
+              ([key, value]) =>
+                value &&
+                !value.startsWith("g:") &&
+                !key.startsWith("d") &&
+                keys.includes(key),
+            )
+            .map(([key, value]) => convertNonGroupFileData(key, value));
+          console.log(keys, files);
+          presentFiles(files, fileContainer);
         });
+        //results = search.map((r) => {
+        //return { key: r.ref, title: weave.internal.fileTitles[r.ref] };
+        //});
       } catch (err) {
         console.error("Lunar issue:");
         console.error(err);
-        results = [];
+        presentFiles([], fileContainer);
       }
-      presentFiles(results, fileContainer);
     }
     if (options.filtering) {
+      console.log("filtering");
       const regex = new RegExp(`.*?${searchString}.*?`, "i");
       const infos = getPresented();
       const results = infos.filter((d) => regex.test(d.title));

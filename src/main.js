@@ -320,6 +320,7 @@ const metak = () => {
 
   const hr = document.createElement("hr");
   modal.appendChild(hr);
+  console.log("Setting original files");
   modal.originalFileset = files;
   showModalAndGet("where to jump?", fileContainer, "name:", showModalHandler, {
     dbsearching: false,

@@ -66,7 +66,7 @@ const setTitleInBodyDataset = (body, fileContainer) => {
       {
         dbsearching: false,
         filtering: true,
-      }
+      },
     );
   });
 };

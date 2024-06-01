@@ -18,7 +18,7 @@ import { dndDynamicDiv } from "./dynamicdiv.js";
 
 const DEBUG = true;
 
-const createNextPanel = (parentId, options={}) => {
+const createNextPanel = (parentId, options = {}) => {
   const n =
     Math.max(...Array.from(weave.bodies()).map((b) => +b.id.replace("b", ""))) +
     1;
@@ -321,7 +321,7 @@ const createPanel = (parentId, id, buttons, weave, options) => {
   betterHandle.appendChild(body);
   bodyContainer.appendChild(betterHandle);
   body.addEventListener("touchstart", function (event) {
-    if(options.noGestures){
+    if (options.noGestures) {
       return;
     }
     // TODO wtf
@@ -335,7 +335,7 @@ const createPanel = (parentId, id, buttons, weave, options) => {
   });
 
   body.addEventListener("touchend", function (event) {
-    if(options.noGestures){
+    if (options.noGestures) {
       return;
     }
     body.endX = event.changedTouches[0].clientX;
@@ -404,7 +404,7 @@ const createPanel = (parentId, id, buttons, weave, options) => {
   interact(bodyContainer).gesturable({
     listeners: {
       move(ev) {
-        if(options.noGestures){
+        if (options.noGestures) {
           return;
         }
         // Pinch to load and save
@@ -527,9 +527,9 @@ const createPanel = (parentId, id, buttons, weave, options) => {
     for (const container of weave.containers()) {
       container.classList.remove("unfit");
     }
-    const body = bodyContainer.querySelector(".body")
-    if(body.mark){
-      body.mark.unmark()
+    const body = bodyContainer.querySelector(".body");
+    if (body.mark) {
+      body.mark.unmark();
     }
   });
   document.getElementById(parentId).appendChild(bodyContainer);

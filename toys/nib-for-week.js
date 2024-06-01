@@ -3,14 +3,22 @@
 const currentDate = new Date();
 
 // Adjust to get the next Sunday:
-currentDate.setDate(currentDate.getDate() + (7 - currentDate.getDay()) % 7); 
+currentDate.setDate(currentDate.getDate() + ((7 - currentDate.getDay()) % 7));
 
 const startOfYear = new Date(currentDate.getFullYear(), 0, 1);
-const daysPassed = Math.floor((currentDate - startOfYear) / (24 * 60 * 60 * 1000));
+const daysPassed = Math.floor(
+  (currentDate - startOfYear) / (24 * 60 * 60 * 1000),
+);
 const weekNumber = Math.ceil((daysPassed + startOfYear.getDay()) / 7);
-const pens = ["Lamy Dialog", "Kaweco Liliput", "Twist Mystic", "Kaweco Sport Ruby", "Pilot VP"];
+const pens = [
+  "Lamy Dialog",
+  "Kaweco Liliput",
+  "Twist Mystic",
+  "Kaweco Sport Ruby",
+  "Pilot VP",
+];
 
 // Adjust week number for zero-based array, and handle case of week 53:
-const choice = (weekNumber - 1) % pens.length; 
+const choice = (weekNumber - 1) % pens.length;
 
-return pens[choice]
+return pens[choice];

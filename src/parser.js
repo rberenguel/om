@@ -657,10 +657,10 @@ function iterateDOM(node, mode = "") {
       generated.push(md);
       continue;
     }
-    if(child.classList.contains("bg-board-wrapper")){
-      const xgid = child.dataset.xgid
-      const md = `\`[div] .bg-board xgid=${xgid}\``
-      generated.push(md)
+    if (child.classList.contains("bg-board-wrapper")) {
+      const xgid = child.dataset.xgid;
+      const md = `\`[div] .bg-board xgid=${xgid}\``;
+      generated.push(md);
       continue;
     }
   }
@@ -712,11 +712,11 @@ const parseDiv = (divData, mode = "") => {
     const text = splits.slice(1).join(" ");
     return dynamicDiv(text, mode);
   }
-  if (klass === ".bg-board"){
-    const xgid = divData.replace("[div] .bg-board xgid=", "")
-    console.log(divData, xgid)
-    const board = xgidRenderer.render(xgid)
-    return board
+  if (klass === ".bg-board") {
+    const xgid = divData.replace("[div] .bg-board xgid=", "");
+    console.log(divData, xgid);
+    const board = xgidRenderer.render(xgid);
+    return board;
   }
   // [div] .wired .code id=c1711131479729 kind=javascript evalString={{44 + 12}} value={56}`
   if (klass === ".wired") {

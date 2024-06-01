@@ -131,9 +131,9 @@ const graphviz = {
             console.log(pan, zoom);
           }
           div.innerHTML = container.dot;
-          const body = document.getElementById(source)
-          div.mark = new Mark(body)
-          body.mark = div.mark
+          const body = document.getElementById(source);
+          div.mark = new Mark(body);
+          body.mark = div.mark;
           const nodes = Array.from(div.querySelectorAll(".node"));
           // This is not a particularly elegant solution, but searches the corresponding node.
           // _Very_ convenient
@@ -144,12 +144,12 @@ const graphviz = {
                 return;
               }
               const title = n.querySelector("title").textContent;
-              console.log(`Marking on ${source} for ${title}`)
+              console.log(`Marking on ${source} for ${title}`);
               ev.preventDefault();
               ev.stopPropagation();
               ev.stopImmediatePropagation();
-              div.mark.unmark()
-              div.mark.mark(title, {accuracy: "exactly"})
+              div.mark.unmark();
+              div.mark.mark(title, { accuracy: "exactly" });
             });
           });
 
@@ -159,7 +159,7 @@ const graphviz = {
                 zoomScaleSensitivity: 1.5,
               })
               .querySelector("svg"),
-            { controlIconsEnabled: true }
+            { controlIconsEnabled: true },
           );
           if (pan) {
             // Beware of order!
@@ -168,7 +168,7 @@ const graphviz = {
           }
           div.addEventListener("dblclick", (ev) => {
             const svgString = new XMLSerializer().serializeToString(
-              document.getElementById(container.graphvizDestination)
+              document.getElementById(container.graphvizDestination),
             );
             const svgDataUri = "data:image/svg+xml;base64," + btoa(svgString);
             const downloadLink = document.createElement("a");
@@ -187,7 +187,7 @@ const graphviz = {
           "table index is out of bounds",
         ];
         const isReloadWorthy = reloadWorthyErrors.some((string) =>
-          err.message.includes(string)
+          err.message.includes(string),
         );
         if (err instanceof Error && isReloadWorthy) {
           weave.graphviz = await Graphviz.load();

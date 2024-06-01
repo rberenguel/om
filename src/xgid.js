@@ -1,25 +1,25 @@
-export { xgid, xgidRenderer }
+export { xgid, xgidRenderer };
 
 const xgid = {
-    text: ["xgid"],
-    action: (ev) => {
-      const selection = window.getSelection();
-      const text = selection + "";
-      const rendered = xgidRenderer.render(text)
-      console.log(rendered)
-      let range = selection.getRangeAt(0);
-      range.deleteContents();
-      range.insertNode(rendered);
-    },
-    description: "Render a backgammon position from an xgid (eXtreme Gammon identifier)",
-}
+  text: ["xgid"],
+  action: (ev) => {
+    const selection = window.getSelection();
+    const text = selection + "";
+    const rendered = xgidRenderer.render(text);
+    console.log(rendered);
+    let range = selection.getRangeAt(0);
+    range.deleteContents();
+    range.insertNode(rendered);
+  },
+  description:
+    "Render a backgammon position from an xgid (eXtreme Gammon identifier)",
+};
 
 const xgidRenderer = (function () {
-   let elt
+  let elt;
   // Takes an element with id xgid expecting an XGID in its content.
   // It will replace it with a rendered board.
   function renderXGID(xgid) {
-    
     if (!xgid) {
       elt = document.getElementById("xgid");
       if (!elt) {
@@ -29,7 +29,7 @@ const xgidRenderer = (function () {
         document.elt.textContent ||
         "XGID=--Ab-BDBB---dB---c-dBb----:0:0:1:43:0:0:0:9:10";
     } else {
-        elt = document.createElement("DIV")
+      elt = document.createElement("DIV");
     }
     const parsed = parseXGID(xgid);
     console.log(parsed);
@@ -38,11 +38,11 @@ const xgidRenderer = (function () {
     renderDies(parsed._dice[0], parsed._dice[1], parsed._turn);
     const xgidDiv = document.createElement("DIV");
     xgidDiv.classList.add("bg-xgid-rendered");
-    const bgBoardWrapper = elt.querySelector(".bg-board-wrapper")
-    bgBoardWrapper.dataset.xgid = parsed.xgid
+    const bgBoardWrapper = elt.querySelector(".bg-board-wrapper");
+    bgBoardWrapper.dataset.xgid = parsed.xgid;
     bgBoardWrapper.appendChild(xgidDiv);
     xgidDiv.textContent = parsed.xgid;
-    return elt
+    return elt;
   }
 
   function renderPositionOnTable(parsed) {
@@ -91,16 +91,16 @@ const xgidRenderer = (function () {
     }
     console.info("Adding pip counts");
     const topPipSection = elt.querySelector(
-      "#bg-table-header > .bg-top.bg-bar"
+      "#bg-table-header > .bg-top.bg-bar",
     );
     topPipSection.textContent = topPips;
     const bottomPipSection = elt.querySelector(
-      "#bg-table-footer > .bg-bottom.bg-bar"
+      "#bg-table-footer > .bg-bottom.bg-bar",
     );
     bottomPipSection.textContent = bottomPips;
     const matchTop = elt.querySelector(".bg-top.bg-home.bg-player-top");
     const matchBottom = elt.querySelector(
-      ".bg-bottom.bg-home.bg-player-bottom"
+      ".bg-bottom.bg-home.bg-player-bottom",
     );
     matchTop.textContent = `${parsed._score_top}/${parsed._match_length}`;
     matchBottom.textContent = `${parsed._score_bottom}/${parsed._match_length}`;

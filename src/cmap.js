@@ -16,7 +16,7 @@ const cmap = {
       return;
     }
     const body = document.getElementById(weave.lastBodyClickId());
-    const bodyId = body.id // TODO this should come from manipulation too
+    const bodyId = body.id; // TODO this should come from manipulation too
     body.style.whiteSpace = "pre-wrap";
     const cmapPanel = createNextPanel(weave.root);
     manipulation.set(
