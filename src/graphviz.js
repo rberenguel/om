@@ -178,6 +178,9 @@ const graphviz = {
                 n.querySelector("text").prepend(tspan);
               }
               tspan.addEventListener("click", (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                ev.stopImmediatePropagation();
                 if (!tspan.checked) {
                   console.log(cmap.childNodes);
                   tspan.innerHTML = ""; // fontawesome glyph for closed checkbox
