@@ -10,6 +10,9 @@ import { manipulation } from "./manipulation.js";
 import { graphviz } from "./graphviz.js";
 import { toRight } from "./panel.js";
 
+// TODO: ctrl-k searches for internal URLs and introduces a URL=f-name tooltip=title at cursor location
+// TODO: same functionality is added to the "link" button, when the target panel is a cmap (with kind: literal)
+
 const cmap = {
   text: ["cmap"],
   action: async (ev, body) => {
@@ -56,7 +59,7 @@ const cmap = {
     };
     container.render = fullRender;
     if (!container.cmap) {
-      container.addEventListener("keyup", (ev) => {
+      container.addEventListener("keydown", (ev) => {
         fullRender();
       });
     }

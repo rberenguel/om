@@ -30,7 +30,7 @@ const toTop = (b) => () => {
     console.debug("Pushing up");
     console.debug(b);
   }
-  if (b.classList.contains(".body")) {
+  if (b.classList.contains("body")) {
     b = b.closest(".body-container");
   }
   if (b.style.zIndex >= 10000) {

@@ -329,14 +329,20 @@ const metak = () => {
 };
 
 document.body.addEventListener("keydown", (ev) => {
+  const oldp = window.print;
+  window.print = null;
+  if (ev.key === "p" && ev.metaKey) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    ev.stopImmediatePropagation();
+    metak();
+  }
   if (ev.key === "n" && ev.ctrlKey) {
     const bodyContainer = split(weave.root).action();
     bodyContainer.querySelector(".body").focus();
     toTop(bodyContainer)();
   }
-  if (ev.key === "k" && ev.metaKey) {
-    metak();
-  }
+  window.print = oldp;
 });
 
 interact(document.body)

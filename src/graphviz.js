@@ -7,6 +7,8 @@ import { Graphviz } from "./libs/graphviz.js";
 import { manipulation } from "./manipulation.js";
 import { toTop } from "./doms.js";
 import { toRight } from "./panel.js";
+import { createPanel } from "./panel.js";
+import { iloadIntoBody } from "./loadymcloadface.js";
 
 const dotExample = `
 digraph G {
@@ -135,13 +137,55 @@ const graphviz = {
           const cmap = document.getElementById(source);
           div.mark = new Mark(cmap);
           cmap.mark = div.mark;
+          const links = Array.from(div.querySelectorAll("a")); //
+          links.forEach((a) => a.setAttribute("target", "_blank"));
+          links.forEach((a) => {
+            a.addEventListener("click", (ev) => {
+              // hrefs are visited on click, not mouseup or down
+              const node = a.closest(".node");
+              if (node && node.held) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                ev.stopImmediatePropagation();
+                node.held = false;
+              } else {
+                const href = a.href.baseVal;
+                if (!href.startsWith("http")) {
+                  // this is something weird from SVG
+                  console.log("Opening");
+                  ev.preventDefault();
+                  ev.stopPropagation();
+                  ev.stopImmediatePropagation();
+                  // TODO this comes from formatters.js as is
+                  const n = weave.bodies().length;
+                  const bodyId = `b${n}`; // TODO NO, this is not good enough
+                  createPanel(
+                    weave.root,
+                    bodyId,
+                    weave.buttons(weave.root),
+                    weave,
+                  );
+                  console.log(href);
+                  const body = document.getElementById(bodyId);
+                  iloadIntoBody(href, body);
+                  toTop(body)(); // This is not working well
+                }
+              }
+            });
+          });
+
           const nodes = Array.from(div.querySelectorAll(".node"));
           // This is not a particularly elegant solution, but searches the corresponding node.
           // _Very_ convenient
-          nodes.map((n) => {
+          nodes.forEach((n) => {
             const title = n.querySelector("text").textContent;
             console.log(title);
             interact(n).on("hold", (ev) => {
+              n.held = true;
+              console.log("Marking held");
+              ev.preventDefault();
+              ev.stopPropagation();
+              ev.stopImmediatePropagation();
               if (ev.button != 0) {
                 // Want to avoid right-click-menu counting as hold, very annoying
                 return;
@@ -251,7 +295,7 @@ const graphviz = {
     };
     if (!container.dot) {
       container.render = render;
-      container.addEventListener("keyup", () => {
+      container.addEventListener("keydown", () => {
         container.render();
       });
     }

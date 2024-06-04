@@ -15,7 +15,7 @@ import { toMarkdown } from "./parser.js";
 import { common, reset } from "./commands_base.js";
 import { createOrMoveArrowBetweenDivs } from "./arrow.js";
 import { dndDynamicDiv } from "./dynamicdiv.js";
-
+import { link } from "./formatters.js";
 const DEBUG = true;
 
 const createNextPanel = (parentId, options = {}) => {
@@ -124,6 +124,9 @@ const createPanel = (parentId, id, buttons, weave, options) => {
     }
     if (ev.key === "r" && ev.ctrlKey) {
       raw.action();
+    }
+    if (ev.key === "k" && ev.metaKey) {
+      link.action();
     }
     if (ev.key === "t" && ev.ctrlKey) {
       ititle.action(ev);

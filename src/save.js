@@ -121,11 +121,17 @@ function showModalAndGet(
       presentFiles(modal.originalFileset, fileContainer);
     }
     if (options.dbsearching) {
-      console.log("dbsearching");
+      console.log(`dbsearching, searchstring: "${searchString}"`);
       try {
-        const search = weave.internal.idx.search(prefix + searchString);
-        console.log(search);
-        const keys = search.map((r) => r.ref);
+        // Dirtiest hack I have ever done: bypass includes if there is no search term
+        let keys = [];
+        keys.includes = (a) => true;
+        if (searchString !== "") {
+          const search = weave.internal.idx.search(prefix + searchString);
+          console.log(search);
+          keys = search.map((r) => r.ref);
+        }
+
         entries().then((entries) => {
           const files = entries
             .filter(

@@ -27,6 +27,7 @@ import { toMarkdown } from "./parser.js";
 import { showModalAndGet } from "./save.js";
 import { postfix, toTop } from "./doms.js";
 import { createPanel } from "./panel.js";
+import { manipulation } from "./manipulation.js";
 
 const underline = {
   text: ["underline", "u"],
@@ -172,12 +173,29 @@ const link = {
       return;
     }
     const selection = window.getSelection();
+    console.log("------------------------");
     const text = selection + "";
     const range = selection.getRangeAt(0);
-    console.log(range);
+    let containerElement = range.commonAncestorContainer;
+    containerElement =
+      containerElement.nodeType === Node.TEXT_NODE
+        ? containerElement.parentElement
+        : containerElement;
+    let cmap = false;
+    if (
+      manipulation.get(containerElement, manipulation.fields.kKind) ===
+      "literal"
+    ) {
+      cmap = true;
+    }
     const link = document.createElement("a");
+    const tn = document.createElement("span");
     range.deleteContents();
-    range.insertNode(link);
+    if (cmap) {
+      range.insertNode(tn);
+    } else {
+      range.insertNode(link);
+    }
     // TODO this screws up cancelling linking
     const showModalHandler = (keys) => (destination) => {
       if (!destination) {
@@ -199,6 +217,8 @@ const link = {
         link.dataset.internal = false;
       }
       link.href = href;
+      const cmapLink = `URL="${href}" title="${link.textContent}"`;
+      tn.innerText = cmapLink;
       //postfix(link);
       link.addEventListener("click", (ev) => {
         ev.preventDefault(); // Prevent default navigation
