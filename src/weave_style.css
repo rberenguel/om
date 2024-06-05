@@ -130,6 +130,10 @@ svg .fawesome {
   cursor: default;
 }
 
+svg a {
+  text-decoration: none;
+}
+
 .crossed {
   text-decoration: line-through;
   text-decoration-thickness: 0.3em !important; /* does not work in SVG */
