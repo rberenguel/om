@@ -337,7 +337,11 @@ document.body.addEventListener("keydown", (ev) => {
     ev.stopImmediatePropagation();
     metak();
   }
-  if (ev.key === "n" && ev.ctrlKey) {
+  if (ev.key === "n" && ev.metaKey) {
+    // This might work in app mode
+    ev.preventDefault();
+    ev.stopPropagation();
+    ev.stopImmediatePropagation();
     const bodyContainer = split(weave.root).action();
     bodyContainer.querySelector(".body").focus();
     toTop(bodyContainer)();
@@ -353,6 +357,9 @@ interact(document.body)
       return;
     }
     const body = split(weave.root).action().querySelector(".body");
+    manipulation.set(body, manipulation.fields.kX, ev.offsetX - 50);
+    manipulation.set(body, manipulation.fields.kY, ev.offsetY - 50); // Yes, magic number
+    manipulation.reposition(body);
     body.focus();
   });
 

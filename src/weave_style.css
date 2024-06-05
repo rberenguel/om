@@ -670,8 +670,8 @@ svg {
 
 .dark {
   background: var(--dark-background) !important;
-  color: var(--gray-text) !important;
-  caret-color: #93a1a1 !important;
+  color: var(--gray-text);
+  caret-color: #93a1a1;
 }
 
 .light {
@@ -978,6 +978,23 @@ th.calendar {
 
 @media only screen and (max-width: 768px) {
   /* Adjust the max-width as needed */
+
+  body {
+    font-size: 13pt !important;
+  }
+
+  .dark {
+    color: var(--lighter-gray-text);
+  }
+
+  .serif {
+    font-family: "Inter";
+  }
+
+  .better-handle {
+    padding: calc(var(--handle-padding) / 2);
+  }
+
   .body-container {
     width: 100%; /* Make it take full width on mobile */
     height: 66%;

@@ -116,10 +116,17 @@ const createPanel = (parentId, id, buttons, weave, options) => {
       console.info("Autosaving");
     }
     // All the key commands need tests
-    if (ev.key === "w" && ev.ctrlKey) {
+    if (ev.key === "w" && (ev.metaKey || ev.ctrlKey)) {
+      // This should work in app mode…
+      ev.preventDefault();
+      ev.stopPropagation();
+      ev.stopImmediatePropagation();
       close_.action();
     }
-    if (ev.key === "l" && ev.ctrlKey) {
+    if (ev.key === "l" && ev.metaKey) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      ev.stopImmediatePropagation();
       iload.action();
     }
     if (ev.key === "r" && ev.ctrlKey) {
@@ -137,7 +144,10 @@ const createPanel = (parentId, id, buttons, weave, options) => {
       info.innerHTML = "Exported current panel";
       info.classList.add("fades");
     }
-    if (ev.key === "s" && ev.ctrlKey) {
+    if (ev.key === "s" && ev.metaKey) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      ev.stopImmediatePropagation();
       save();
       info.innerHTML = "Saved";
       info.classList.add("fades");

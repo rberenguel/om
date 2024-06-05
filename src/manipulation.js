@@ -185,7 +185,26 @@ const manipulation = {
         break;
     }
   },
-  reposition(container) {
+  reposition(node) {
+    let body, container;
+    if (node.classList.contains("body")) {
+      body = node;
+      container = node.closest(".body-container");
+    } else if (node.classList.contains("body-container")) {
+      body = node.querySelector(".body");
+      container = node;
+    } else if (node === document.body) {
+      body = node;
+      container = node;
+    } else if (node.classList.contains("panel-title")) {
+      body = node;
+      container = node;
+    } else {
+      throw {
+        name: "WeaveNodeError",
+        message: `The node is neither a .body-container, .body or document.body (it is '${node.nodeName} '${node.classList}')`,
+      };
+    }
     let x = this.get(container, panelFields.kX);
     let y = this.get(container, panelFields.kY);
     container.dataset.x = x;
@@ -193,7 +212,26 @@ const manipulation = {
     const transform = `translate(${x}px, ${y}px)`;
     container.style.transform = transform;
   },
-  resize(container) {
+  resize(node) {
+    let body, container;
+    if (node.classList.contains("body")) {
+      body = node;
+      container = node.closest(".body-container");
+    } else if (node.classList.contains("body-container")) {
+      body = node.querySelector(".body");
+      container = node;
+    } else if (node === document.body) {
+      body = node;
+      container = node;
+    } else if (node.classList.contains("panel-title")) {
+      body = node;
+      container = node;
+    } else {
+      throw {
+        name: "WeaveNodeError",
+        message: `The node is neither a .body-container, .body or document.body (it is '${node.nodeName} '${node.classList}')`,
+      };
+    }
     const current = container.getBoundingClientRect();
     let w = Math.floor(parseFloat(container.dataset.width) || current.width);
     let h = Math.floor(parseFloat(container.dataset.height) || current.height);
@@ -202,7 +240,26 @@ const manipulation = {
     container.style.width = w + "px";
     container.style.height = h + "px";
   },
-  forceSizeToReality(container) {
+  forceSizeToReality(node) {
+    let body, container;
+    if (node.classList.contains("body")) {
+      body = node;
+      container = node.closest(".body-container");
+    } else if (node.classList.contains("body-container")) {
+      body = node.querySelector(".body");
+      container = node;
+    } else if (node === document.body) {
+      body = node;
+      container = node;
+    } else if (node.classList.contains("panel-title")) {
+      body = node;
+      container = node;
+    } else {
+      throw {
+        name: "WeaveNodeError",
+        message: `The node is neither a .body-container, .body or document.body (it is '${node.nodeName} '${node.classList}')`,
+      };
+    }
     const current = container.getBoundingClientRect();
     let w = current.width;
     let h = current.height;
@@ -211,8 +268,27 @@ const manipulation = {
     container.style.width = w + "px";
     container.style.height = h + "px";
   },
-  forcePositionToReality(container) {
-    const body = container.querySelector(".body");
+  forcePositionToReality(node) {
+    let body, container;
+    if (node.classList.contains("body")) {
+      body = node;
+      container = node.closest(".body-container");
+    } else if (node.classList.contains("body-container")) {
+      body = node.querySelector(".body");
+      container = node;
+    } else if (node === document.body) {
+      body = node;
+      container = node;
+    } else if (node.classList.contains("panel-title")) {
+      body = node;
+      container = node;
+    } else {
+      throw {
+        name: "WeaveNodeError",
+        message: `The node is neither a .body-container, .body or document.body (it is '${node.nodeName} '${node.classList}')`,
+      };
+    }
+    body = container.querySelector(".body");
     const current = container.getBoundingClientRect();
     let x = current.x;
     let y = current.y;
