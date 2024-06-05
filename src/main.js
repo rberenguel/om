@@ -6,7 +6,7 @@ import {
   convertNonGroupFileData,
 } from "./loadymcloadface.js";
 import { createPanel, split } from "./panel.js";
-import { iloadIntoBody } from "./loadymcloadface.js";
+import { iload, iloadIntoBody } from "./loadymcloadface.js";
 import { dbdump } from "./save.js";
 import { getPropertiesFromFile } from "./parser.js";
 import { manipulation } from "./manipulation.js";
@@ -345,6 +345,17 @@ document.body.addEventListener("keydown", (ev) => {
     const bodyContainer = split(weave.root).action();
     bodyContainer.querySelector(".body").focus();
     toTop(bodyContainer)();
+  }
+  if (ev.key === "l" && (ev.metaKey || ev.ctrlKey)) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    ev.stopImmediatePropagation();
+    const bodyContainer = split(weave.root).action();
+    const body = bodyContainer.querySelector(".body")
+    body.focus();
+    toTop(bodyContainer)();
+    // This assumes you don't cancel the load though
+    iload.action(null, body);
   }
   window.print = oldp;
 });
