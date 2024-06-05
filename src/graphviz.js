@@ -211,6 +211,7 @@ const graphviz = {
                   .replace("[]", "")
                   .replace("[ ]", "");
                 n.querySelector("text").prepend(tspan);
+                n.classList.remove("crossed")
               }
               if (title.toLowerCase().startsWith("[x]")) {
                 // Closed checkbox case
@@ -220,6 +221,7 @@ const graphviz = {
                   .replace("[X]", "")
                   .replace("[x]", "");
                 n.querySelector("text").prepend(tspan);
+                n.classList.add("crossed")
               }
               tspan.addEventListener("click", (ev) => {
                 ev.preventDefault();
@@ -228,6 +230,7 @@ const graphviz = {
                 if (!tspan.checked) {
                   console.log(cmap.childNodes);
                   tspan.innerHTML = ""; // fontawesome glyph for closed checkbox
+                  n.classList.add("crossed")
                   for (let node of cmap.childNodes) {
                     if (node.textContent.includes(`id="${id}"`)) {
                       node.textContent = node.textContent
@@ -237,6 +240,7 @@ const graphviz = {
                   }
                 } else {
                   tspan.innerHTML = ""; // fontawesome glyph for open checkbox
+                  n.classList.remove("crossed")
                   for (let node of cmap.childNodes) {
                     if (node.textContent.includes(`id="${id}"`)) {
                       node.textContent = node.textContent
