@@ -45,22 +45,31 @@ const split = (parentId) => {
 
 const close_ = {
   text: ["close", "❌"],
-  action: (ev) => {
+  action: (ev, bodyId) => {
     if (common(ev)) {
       return;
     }
     // TODO(me) I'm pretty sure closing-saving-loading would fail
     // if I delete an intermediate panel, needs some test
     // TODO: replace weave.internal.bodyClicks[0] with a (proper) function call
-    const bid = weave.internal.bodyClicks[0];
+    console.log(`Called with ${bodyId}`);
+    const bid = bodyId || weave.internal.bodyClicks[0];
     // TODO this should be wrapped
+    console.log("Wants to remove");
+    console.log(bid);
     const tid = `title-${bid}`;
     const titleToRemove = document.getElementById(tid);
     const bodyToRemove = document.getElementById(bid);
     const container = bodyToRemove.closest(".body-container");
     const parent = container.parentNode;
+    const related = container.relatedContainers || [];
     parent.removeChild(container);
     parent.removeChild(titleToRemove);
+    for (const foo of related) {
+      console.log(foo);
+      //parent.removeChild(document.getElementById(foo))
+      close_.action(null, foo); // TODO this is ugly
+    }
   },
   description: "Eliminate a panel",
   el: "u",

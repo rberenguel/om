@@ -115,3 +115,30 @@ set title textcolor rgb "white"
     stdout: STDOUT.join("\n"),
   };
 }
+
+/*
+
+Example
+
+# Based on the transparency effect in transparent.dem by Ethan A. Merrit (2006) 
+set key textcolor rgb "white"
+set border lw 1 lc rgb "white"
+set key title "Gaussian Distribution" center textcolor rgb "white"
+set key fixed left top vertical Left reverse enhanced autotitle nobox
+set key noinvert samplen 1 spacing 1 width 0 height 0
+set title "Transparent filled curves" textcolor rgb "white"
+set xrange [-5.00000 : 5.00000]
+set yrange [0.00000 : 1.00000]
+set samples 200
+Gauss(x, mu, sigma) = 1./(sigma*sqrt (2*pi)) * exp(-(x-mu)**2 / (2*sigma**2))
+d1 (x) = Gauss(x, 0.5, 0.5)
+d2(x) = Gauss(x, 2., 1.)
+d3 (x) = Gauss(x, -1., 2.)
+plot \
+  d3(x) lc rgb "dark-violet" title "mu = -1.0 sigma = 2.0" w filledcurves y1=0 fs transparent solid 0.3, \ 
+  d3(x) lc rgb "dark-violet" lw 2 title "", \
+  d1(x) lc rgb "forest-green" lw 2 with filledcurves y1=0 fs transparent solid 0.5 title "mu = 0.5 sigma = 0.5", \
+  d1(x) lc rgb "forest-green" lw 2 title "",\
+  d2(x) lc rgb "gold" lw 2 with filledcurves y1=0 fs transparent solid 0.5 title "mu 2.0 sigma = 1.0", \
+  d2(x) lc rgb "gold" lw 2 title ""
+*/

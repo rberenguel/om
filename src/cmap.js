@@ -25,6 +25,10 @@ const cmap = {
     const bodyId = body.id; // TODO this should come from manipulation too
     body.style.whiteSpace = "pre-wrap";
     const cmapPanel = createNextPanel(weave.root);
+    // TODO I likely want to handle related containers in a more uniform way
+    body.closest(".body-container").relatedContainers = [
+      cmapPanel.querySelector(".body").id,
+    ];
     manipulation.set(
       cmapPanel,
       manipulation.fields.kTitle,
