@@ -300,6 +300,9 @@ const convert = (text) => {
       label = "";
       props = props ? props : "" + "style=invis";
     }
+    label = label.trim();
+    label = label.replace(/^\[\]/, "🟨").replace(/^\[ \]/, "🟨");
+    label = label.replace(/^\[X\]/, "✅").replace(/^\[x\]/, "✅");
     const labelPropper = (label, props) =>
       `[label="${labelBreaker(label)}${linkUTF}"${
         props ? " " + props : ""

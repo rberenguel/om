@@ -131,7 +131,28 @@ const graphviz = {
           if (gvPanel.panzoom) {
             pan = gvPanel.panzoom.getPan();
             zoom = gvPanel.panzoom.getZoom();
-            console.log(pan, zoom);
+            /*const pzControls = document.getElementById("svg-pan-zoom-controls");
+            interact(pzControls).draggable({
+              inertia: true,
+              listeners: {
+                leave: (ev) => {},
+                start(ev) {
+                  console.log("DRAGGING")
+                },
+                end(ev) {},
+                move(ev) {
+                  const f = 1 / (document.body.dataset.scale || 1);
+                  let x = manipulation.get(pzControls, manipulation.fields.kX);
+                  let y = manipulation.get(pzControls, manipulation.fields.kY);
+                  x += f * ev.dx;
+                  y += f * ev.dy;
+                  manipulation.set(pzControls, manipulation.fields.kX, x);
+                  manipulation.set(pzControls, manipulation.fields.kY, y);
+                  manipulation.reposition(pzControls);
+                },
+              },
+            });*/
+            //console.log(pan, zoom);
           }
           div.innerHTML = container.dot;
           const cmap = document.getElementById(source);
@@ -198,28 +219,24 @@ const graphviz = {
               div.mark.unmark();
               div.mark.mark(title, { accuracy: "exactly" });
             });
-            if (title.startsWith("[")) {
+            if (title.includes("🟨") || title.includes("✅")) {
               const id = n.closest("g").id;
               const xmlns = "http://www.w3.org/2000/svg"; // SVG namespace URI
               const tspan = document.createElementNS(xmlns, "tspan");
               tspan.classList.add("fawesome");
-              if (title.startsWith("[]") || title.startsWith("[ ]")) {
+              if (title.startsWith("🟨")) {
                 // Open checkbox case
                 tspan.innerHTML = ""; // fontawesome glyph for open checkbox. For some reason unicode was not working
                 tspan.checked = false;
-                n.querySelector("text").textContent = title
-                  .replace("[]", "")
-                  .replace("[ ]", "");
+                n.querySelector("text").textContent = title.replace("🟨", "");
                 n.querySelector("text").prepend(tspan);
                 n.classList.remove("crossed");
               }
-              if (title.toLowerCase().startsWith("[x]")) {
+              if (title.startsWith("✅")) {
                 // Closed checkbox case
                 tspan.innerHTML = ""; // fontawesome glyph for open checkbox. For some reason unicode was not working
                 tspan.checked = true;
-                n.querySelector("text").textContent = title
-                  .replace("[X]", "")
-                  .replace("[x]", "");
+                n.querySelector("text").textContent = title.replace("✅", "");
                 n.querySelector("text").prepend(tspan);
                 n.classList.add("crossed");
               }
@@ -260,8 +277,9 @@ const graphviz = {
                 zoomScaleSensitivity: 1.5,
               })
               .querySelector("svg"),
-            { controlIconsEnabled: true },
+            { controlIconsEnabled: true, dblClickZoomEnabled: false },
           );
+
           if (pan) {
             // Beware of order!
             gvPanel.panzoom.zoom(zoom);

@@ -88,7 +88,6 @@ set key textcolor rgb "white"
 set border lw 1 lc rgb "white"
 set title textcolor rgb "white"
 `;
-  //"set term canvas name 'draw_plot_on_canvas' size 500,400;set output 'plot.js'\n" +
   script = header + "\n" + script;
   script = script
     .split("\n")

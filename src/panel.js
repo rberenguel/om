@@ -16,6 +16,7 @@ import { common, reset } from "./commands_base.js";
 import { createOrMoveArrowBetweenDivs } from "./arrow.js";
 import { dndDynamicDiv } from "./dynamicdiv.js";
 import { link } from "./formatters.js";
+
 const DEBUG = true;
 
 const createNextPanel = (parentId, options = {}) => {
@@ -216,6 +217,74 @@ const createPanel = (parentId, id, buttons, weave, options) => {
         });
     }
   });
+
+  interact(bodyContainer).on("doubletap", (ev) => {
+    const container = bodyContainer;
+    const body = bodyContainer.querySelector(".body");
+    if (ev.target === body || body.contains(ev.target)) {
+      // This should be the body proper only
+      return;
+    }
+    const selection = window
+      .getSelection()
+      .toString()
+      .replace(/\s+/g, "").length;
+    if (selection.length > 0) {
+      console.debug(
+        `You have selected something ('${selection}'), not folding`,
+      );
+      return;
+    } else {
+      if (container.raw) {
+        unrawPane(body, container);
+        return;
+      }
+      //if (!weave.internal.preventFolding) {
+      body.classList.toggle("folded");
+      // TODO All these should be part of a method that is then reused when loading the folded state
+      container.classList.toggle("folded-bc");
+      container.classList.toggle("unfit");
+      if (body.classList.contains("folded")) {
+        // Just folded everything. Need to preserve the height of the container before folding
+        body.dataset.unfoldedHeight = container.style.height;
+        container.style.height = "";
+        interact(container).resizable({
+          edges: { top: false, left: true, bottom: false, right: true },
+        });
+        /*.draggable({
+              autoscroll: false,
+              listeners: {
+                start(event) {
+                  disableSelectionOnAll();
+                },
+                end(event) {
+                  enableSelectionOnAll();
+                },
+              },
+            });*/
+      } else {
+        container.style.height = body.dataset.unfoldedHeight;
+        interact(container).resizable({
+          edges: { top: true, left: true, bottom: true, right: true },
+        });
+        /*.draggable({
+              autoscroll: false,
+              listeners: {
+                start(event) {
+                  //disableSelectionOnAll();
+                },
+                end(event) {
+                  enableSelectionOnAll();
+                },
+              },
+            });*/
+      }
+      //} else {
+      //  weave.internal.preventFolding = false;
+      //}
+    }
+  });
+
   interact(bodyContainer).resizable({
     edges: { left: true, right: true, bottom: true, top: true },
     // TODO There is something failing in resize
@@ -446,7 +515,7 @@ const createPanel = (parentId, id, buttons, weave, options) => {
       createOrMoveArrowBetweenDivs(arrow);
     }
   };
-
+  console.log("Hook dragging");
   interact(bodyContainer).draggable({
     allowFrom: betterHandle,
     ignoreFrom: body,

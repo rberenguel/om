@@ -136,7 +136,9 @@ svg a {
 
 .crossed {
   text-decoration: line-through;
-  text-decoration-thickness: 0.3em !important; /* does not work in SVG */
+  text-decoration-line: line-through;
+  text-decoration-thickness: 0.3em !important; /* does not seem to work in SVG */
+  fill: red; /* For some reason shows as black in app mode otherwise, Safari ignores it though */
 }
 
 /** 

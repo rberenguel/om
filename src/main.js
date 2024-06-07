@@ -351,7 +351,7 @@ document.body.addEventListener("keydown", (ev) => {
     ev.stopPropagation();
     ev.stopImmediatePropagation();
     const bodyContainer = split(weave.root).action();
-    const body = bodyContainer.querySelector(".body")
+    const body = bodyContainer.querySelector(".body");
     body.focus();
     toTop(bodyContainer)();
     // This assumes you don't cancel the load though
