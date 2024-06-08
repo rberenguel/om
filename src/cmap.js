@@ -32,7 +32,7 @@ const cmap = {
     manipulation.set(
       cmapPanel,
       manipulation.fields.kTitle,
-      "generated-graphviz",
+      "generated-graphviz"
     );
     cmapPanel.saveable = false;
     manipulation.set(body, manipulation.fields.kKind, "literal");
@@ -53,7 +53,14 @@ const cmap = {
         .join("\n");
       console.log(cmap);
       const normalize = (str) => str.normalize("NFKD");
-      const gv = convert(normalize(cmap)) + "\n}";
+      // Analysis and regeneration of operators is best _before_ conversion, because then I can use all the properties
+      let gv
+      if(cmap.split("\n")[0].includes(" [op]")){
+        gv = convert(normalize(processOperators(cmap))) + "\n}";
+      } else {
+        gv = convert(normalize(cmap)) + "\n}";
+      }
+
       document.getElementById(container.cmapDestination).innerText = gv;
     };
 
@@ -72,6 +79,187 @@ const cmap = {
   },
   description: "Graphviz based on gh/hpcc-systems/hpcc-js-wasm",
   el: "u",
+};
+
+const opFuzzyOr = (...args) => {
+  // For now each function will handle its own input
+  console.log(args);
+  return Math.max(...args.map((f) => parseFloat(f)));
+};
+
+const opFuzzyAnd = (...args) => {
+  // For now each function will handle its own input
+  console.log(args);
+  return Math.min(...args.map((f) => parseFloat(f)));
+};
+
+const opSum = (...args) => {
+  // For now each function will handle its own input
+  console.log(args);
+  const values = args.map((f) => parseFloat(f));
+  console.log(values);
+  const sum = values.reduce(
+    (accumulator, currentValue) => accumulator + currentValue,
+    0
+  );
+  return sum;
+};
+
+const processOperators = (cmapText) => {
+  const operators = {
+    opf_or: opFuzzyOr,
+    op_sum: opSum,
+    opf_and: opFuzzyAnd,
+    opf_not: (v) => 1.0 - parseFloat(v),
+  };
+  let lines = cmapText.split("\n");
+  let nodeUpdatedLines = undefined;
+  let evaluations = {};
+  let newValues = {};
+  for (let step = 0; step < 3; step++) {
+    // arbitrary number to check how this works
+    for (let line of lines) {
+      // Forward pass collecting _all_ arguments. This would need to be repeated as many times as depth, though, sad
+      if (hasArrow(line)) {
+        const attrs = getAttrsArrow(line);
+        const match = /^\s*(\w+)\s*->\s*(\w+).*$/.exec(line);
+        let src = match[1];
+        let dst = match[2];
+        src = src.trim();
+        dst = dst.trim();
+        console.log(src, dst, attrs);
+        for (const opName in operators) {
+          if (dst.startsWith(opName)) {
+            // The argument is always the first thing, whatever the thing
+            if (!attrs || attrs.length <= 1) {
+              // Either it is a forward argument or the human is still typing
+              continue;
+            }
+            const argument = attrs[1].split(" ")[0];
+            if (evaluations[dst]) {
+              console.log(evaluations[dst].args);
+              evaluations[dst].args.push(argument);
+            } else {
+              evaluations[dst] = {
+                op: operators[opName],
+                args: [argument],
+              };
+            }
+          }
+        }
+      }
+    }
+    let edgeUpdatedLines = [];
+    for (let line of lines) {
+      // Forward pass setting evaluations. This could get tricky: evaluations can't have labels _or_ they'd get replaced
+      for (const key in evaluations) {
+        // This propagates from evaluations to edges
+        if (line.trim().startsWith(key) && hasArrow(line)) {
+          const operation = evaluations[key];
+          //console.log(operation);
+          const evaluation = operation.op(...operation.args);
+          if (operation.evaluation) {
+            // If it is cached, we don't need to update anything
+            continue;
+          }
+          operation.evaluation = evaluation; // Cache this thing
+          //console.log(evaluation);
+          line = line + ` ${evaluation.toFixed(2)} ; fontcolor="$GREEN"`;
+        }
+      }
+      edgeUpdatedLines.push(line);
+    }
+    // MISSING: propagate from edges to nodes. I think it is best if it is a separate pass, just in case the graph is written out-of-order
+    for (let line of edgeUpdatedLines) {
+      if (hasArrow(line)) {
+        const match = /^\s*(\w+)\s*->\s*(\w+).*$/.exec(line);
+        let src = match[1];
+        let dst = match[2];
+        src = src.trim();
+        dst = dst.trim();
+        if (Object.keys(evaluations).includes(src)) {
+          //console.log("needs to propagate the value to");
+          //console.log(dst);
+          const evaluation = evaluations[src].evaluation;
+          if (!newValues[dst]) {
+            // This should only be done once. I don't want cycles
+            newValues[dst] = {
+              value: evaluation,
+            };
+          }
+        }
+      }
+      //otherUpdatedLines.push(line)
+    }
+    nodeUpdatedLines = [];
+    for (let line of edgeUpdatedLines) {
+      // Now we can really propagate to nodes and edges
+      if (!hasArrow(line)) {
+        // Node case
+        const src = line.trim().split(" ")[0];
+        const withNewValues = Object.keys(newValues);
+        //console.log(src, withNewValues);
+        // We need to _not_ update operators as if they had values, looks weird
+        let skip = false;
+        for (const op in operators) {
+          if (src.startsWith(op)) {
+            skip = true;
+          }
+        }
+        if (!skip) {
+          if (withNewValues.includes(src)) {
+            const newValue = newValues[src];
+            if (!newValue.updated) {
+              newValue.updated = {};
+            }
+            if (!newValue.updated[src]) {
+              // This should only be done once
+              line = line + ` (${newValue.value.toFixed(2)})`;
+              newValue.updated[src] = true;
+            }
+          }
+        }
+      } else {
+        // Edge case
+        const attrs = getAttrsArrow(line);
+        const match = /^\s*(\w+)\s*->\s*(\w+).*$/.exec(line);
+        let src = match[1];
+        let dst = match[2];
+        src = src.trim();
+        dst = dst.trim();
+        for (const opName in operators) {
+          if (dst.startsWith(opName)) {
+            // The argument is always the first thing, whatever the thing
+            if (attrs && attrs.length > 1) {
+              // Argument has been provided?
+              continue;
+            }
+            //console.warn(newValues);
+            //console.warn(line);
+            //console.warn(attrs);
+            const newValue = newValues[src];
+            if (!newValue.updated) {
+              newValue.updated = {};
+            }
+            if (!newValue.updated[src + "-edge"]) {
+              line =
+                line + ` ${newValue.value.toFixed(2)} ; fontcolor="$GREEN"`;
+              newValue.updated[src + "-edge"] = true;
+            }
+          }
+        }
+      }
+      nodeUpdatedLines.push(line);
+    }
+
+    lines = nodeUpdatedLines;
+    const computed = nodeUpdatedLines.join("\n");
+    //console.warn(step, computed);
+  }
+  //console.log(otherUpdatedLines)
+  const computed = nodeUpdatedLines.join("\n");
+  //console.warn(computed);
+  return computed;
 };
 
 const headerT = `
@@ -271,7 +459,7 @@ const convert = (text) => {
       // Add invisible cluster name node and label
       result.push(ttab + `label="${cluster}"`);
       result.push(
-        ttab + `${cluster} [style=invis,width=0,label="",fixedsize=true]`,
+        ttab + `${cluster} [style=invis,width=0,label="",fixedsize=true]`
       );
       continue;
     }

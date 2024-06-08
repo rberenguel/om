@@ -188,7 +188,7 @@ const graphviz = {
                     weave.root,
                     bodyId,
                     weave.buttons(weave.root),
-                    weave,
+                    weave
                   );
                   console.log(href);
                   const body = document.getElementById(bodyId);
@@ -198,13 +198,88 @@ const graphviz = {
               }
             });
           });
-
+          const hasPercentage = (text) => /^.* \([0-9]+\.[0-9]+\)$/.test(text);
+          const hasPercentageEdge = (text) => /^[0-9]+\.[0-9]+.*$/.test(text);
+          const getPercentageString = (text) => text.split(" ").slice(-1)[0]
+          const getPercentage = (text) => text.replace("(", "").replace(")", "")
+          const getPercentageEdgeString = (text) => text.split(" ")[0]
           const nodes = Array.from(div.querySelectorAll(".node"));
-          // This is not a particularly elegant solution, but searches the corresponding node.
-          // _Very_ convenient
+          const edges = Array.from(div.querySelectorAll(".edge"));
+          edges.forEach((e) => {
+            // THIS IS NOW PRETTY MUCH DUPLICATED 100%
+            const title = e.querySelector("text").textContent;
+            // This should be conditional on being a op graph
+            console.warn(title);
+            console.warn(hasPercentageEdge(title))
+            if (hasPercentageEdge(title)) {
+              console.warn("Constructing E")
+              const path = e.querySelector("path")
+              const text = e.querySelector("text")
+              const pbcr = text.getBoundingClientRect()
+              const x = text.x.baseVal[0].value;
+              const y = text.y.baseVal[0].value;
+              const size = parseFloat(text.getAttribute("font-size"))
+              console.warn("Here")
+              console.warn(parseFloat(getPercentage(title.split(" ").slice(-1)[0])))
+              // Example Usage (Replace with your actual percentage and target container)
+              const percentageString = getPercentageEdgeString(title); // Example percentage value
+              console.warn(pbcr)
+              const props = {
+                cx: x-2.5*pbcr.width,
+                cy: y-size/2,
+                radius: size/2
+              }
+              console.warn(props)
+              console.warn(parseFloat(getPercentage(percentageString)))
+              const pct = parseFloat(getPercentage(percentageString))
+              let color = "#dc322fFF" // Solarized red
+              if(pct >= 0.4){
+                color = "#b58900FF" // Solarized yellow
+              }
+              if(pct >= 0.8){
+                color = "#859900FF" // Solarized green
+              }
+              props.color = color
+              console.log(props, pct)
+              createPercentagePieChart(e, 100*pct, props);
+          }})
           nodes.forEach((n) => {
             const title = n.querySelector("text").textContent;
-            console.log(title);
+            // This should be conditional on being a op graph
+            console.warn(title);
+            console.warn(hasPercentage(title))
+            if (hasPercentage(title)) {
+              console.warn("Constructing N")
+              const path = n.querySelector("path")
+              const text = n.querySelector("text")
+              const pbcr = path.getBoundingClientRect()
+              const x = text.x.baseVal[0].value;
+              const y = text.y.baseVal[0].value;
+              const size = parseFloat(text.getAttribute("font-size"))
+              console.warn("Here")
+              console.warn(parseFloat(getPercentage(title.split(" ").slice(-1)[0])))
+              // Example Usage (Replace with your actual percentage and target container)
+              const percentageString = getPercentageString(title); // Example percentage value
+              console.warn(percentageString)
+              const props = {
+                cx: x+pbcr.width-size/2,
+                cy: y+pbcr.height/2,
+                radius: size/2
+              }
+              console.warn(props)
+              console.warn(parseFloat(getPercentage(percentageString)))
+              const pct = parseFloat(getPercentage(percentageString))
+              let color = "#dc322fFF" // Solarized red
+              if(pct >= 0.4){
+                color = "#b58900FF" // Solarized yellow
+              }
+              if(pct >= 0.8){
+                color = "#859900FF" // Solarized green
+              }
+              props.color = color
+              createPercentagePieChart(n, 100*pct, props);
+              
+            }
             interact(n).on("hold", (ev) => {
               n.held = true;
               console.log("Marking held");
@@ -281,7 +356,7 @@ const graphviz = {
                 zoomScaleSensitivity: 1.5,
               })
               .querySelector("svg"),
-            { controlIconsEnabled: true, dblClickZoomEnabled: false },
+            { controlIconsEnabled: true, dblClickZoomEnabled: false }
           );
 
           if (pan) {
@@ -291,7 +366,7 @@ const graphviz = {
           }
           div.addEventListener("dblclick", (ev) => {
             const svgString = new XMLSerializer().serializeToString(
-              document.getElementById(container.graphvizDestination),
+              document.getElementById(container.graphvizDestination)
             );
             const svgDataUri = "data:image/svg+xml;base64," + btoa(svgString);
             const downloadLink = document.createElement("a");
@@ -310,7 +385,7 @@ const graphviz = {
           "table index is out of bounds",
         ];
         const isReloadWorthy = reloadWorthyErrors.some((string) =>
-          err.message.includes(string),
+          err.message.includes(string)
         );
         if (err instanceof Error && isReloadWorthy) {
           weave.graphviz = await Graphviz.load();
@@ -331,3 +406,40 @@ const graphviz = {
   description: "Graphviz based on gh/hpcc-systems/hpcc-js-wasm",
   el: "u",
 };
+
+// Experimental
+
+function createPercentagePieChart(container, percentage, props={}) {
+  // Background circle (optional)
+  let color = props.color || "blue"
+  let cx = props.cx || 50
+  let cy = props.cy || 50
+  let radius = props.radius || 40
+  const background = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  background.setAttribute("cx", cx); // Use provided cx
+  background.setAttribute("cy", cy); // Use provided cy
+  background.setAttribute("r", 1.03*radius); // Use provided radius
+  background.setAttribute("fill", "midnightblue");
+  background.setAttribute("stroke", "#c60");
+  container.appendChild(background);
+
+  const angle = percentage / 100 * 2 * Math.PI; // Convert percentage to radians
+
+  // Calculate starting point dynamically
+  const x1 = cx + radius * Math.cos(0); 
+  const y1 = cy + radius * Math.sin(0); 
+
+  const x = cx + radius * Math.cos(angle); // Use radius in calculation
+  const y = cy + radius * Math.sin(angle); // Use radius in calculation
+
+  // Corrected arc flags
+  const largeArcFlag = percentage > 50 ? 1 : 0;
+  const sweepFlag = 1; 
+
+  const pathData = `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} ${sweepFlag} ${x} ${y} L ${cx} ${cy} Z`; // Updated pathData
+
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("d", pathData);
+  path.setAttribute("fill", color);
+  container.appendChild(path);
+}
