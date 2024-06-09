@@ -5,6 +5,9 @@ export {
   constructCurrentGroup,
   parseGroupFromMarkdown,
 };
+
+const DEBUG = false;
+
 import weave from "./weave.js";
 
 import { iloadIntoBody } from "./loadymcloadface.js";
@@ -29,7 +32,7 @@ const constructCurrentGroupAsMarkdown = () => {
   const current = weave.containers();
   let lines = [];
   for (const container of current) {
-    console.log(container);
+    if (DEBUG) console.log(container);
     if (container.saveable === false) {
       continue;
     }
@@ -64,13 +67,12 @@ const parseGroupFromMarkdown = (text) => {
   let n = 0;
   let fileBodyMap = {};
   let arrowMode = false;
-  console.log(text);
+  if (DEBUG) console.log(text);
   const lines = text.split("\n").filter((l) => l.trim().length > 0);
   for (const line of lines) {
     if (!(line === "# Arrows") && line.startsWith("# ") && !arrowMode) {
       // TODO so bad
       // Parsing a file, matches the above
-      console.log("File");
       const filename = line.split(" ")[1];
       console.info(`Block for file ${filename}`);
       const bodyId = `b${n}`; // TODO NO, this is not good enough
@@ -88,7 +90,6 @@ const parseGroupFromMarkdown = (text) => {
       const srcB = fileBodyMap[srcFn];
       const dstB = fileBodyMap[dstFn];
       const arrowId = `${srcB}-${dstB}`;
-      console.log(arrowId);
       weave.internal.arrows.push(arrowId);
     }
     if (line === "# Arrows") {

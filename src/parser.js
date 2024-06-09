@@ -17,7 +17,7 @@ import { calWithEvents, parseCalendar } from "./cal.js";
 import { xgidRenderer } from "./xgid.js";
 import { cmap } from "./cmap.js";
 
-const DEBUG = true;
+const DEBUG = false;
 
 const parseProperties = (lines) => {
   let properties = {};
@@ -102,8 +102,6 @@ const parseIntoWrapper = (text, body) => {
         body.click();
 
         toTop(body)();
-        console.log("DISPATCHING");
-        console.log(body);
         const container = body.closest(".body-container");
         body.focus();
         container.render();
@@ -117,11 +115,11 @@ const parseIntoWrapper = (text, body) => {
   placeTitle(container);
   const kind = manipulation.get(container, manipulation.fields.kKind);
   if (kind.trim() === "literal") {
-    console.info("Literal document");
+    console.info("Parsing literal document");
     body.style.whiteSpace = "pre-wrap";
     body.innerText = rest.join("\n");
   } else {
-    console.info("Parsing markdown document");
+    console.info("Parsing full markdown document");
     parseInto(rest.join("\n"), body);
   }
 };
@@ -318,8 +316,7 @@ const linkStateMachine = (line, body, mode = "") => {
 const parseInto = (text, body, mode = "") => {
   // mode: noDrag
   if (!text) {
-    console.error("No text provided for parseInto");
-    console.log(body);
+    console.warn("No text provided for parseInto");
     return;
   }
   if (text.length == 0) {

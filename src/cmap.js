@@ -8,7 +8,8 @@ import { createNextPanel } from "./panel.js";
 import { manipulation } from "./manipulation.js";
 
 import { graphviz } from "./graphviz.js";
-import { toRight } from "./panel.js";
+
+const DEBUG = false;
 
 // TODO: ctrl-k searches for internal URLs and introduces a URL=f-name tooltip=title at cursor location
 // TODO: same functionality is added to the "link" button, when the target panel is a cmap (with kind: literal)
@@ -32,30 +33,23 @@ const cmap = {
     manipulation.set(
       cmapPanel,
       manipulation.fields.kTitle,
-      "generated-graphviz"
+      "generated-graphviz",
     );
     cmapPanel.saveable = false;
     manipulation.set(body, manipulation.fields.kKind, "literal");
     const cmapBody = cmapPanel.querySelector(".body");
     const container = body.closest(".body-container");
 
-    //cmapBody.classList.toggle("folded");
-    // TODO All these should be part of a method that is then reused when loading the folded state
-    //cmapPanel.classList.toggle("folded-bc");
-    //cmapPanel.classList.toggle("unfit");
-
-    console.log(cmapBody.id);
     container.cmapDestination = cmapBody.id;
     const render = () => {
       const cmap = body.innerText
         .split("\n")
         .map((l) => l.trim())
         .join("\n");
-      console.log(cmap);
       const normalize = (str) => str.normalize("NFKD");
       // Analysis and regeneration of operators is best _before_ conversion, because then I can use all the properties
-      let gv
-      if(cmap.split("\n")[0].includes(" [op]")){
+      let gv;
+      if (cmap.split("\n")[0].includes(" [calc]")) {
         gv = convert(normalize(processOperators(cmap))) + "\n}";
       } else {
         gv = convert(normalize(cmap)) + "\n}";
@@ -83,183 +77,263 @@ const cmap = {
 
 const opFuzzyOr = (...args) => {
   // For now each function will handle its own input
-  console.log(args);
   return Math.max(...args.map((f) => parseFloat(f)));
 };
 
 const opFuzzyAnd = (...args) => {
   // For now each function will handle its own input
-  console.log(args);
   return Math.min(...args.map((f) => parseFloat(f)));
 };
 
 const opSum = (...args) => {
   // For now each function will handle its own input
-  console.log(args);
   const values = args.map((f) => parseFloat(f));
-  console.log(values);
   const sum = values.reduce(
     (accumulator, currentValue) => accumulator + currentValue,
-    0
+    0,
   );
   return sum;
 };
 
-const processOperators = (cmapText) => {
-  const operators = {
-    opf_or: opFuzzyOr,
-    op_sum: opSum,
-    opf_and: opFuzzyAnd,
-    opf_not: (v) => 1.0 - parseFloat(v),
-  };
-  let lines = cmapText.split("\n");
-  let nodeUpdatedLines = undefined;
-  let evaluations = {};
-  let newValues = {};
-  for (let step = 0; step < 3; step++) {
-    // arbitrary number to check how this works
-    for (let line of lines) {
-      // Forward pass collecting _all_ arguments. This would need to be repeated as many times as depth, though, sad
-      if (hasArrow(line)) {
-        const attrs = getAttrsArrow(line);
-        const match = /^\s*(\w+)\s*->\s*(\w+).*$/.exec(line);
-        let src = match[1];
-        let dst = match[2];
-        src = src.trim();
-        dst = dst.trim();
-        console.log(src, dst, attrs);
-        for (const opName in operators) {
-          if (dst.startsWith(opName)) {
-            // The argument is always the first thing, whatever the thing
-            if (!attrs || attrs.length <= 1) {
-              // Either it is a forward argument or the human is still typing
-              continue;
-            }
-            const argument = attrs[1].split(" ")[0];
-            if (evaluations[dst]) {
-              console.log(evaluations[dst].args);
-              evaluations[dst].args.push(argument);
-            } else {
-              evaluations[dst] = {
-                op: operators[opName],
-                args: [argument],
-              };
-            }
-          }
-        }
-      }
-    }
-    let edgeUpdatedLines = [];
-    for (let line of lines) {
-      // Forward pass setting evaluations. This could get tricky: evaluations can't have labels _or_ they'd get replaced
-      for (const key in evaluations) {
-        // This propagates from evaluations to edges
-        if (line.trim().startsWith(key) && hasArrow(line)) {
-          const operation = evaluations[key];
-          //console.log(operation);
-          const evaluation = operation.op(...operation.args);
-          if (operation.evaluation) {
-            // If it is cached, we don't need to update anything
-            continue;
-          }
-          operation.evaluation = evaluation; // Cache this thing
-          //console.log(evaluation);
-          line = line + ` ${evaluation.toFixed(2)} ; fontcolor="$GREEN"`;
-        }
-      }
-      edgeUpdatedLines.push(line);
-    }
-    // MISSING: propagate from edges to nodes. I think it is best if it is a separate pass, just in case the graph is written out-of-order
-    for (let line of edgeUpdatedLines) {
-      if (hasArrow(line)) {
-        const match = /^\s*(\w+)\s*->\s*(\w+).*$/.exec(line);
-        let src = match[1];
-        let dst = match[2];
-        src = src.trim();
-        dst = dst.trim();
-        if (Object.keys(evaluations).includes(src)) {
-          //console.log("needs to propagate the value to");
-          //console.log(dst);
-          const evaluation = evaluations[src].evaluation;
-          if (!newValues[dst]) {
-            // This should only be done once. I don't want cycles
-            newValues[dst] = {
-              value: evaluation,
-            };
-          }
-        }
-      }
-      //otherUpdatedLines.push(line)
-    }
-    nodeUpdatedLines = [];
-    for (let line of edgeUpdatedLines) {
-      // Now we can really propagate to nodes and edges
-      if (!hasArrow(line)) {
-        // Node case
-        const src = line.trim().split(" ")[0];
-        const withNewValues = Object.keys(newValues);
-        //console.log(src, withNewValues);
-        // We need to _not_ update operators as if they had values, looks weird
-        let skip = false;
-        for (const op in operators) {
-          if (src.startsWith(op)) {
-            skip = true;
-          }
-        }
-        if (!skip) {
-          if (withNewValues.includes(src)) {
-            const newValue = newValues[src];
-            if (!newValue.updated) {
-              newValue.updated = {};
-            }
-            if (!newValue.updated[src]) {
-              // This should only be done once
-              line = line + ` (${newValue.value.toFixed(2)})`;
-              newValue.updated[src] = true;
-            }
-          }
-        }
-      } else {
-        // Edge case
-        const attrs = getAttrsArrow(line);
-        const match = /^\s*(\w+)\s*->\s*(\w+).*$/.exec(line);
-        let src = match[1];
-        let dst = match[2];
-        src = src.trim();
-        dst = dst.trim();
-        for (const opName in operators) {
-          if (dst.startsWith(opName)) {
-            // The argument is always the first thing, whatever the thing
-            if (attrs && attrs.length > 1) {
-              // Argument has been provided?
-              continue;
-            }
-            //console.warn(newValues);
-            //console.warn(line);
-            //console.warn(attrs);
-            const newValue = newValues[src];
-            if (!newValue.updated) {
-              newValue.updated = {};
-            }
-            if (!newValue.updated[src + "-edge"]) {
-              line =
-                line + ` ${newValue.value.toFixed(2)} ; fontcolor="$GREEN"`;
-              newValue.updated[src + "-edge"] = true;
-            }
-          }
-        }
-      }
-      nodeUpdatedLines.push(line);
-    }
+const opCarryMul = (...args) => {
+  // For now each function will handle its own input
+  const values = args.map((f) => parseFloat(f));
+  const mul = values.reduce(
+    (accumulator, currentValue) => accumulator * currentValue,
+    1,
+  );
+  return mul;
+};
 
-    lines = nodeUpdatedLines;
-    const computed = nodeUpdatedLines.join("\n");
-    //console.warn(step, computed);
+const getArrowSrcDst = (line) => {
+  const match = /^\s*(\S+)\s*->\s*(\S+).*$/.exec(line);
+  let src = match[1]; // TODO this is failing
+  let dst = match[2];
+  src = src.trim();
+  dst = dst.trim();
+  return [src, dst];
+};
+
+const operators = {
+  "||_": { op: opFuzzyOr, name: "op_fuzzy_or_" },
+  "&&_": { op: opFuzzyAnd, name: "op_fuzzy_and_" },
+  "!_": { op: (v) => 1.0 - parseFloat(v), name: "op_fuzzy_not_" },
+  "+_": { op: opSum, name: "op_sum_" },
+  "*=_": { op: opCarryMul, name: "op_carry_mul_" },
+  ":=_": { op: (v) => parseFloat(v), name: "op_carry_id_" },
+  //":=_": { op: (v) => parseFloat(v), name: "op_id_" },
+};
+
+const isOp = (thing) => {
+  for (const opName in operators) {
+    if (thing.startsWith(opName)) {
+      return opName;
+    }
   }
-  //console.log(otherUpdatedLines)
-  const computed = nodeUpdatedLines.join("\n");
-  //console.warn(computed);
-  return computed;
+  return false;
+};
+
+const edgeKey = (src, dst) => `e-${src}-${dst}`;
+const isNumber = (str) => {
+  const num = parseFloat(str); // Or Number(str)
+  return !isNaN(num);
+};
+
+const isPercent = (str) => {
+  if (str.endsWith("%")) {
+    return isNumber(str.replace("%", ""));
+  }
+  return false;
+};
+
+const formatVal = (val) => {
+  if (val === undefined) {
+    return `???`;
+  }
+  if (val.kind == "pct") {
+    return `${(100 * val.value).toFixed(0)}%`;
+  }
+  if (val.kind == "num") {
+    return `${val.value.toFixed(2)}`;
+  }
+  throw {
+    name: "WeaveValueError",
+    message: `Kind ${val.kind} is not valid for a value`,
+  };
+};
+
+const splitArrow = (text) => /^\s*(\S+\s*->\s*\S+)\s*(.*)$/.exec(text);
+
+// TODO: This can be moved to a separate file and tested in isolation
+
+const processOperators = (cmapText) => {
+  let lines = cmapText.split("\n");
+  // Rewrite
+  let edgeValues = {};
+  let nodeValues = {};
+  let bySrc = {};
+  let byDst = {};
+  for (const line of lines) {
+    // Get values out of edges. This likely only is done once
+    if (hasArrow(line)) {
+      let [src, dst] = getArrowSrcDst(line);
+      const key = edgeKey(src, dst);
+      if (isOp(src) || isOp(dst)) {
+        if (key in edgeValues) {
+          // If this edge already has a value, we don't need to touch it anymore,
+          // any updates are done at the evaluation level
+          continue;
+        }
+        const attrs = getAttrsArrow(line);
+        let argument;
+        if (!attrs || attrs.length <= 1) {
+          // Could be a forward (non computed) argument, non-typed yet, who knows. We need to populate it though, as empty
+          edgeValues[key] = [];
+          argument = undefined;
+        } else {
+          argument = attrs[1].split(" ")[0];
+        }
+        // Make the graph easier to access by properties
+        if (!(src in bySrc)) {
+          bySrc[src] = [dst];
+        } else {
+          bySrc[src].push(dst);
+        }
+        if (!(dst in byDst)) {
+          byDst[dst] = [src];
+        } else {
+          byDst[dst].push(src);
+        }
+        // The _extracted_ argument is always the first one
+
+        if (isNumber(argument)) {
+          if (isPercent(argument)) {
+            edgeValues[key] = [
+              {
+                value: parseFloat(argument) / 100.0,
+                kind: "pct",
+              },
+            ];
+          } else {
+            edgeValues[key] = [
+              {
+                value: parseFloat(argument),
+                kind: "num",
+              },
+            ];
+          }
+        }
+      }
+    }
+  }
+  // Evaluation
+  // It starts for nodes by destination:
+  // - Carry-over nodes (those that affect their outgoing edges)
+  // - Non-carry-over nodes (those that just take arguments and emit a result)
+  for (let step = 0; step < 2; step++) {
+    for (const dst in byDst) {
+      const op = isOp(dst);
+      if (op) {
+        // Then we need to evaluate all incoming edges and modify the corresponding out edge
+        // We use the last value in the edge values, edge values is holding a history for that edge
+        const srcs = byDst[dst];
+        const values = srcs
+          .map((src) => edgeValues[edgeKey(src, dst)].slice(-1)[0])
+          .filter((v) => v !== undefined);
+        const dsts = bySrc[dst] || [];
+        if (!operators[op].name.includes("carry")) {
+          let evaluation = {
+            value: operators[op].op(...values.map((v) => v.value)),
+          };
+          if (values.every((e) => e.kind == "pct")) {
+            evaluation.kind = "pct";
+          } else {
+            evaluation.kind = "num";
+          }
+          // Now modify the outgoing edges of this operator with this value
+          for (const _dst of dsts) {
+            const key = edgeKey(dst, _dst); // so, we are going from what already was a destination operator
+            if (edgeValues[key]) {
+              if (edgeValues[key].length >= 2) {
+                // Do not evaluate an edge more than once
+                continue;
+              }
+              edgeValues[key].push(evaluation);
+            } else {
+              edgeValues[key] = [evaluation];
+            }
+          }
+          nodeValues[dst] = evaluation;
+        } else {
+          // If it contains carry, the evaluation is against the _outer edge value_
+          for (const _dst of dsts) {
+            const key = edgeKey(dst, _dst); // so, we are going from what already was a destination operator
+            let _values = values;
+            if (edgeValues[key]) {
+              if (edgeValues[key].length >= 2) {
+                // Do not evaluate an edge more than once
+                continue;
+              }
+              // We have a destination value to add and change
+              _values = values.concat(edgeValues[key]);
+            }
+            let evaluation = {
+              value: operators[op].op(..._values.map((v) => v.value)),
+            };
+            if (_values.every((e) => e.kind == "pct")) {
+              evaluation.kind = "pct";
+            } else {
+              evaluation.kind = "num";
+            }
+            if (edgeValues[key]) {
+              if (edgeValues[key].length >= 2) {
+                // Do not evaluate an edge more than once
+                continue;
+              }
+              edgeValues[key].push(evaluation);
+            } else {
+              edgeValues[key] = [evaluation];
+            }
+          }
+        }
+      }
+    }
+  }
+  // Once all the evaluations have stabilised or whatever, update the edge texts with the changes
+  let updatedLines = [];
+  for (let line of lines) {
+    if (hasArrow(line)) {
+      let [src, dst] = getArrowSrcDst(line);
+      const key = edgeKey(src, dst);
+      const values = edgeValues[key];
+      if (values) {
+        // This needs to update only the first part of the attributes section, i.e. the label
+        const split = splitArrow(line);
+        const arrow = split[1].trim();
+        let attrs = split[2].trim().split(" ");
+        let text;
+        if (values.length > 1) {
+          text = `<<font color="$GREEN">${formatVal(
+            values.slice(-1)[0],
+          )}</font>   (${formatVal(values[0])})`;
+        } else {
+          text = `<${formatVal(values[0])}`;
+        }
+        attrs[0] = text;
+        const _attrs = attrs.join(" ");
+        line = `${arrow} ${_attrs}`; // The closing > is added by the cmap converter when it is in the opening
+      }
+    } else {
+      const node = line.trim().split(" ")[0];
+      if (node in nodeValues) {
+        let splits = line.split(";");
+        splits[0] = splits[0] + ` (${formatVal(nodeValues[node])})`;
+        line = splits.join(";");
+      }
+    }
+    updatedLines.push(line);
+  }
+  return updatedLines.join("\n");
 };
 
 const headerT = `
@@ -399,7 +473,6 @@ const labelBreaker = (text) => {
 };
 
 const convert = (text) => {
-  console.log(text);
   const tab = "  ";
   const ttab = tab + tab;
   let result = [];
@@ -413,7 +486,6 @@ const convert = (text) => {
   } else {
     lines = lightColors.split("\n").concat(sliced);
   }
-  console.log(lines);
   let clusters = [];
   for (let line of lines) {
     if (line.trim() === "$DARK") {
@@ -421,7 +493,6 @@ const convert = (text) => {
     }
     for (let replacement of replacements) {
       let [key, value] = replacement;
-      //console.info(`(line) Replacing ${key} by ${value}`);
       line = line.replaceAll(key, value);
     }
     if (onlyBraces(line) || onlyAttrs(line) || isComment(line)) {
@@ -431,7 +502,7 @@ const convert = (text) => {
     if (hasReplacement(line)) {
       const key = getReplacement(line)[1];
       const value = getReplacement(line)[2];
-      console.log(`Replacement found ${key} ${value}`);
+      if (DEBUG) console.log(`Replacement found ${key} ${value}`);
       replacements.push([key, value]);
       continue;
     }
@@ -459,14 +530,18 @@ const convert = (text) => {
       // Add invisible cluster name node and label
       result.push(ttab + `label="${cluster}"`);
       result.push(
-        ttab + `${cluster} [style=invis,width=0,label="",fixedsize=true]`
+        ttab + `${cluster} [style=invis,width=0,label="",fixedsize=true]`,
       );
       continue;
     }
     let attrs, src, dst;
+    for (const op in operators) {
+      const name = operators[op].name;
+      line = line.replaceAll(op, name);
+    }
     if (hasArrow(line)) {
       attrs = getAttrsArrow(line);
-      const match = /^\s*(\w+)\s*->\s*(\w+).*$/.exec(line);
+      const match = /^\s*(\S+)\s*->\s*(\S+).*$/.exec(line);
       src = match[1];
       dst = match[2];
       src = src.trim();
@@ -499,8 +574,17 @@ const convert = (text) => {
       `[label="${labelBreaker(label)}${linkUTF}"${
         props ? " " + props : ""
       }${addendum}]`;
+    const labelHTMLPropper = (label, props) =>
+      `[label=${label}${linkUTF}>${props ? " " + props : ""}${addendum}]`
+        .replace("\\n", "<br/>")
+        .replace("\\l", "<br/>");
     const operation = line.replace(" " + attrs[1], " ");
-    let converted = `${operation} ${labelPropper(label, props)}`;
+    let converted;
+    if (label.startsWith("<")) {
+      converted = `${operation} ${labelHTMLPropper(label, props)}`;
+    } else {
+      converted = `${operation} ${labelPropper(label, props)}`;
+    }
     if (!hasArrow(line) && label.trim() == "=") {
       converted = `${operation} ${labelPropper(operation.trim(), props)}`;
     }
@@ -508,7 +592,7 @@ const convert = (text) => {
   }
   for (let replacement of replacements) {
     const [key, value] = replacement;
-    console.info(`(header) Replacing ${key} by ${value}`);
+    if (DEBUG) console.info(`(header) Replacing ${key} by ${value}`);
     header = header.replaceAll(key, value);
   }
   let joined = header + "\n" + result.join("\n");

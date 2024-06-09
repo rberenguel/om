@@ -1,7 +1,7 @@
 export { zwsr, pad, wrap, prefix, postfix, toTop };
 import weave from "../src/weave.js";
 
-const DEBUG = true;
+const DEBUG = false;
 
 // I use this separator in many places
 const zwsr = () => document.createTextNode("\u200b");

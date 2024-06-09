@@ -34,7 +34,7 @@ const xgidRenderer = (function () {
     const parsed = parseXGID(xgid);
     console.log(parsed);
     createTable(elt);
-    console.log(elt)
+    console.log(elt);
     renderPositionOnTable(parsed);
     renderDies(parsed._dice[0], parsed._dice[1], parsed._turn);
     const xgidDiv = document.createElement("DIV");
@@ -47,14 +47,14 @@ const xgidRenderer = (function () {
   }
 
   function renderPositionOnTable(parsed) {
-    console.log("Rendering position as table")
+    console.log("Rendering position as table");
     const position = parsed.board;
     let topPips = 0,
       bottomPips = 0;
     for (let i = 0; i < position.length; i++) {
       const selector = ".bg-board .bg-point-" + (25 - (i + 1));
       const stack = position[i];
-      console.warn(selector)
+      console.warn(selector);
       const td = elt.querySelector(selector);
       if (stack > 0) {
         topPips += stack * (i + 1);
@@ -62,7 +62,7 @@ const xgidRenderer = (function () {
         bottomPips += -stack * (25 - (i + 1));
       }
       for (let j = 0; j < Math.abs(stack); j++) {
-        console.log(`Stack for location ${i}, depth ${j}`)
+        console.log(`Stack for location ${i}, depth ${j}`);
         const a = document.createElement("A");
         if (stack > 0) {
           a.classList.add("bg-player-top-piece");
@@ -76,7 +76,7 @@ const xgidRenderer = (function () {
     // The bar documentation is confusing because I am using
     // "top" and "bottom" differently for the board and the players.
     // I should fix that, maybe.
-    console.log("Adding pieces to the bar")
+    console.log("Adding pieces to the bar");
     const topBar = elt.querySelector(".bg-board .bg-top.bg-bar");
     for (let j = 0; j < parsed.bar[1]; j++) {
       const a = document.createElement("A");
@@ -91,24 +91,24 @@ const xgidRenderer = (function () {
       bottomPips += 25;
       bottomBar.appendChild(a);
     }
-    console.log("Adding pip counts")
+    console.log("Adding pip counts");
     const topPipSection = elt.querySelector(
-      "#bg-table-header > .bg-top.bg-bar"
+      "#bg-table-header > .bg-top.bg-bar",
     );
     topPipSection.textContent = topPips;
     const bottomPipSection = elt.querySelector(
-      "#bg-table-footer > .bg-bottom.bg-bar"
+      "#bg-table-footer > .bg-bottom.bg-bar",
     );
     bottomPipSection.textContent = bottomPips;
     const matchTop = elt.querySelector(".bg-top.bg-home.bg-player-top");
     const matchBottom = elt.querySelector(
-      ".bg-bottom.bg-home.bg-player-bottom"
+      ".bg-bottom.bg-home.bg-player-bottom",
     );
     // Note that I also have reversed the scores, so I'm kind of consistently using top for bottom
     matchTop.textContent = `${parsed._score_bottom}/${parsed._match_length}`;
     matchBottom.textContent = `${parsed._score_top}/${parsed._match_length}`;
 
-		console.log("Adding doubling cube")
+    console.log("Adding doubling cube");
     //1 bottom 0 centered -1 top
     const doubling = elt.querySelector("#bg-doubling");
     const cubeValue = Math.pow(2, parsed._cube);

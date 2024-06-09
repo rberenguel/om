@@ -17,7 +17,7 @@ import { createOrMoveArrowBetweenDivs } from "./arrow.js";
 import { dndDynamicDiv } from "./dynamicdiv.js";
 import { link } from "./formatters.js";
 
-const DEBUG = true;
+const DEBUG = false;
 
 const createNextPanel = (parentId, options = {}) => {
   const n =
@@ -32,7 +32,7 @@ const split = (parentId) => {
   return {
     text: ["split"],
     action: (ev) => {
-      console.info(`Splitting for parentId: ${parentId}`);
+      if (DEBUG) console.info(`Splitting for parentId: ${parentId}`);
       if (common(ev)) {
         return;
       }
@@ -52,11 +52,8 @@ const close_ = {
     // TODO(me) I'm pretty sure closing-saving-loading would fail
     // if I delete an intermediate panel, needs some test
     // TODO: replace weave.internal.bodyClicks[0] with a (proper) function call
-    console.log(`Called with ${bodyId}`);
     const bid = bodyId || weave.internal.bodyClicks[0];
     // TODO this should be wrapped
-    console.log("Wants to remove");
-    console.log(bid);
     const tid = `title-${bid}`;
     const titleToRemove = document.getElementById(tid);
     const bodyToRemove = document.getElementById(bid);
@@ -66,8 +63,6 @@ const close_ = {
     parent.removeChild(container);
     parent.removeChild(titleToRemove);
     for (const foo of related) {
-      console.log(foo);
-      //parent.removeChild(document.getElementById(foo))
       close_.action(null, foo); // TODO this is ugly
     }
   },
@@ -103,7 +98,6 @@ const createPanel = (parentId, id, buttons, weave, options) => {
 
     const title = manipulation.get(body, manipulation.fields.kTitle);
     const saveString = `${title} ${content}`;
-    console.log(`Saving with a title of ${title}`);
     set(filename, saveString)
       .then(() => {
         console.info("Data saved in IndexedDb");
@@ -115,7 +109,6 @@ const createPanel = (parentId, id, buttons, weave, options) => {
     // This auto-fits height as we type
     bodyContainer.classList.add("unfit");
     body.saved = false;
-    console.info(ev);
     if (ev.code === "Space") {
       bodyContainer.spaceCounter -= 1;
       reset();
@@ -181,11 +174,9 @@ const createPanel = (parentId, id, buttons, weave, options) => {
       toRight(bodyContainer);
     }
     if (ev.ctrlKey && ev.metaKey && ev.key === ".") {
-      console.log("Pushing up");
       bodyContainer.style.zIndex = 10000;
     }
     if (ev.ctrlKey && ev.metaKey && ev.key === ",") {
-      console.log("Pushing down");
       bodyContainer.style.zIndex = 50;
     }
     if (ev.ctrlKey && ev.metaKey && ev.key === "Enter") {
@@ -239,9 +230,10 @@ const createPanel = (parentId, id, buttons, weave, options) => {
       .toString()
       .replace(/\s+/g, "").length;
     if (selection.length > 0) {
-      console.debug(
-        `You have selected something ('${selection}'), not folding`,
-      );
+      if (DEBUG)
+        console.debug(
+          `You have selected something ('${selection}'), not folding`,
+        );
       return;
     } else {
       if (container.raw) {
@@ -260,37 +252,12 @@ const createPanel = (parentId, id, buttons, weave, options) => {
         interact(container).resizable({
           edges: { top: false, left: true, bottom: false, right: true },
         });
-        /*.draggable({
-              autoscroll: false,
-              listeners: {
-                start(event) {
-                  disableSelectionOnAll();
-                },
-                end(event) {
-                  enableSelectionOnAll();
-                },
-              },
-            });*/
       } else {
         container.style.height = body.dataset.unfoldedHeight;
         interact(container).resizable({
           edges: { top: true, left: true, bottom: true, right: true },
         });
-        /*.draggable({
-              autoscroll: false,
-              listeners: {
-                start(event) {
-                  //disableSelectionOnAll();
-                },
-                end(event) {
-                  enableSelectionOnAll();
-                },
-              },
-            });*/
       }
-      //} else {
-      //  weave.internal.preventFolding = false;
-      //}
     }
   });
 
@@ -386,7 +353,6 @@ const createPanel = (parentId, id, buttons, weave, options) => {
       return;
     }
     // TODO wtf
-    console.log(event.touches.length);
     if (event.touches.length < 2) {
       body.oneFingerStartX = event.touches[0].clientX;
       body.oneFingerStartY = event.touches[0].clientY;
@@ -524,7 +490,6 @@ const createPanel = (parentId, id, buttons, weave, options) => {
       createOrMoveArrowBetweenDivs(arrow);
     }
   };
-  console.log("Hook dragging");
   interact(bodyContainer).draggable({
     allowFrom: betterHandle,
     ignoreFrom: body,
@@ -610,7 +575,6 @@ const toLeft = (container) => {
   if (container.classList.contains(".body")) {
     container = container.closest(".body-container");
   }
-  console.log(container);
   manipulation.set(
     container,
     manipulation.fields.kWidth,
@@ -628,7 +592,6 @@ const toLeft = (container) => {
 };
 
 const toRight = (container) => {
-  console.log(viewportWidth());
   manipulation.set(
     container,
     manipulation.fields.kWidth,

@@ -175,7 +175,7 @@ const manipulation = {
         container.dataset.y = Math.floor(parseFloat(value));
         break;
       case panelFields.kStartup:
-        console.log(value);
+        console.info(`Reading startup evaluation for ${value}`);
         if (!value) {
           container.dataset.startup = [];
         } else {
