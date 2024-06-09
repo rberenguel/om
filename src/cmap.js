@@ -230,7 +230,7 @@ const processOperators = (cmapText) => {
   // It starts for nodes by destination:
   // - Carry-over nodes (those that affect their outgoing edges)
   // - Non-carry-over nodes (those that just take arguments and emit a result)
-  for (let step = 0; step < 2; step++) {
+  for (let step = 0; step < 5; step++) {
     for (const dst in byDst) {
       const op = isOp(dst);
       if (op) {
