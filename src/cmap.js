@@ -49,7 +49,7 @@ const cmap = {
       const normalize = (str) => str.normalize("NFKD");
       // Analysis and regeneration of operators is best _before_ conversion, because then I can use all the properties
       let gv;
-      if (cmap.split("\n")[0].includes(" [calc]")) {
+      if (cmap.split("\n")[0].endsWith(" [calc]")) {
         gv = convert(normalize(processOperators(cmap))) + "\n}";
       } else {
         gv = convert(normalize(cmap)) + "\n}";
@@ -166,7 +166,7 @@ const splitArrow = (text) => /^\s*(\S+\s*->\s*\S+)\s*(.*)$/.exec(text);
 
 // TODO: This can be moved to a separate file and tested in isolation
 
-const processOperators = (cmapText) => {
+const processOperators = (cmapText, max_steps = 5) => {
   let lines = cmapText.split("\n");
   // Rewrite
   let edgeValues = {};
@@ -230,7 +230,7 @@ const processOperators = (cmapText) => {
   // It starts for nodes by destination:
   // - Carry-over nodes (those that affect their outgoing edges)
   // - Non-carry-over nodes (those that just take arguments and emit a result)
-  for (let step = 0; step < 5; step++) {
+  for (let step = 0; step < max_steps; step++) {
     for (const dst in byDst) {
       const op = isOp(dst);
       if (op) {
@@ -479,7 +479,10 @@ const convert = (text) => {
   let replacements = [];
   let header = headerT;
   let lines = text.split("\n");
-  result.push(tab + `label="\\n${lines[0].replace("# ", "")}\\n\\n";`);
+  result.push(
+    tab +
+      `label="\\n${lines[0].replace("# ", "").replace("[calc]", "")}\\n\\n";`,
+  );
   const sliced = solarizedColors.split("\n").concat(lines.slice(1));
   if (lines.map((l) => l.trim()).includes("$DARK")) {
     lines = darkColors.split("\n").concat(sliced);
