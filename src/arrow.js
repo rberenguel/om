@@ -14,7 +14,7 @@ const arrow_ = {
     weave.internal.arrows.push(`${srcb}-${dstb}`);
     createOrMoveArrowBetweenDivs(weave.internal.arrows[0]);
   },
-  description: "Reparses the current panel through a fake markdown conversion",
+  description: "old arrow",
   el: "u",
 };
 

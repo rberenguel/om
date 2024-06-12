@@ -17,8 +17,17 @@ import { toTop } from "./doms.js";
 
 // Globals that are used everywhere
 const DEBUG = false;
-// Helper for inline code
 
+import { fsrs, createEmptyCard } from "./libs/fsrs.js";
+
+//window.fsrs = fsrs
+window.fsrs = fsrs;
+window.createEmptyCard = createEmptyCard;
+//window.Rating = Rating
+//window.generatorParameters = generatorParameters
+//window.State =State
+
+// Helper for inline code
 let $ = {
   cel: (s) => document.createElement(s),
   ctn: (s) => document.createTextNode(s),

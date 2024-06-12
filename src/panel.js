@@ -93,8 +93,8 @@ const createPanel = (parentId, id, buttons, weave, options) => {
       bodyContainer,
       manipulation.fields.kFilename,
     );
-
-    const content = btoa(encodeURIComponent(toMarkdown(body)));
+    body.baseMarkdown = toMarkdown(body);
+    const content = btoa(encodeURIComponent(body.baseMarkdown));
 
     const title = manipulation.get(body, manipulation.fields.kTitle);
     const saveString = `${title} ${content}`;

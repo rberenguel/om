@@ -53,7 +53,9 @@ const iloadIntoBody = (filename, body) => {
       console.info(`Loaded ${filename} from IndexedDB`);
       const { _, value } = convertNonGroupFileData(filename, dbContent);
       if (DEBUG) console.debug(value);
-      parseIntoWrapper(decodeURIComponent(atob(value)), body);
+      parseIntoWrapper(decodeURIComponent(atob(value)), body, {
+        starting: true,
+      }); // This is likely to always be a "starting"
       const paddingDiv = document.createElement("DIV");
       paddingDiv.id = "padding";
       paddingDiv.innerHTML = "&nbsp;"; // This preserves the cursor

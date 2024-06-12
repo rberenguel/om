@@ -17,6 +17,8 @@ import { calWithEvents, parseCalendar } from "./cal.js";
 import { xgidRenderer } from "./xgid.js";
 import { cmap } from "./cmap.js";
 
+import { renderCard } from "./deck.js";
+
 const DEBUG = false;
 
 const parseProperties = (lines) => {
@@ -62,7 +64,7 @@ const getPropertiesFromFile = (text) => {
   return properties;
 };
 
-const parseIntoWrapper = (text, body) => {
+const parseIntoWrapper = (text, body, options = {}) => {
   if (DEBUG) {
     console.debug("Parsing: ");
     console.debug(text);
@@ -93,10 +95,26 @@ const parseIntoWrapper = (text, body) => {
     const value = properties[property];
     manipulation.set(container, property, value);
   }
-  manipulation.reposition(container);
-  manipulation.resize(container);
+  if (!options.keepStill) {
+    manipulation.reposition(container);
+    manipulation.resize(container);
+  } else {
+    manipulation.forcePositionToReality(container);
+    //manipulation.forceSizeToReality(container);
+  }
+  placeTitle(container);
+  const kind = manipulation.get(container, manipulation.fields.kKind);
+  if (kind.trim() === "literal") {
+    console.info("Parsing literal document");
+    body.style.whiteSpace = "pre-wrap";
+    body.innerText = rest.join("\n");
+  } else {
+    console.info("Parsing full markdown document");
+    parseInto(rest.join("\n"), body);
+  }
   const startup = properties[manipulation.fields.kStartup];
-  if (startup) {
+  if (startup && options.starting) {
+    console.warn(startup);
     if (startup.includes("cmap")) {
       cmap.action(null, body).then(() => {
         body.click();
@@ -111,16 +129,11 @@ const parseIntoWrapper = (text, body) => {
         }, 1);
       });
     }
-  }
-  placeTitle(container);
-  const kind = manipulation.get(container, manipulation.fields.kKind);
-  if (kind.trim() === "literal") {
-    console.info("Parsing literal document");
-    body.style.whiteSpace = "pre-wrap";
-    body.innerText = rest.join("\n");
-  } else {
-    console.info("Parsing full markdown document");
-    parseInto(rest.join("\n"), body);
+    if (startup.includes("card")) {
+      body.click();
+      toTop(body)();
+      renderCard(body);
+    }
   }
 };
 
@@ -348,8 +361,20 @@ const parseInto = (text, body, mode = "") => {
       codeBlock.appendChild(document.createElement("br"));
       continue;
     }
-    if (line == "---") {
-      body.appendChild(document.createElement("hr"));
+    if (line.startsWith("---")) {
+      const rest = line.replace("---", "").trim();
+      if (rest.length > 0 && !rest.startsWith(".")) {
+        // Unexpected stuff on a supposed ruler…
+        continue;
+      }
+      const hr = document.createElement("hr");
+      if (rest.startsWith(".")) {
+        // It has a class
+        for (const klass of rest.replaceAll(".", " ").trim().split(" ")) {
+          hr.classList.add(klass);
+        }
+      }
+      body.appendChild(hr);
       continue;
     }
     if (line.startsWith("```")) {
@@ -357,7 +382,15 @@ const parseInto = (text, body, mode = "") => {
         body.appendChild(codeBlock);
         codeBlock = false;
       } else {
-        codeBlock = document.createElement("pre");
+        const klasses = line.trim().replace("```", "").trim();
+        codeBlock = document.createElement("PRE");
+        if (klasses) {
+          for (const klass of klasses.split(" ")) {
+            if (klass.startsWith(".")) {
+              codeBlock.classList.add(klass.replace(".", ""));
+            }
+          }
+        }
       }
       continue;
     }
@@ -518,6 +551,10 @@ function iterateDOM(node, mode = "") {
   }
   for (const child of node.childNodes) {
     //iterateDOM(child);
+    if (child.classList && child.classList.contains("weave-skip")) {
+      // Mandatory skip
+      continue;
+    }
     if (child.nodeName === "#text") {
       const text = child.textContent;
       //if(text.trim() === ""){
@@ -637,8 +674,15 @@ function iterateDOM(node, mode = "") {
     if (child.nodeName === "PRE") {
       if (DEBUG) console.debug("PRE");
       const splits = child.innerText.split("\n").filter((l) => l.length > 0);
+      const allClasses = Array.from(child.classList)
+        .map((c) => `.${c}`)
+        .join(" ");
       if (DEBUG) console.debug(splits);
-      const md = "\n```\n" + splits.join("\n<br id='br-pre'/>\n") + "\n```\n";
+      const md =
+        "\n```" +
+        ` ${allClasses}\n` +
+        splits.join("\n<br id='br-pre'/>\n") +
+        "\n```\n";
       generated.push(md);
     }
     if (child.classList.contains("dynamic-div")) {
@@ -702,11 +746,13 @@ const parseDiv = (divData, mode = "") => {
     .replace(divBlock, "")
     .split(" ")
     .filter((n) => n.length > 0);
-  const klass = splits[0];
-  if (klass === ".wrap") {
+  const klasses = splits[0];
+  if (klasses.startsWith(".wrap")) {
     const div = document.createElement("div");
     div.contentEditable = false;
-    div.classList.add("wrap");
+    for (const klass of klasses.replaceAll(".", " ").trim().split(" ")) {
+      div.classList.add(klass);
+    }
     const nodeType = splits[1];
     const node = document.createElement(nodeType);
     node.classList.add("alive"); // TODO Why do I keep alive?
@@ -715,7 +761,7 @@ const parseDiv = (divData, mode = "") => {
     div.appendChild(node);
     return div;
   }
-  if (klass === ".calendar") {
+  if (klasses === ".calendar") {
     if (DEBUG) console.debug(`Calendar`);
     const events = JSON.parse(splits.slice(1).join(" "));
     console.log(events);
@@ -724,19 +770,19 @@ const parseDiv = (divData, mode = "") => {
     const tables = calWithEvents(events, mode);
     return tables[0];
   }
-  if (klass === ".dynamic-div") {
+  if (klasses === ".dynamic-div") {
     if (DEBUG) console.debug(`Dynamic div`);
     const text = splits.slice(1).join(" ");
     return dynamicDiv(text, mode);
   }
-  if (klass === ".bg-board") {
+  if (klasses === ".bg-board") {
     const xgid = divData.replace("[div] .bg-board xgid=", "");
     console.log(divData, xgid);
     const board = xgidRenderer.render(xgid);
     return board;
   }
   // [div] .wired .code id=c1711131479729 kind=javascript evalString={{44 + 12}} value={56}`
-  if (klass === ".wired") {
+  if (klasses === ".wired") {
     const veq = "value={";
     const esq = "evalString={";
     const noHeader = divData.replace("[div] .wired .code id=", "");

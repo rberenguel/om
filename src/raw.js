@@ -6,13 +6,20 @@ import { parseIntoWrapper, toMarkdown } from "./parser.js";
 import { wireEverything } from "./load.js";
 
 const unrawPane = (body, container) => {
-  parseIntoWrapper(body.innerText, body);
+  body.baseMarkdown = body.innerText;
+  parseIntoWrapper(body.innerText, body, { starting: true }); // Raw-ing should not trigger startup effects? Arguably…
   container.raw = false;
   wireEverything(weave.buttons(weave.root));
 };
 
 const rawPane = (body, container) => {
-  const md = toMarkdown(container.querySelector(".body"));
+  let md;
+  if (body.baseMarkdown) {
+    md = body.baseMarkdown;
+  } else {
+    md = toMarkdown(container.querySelector(".body"));
+  }
+  body.contentEditable = true; // REGARDLESS
   body.innerText = md;
   container.raw = true;
 };

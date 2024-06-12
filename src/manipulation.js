@@ -290,10 +290,11 @@ const manipulation = {
     }
     body = container.querySelector(".body");
     const current = container.getBoundingClientRect();
-    let x = current.x;
-    let y = current.y;
-    this.set(body, panelFields.kX, current.x);
-    this.set(body, panelFields.kY, current.y);
+    const style = getComputedStyle(container);
+    const margin = parseFloat(style.margin);
+    // TODO Also this does not take into account scaling factor
+    this.set(body, panelFields.kX, current.x - margin - 4.75); // This magical ~5 seems to be some rendering artifact coming from position-fixed
+    this.set(body, panelFields.kY, current.y - margin - 4.75);
     this.reposition(container);
   },
 };

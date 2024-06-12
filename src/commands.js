@@ -51,6 +51,8 @@ import { cmap } from "./cmap.js";
 import { _gnuplot } from "./gnuplot.js";
 // import { highlight } from "./highlight.js";
 
+import { editFSRSCard } from "./deck.js";
+
 const DEBUG = false;
 
 weave.idb = {
@@ -423,6 +425,7 @@ const buttons = (parentId) => {
     exportCurrent,
     xgid,
     //highlight
+    editFSRSCard,
   ];
 };
 
