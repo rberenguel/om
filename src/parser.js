@@ -512,7 +512,12 @@ const toMarkdown = (element, fragment = false) => {
     const container = element.closest(".body-container");
     saveable = ["<!--\n"];
     for (const prop of Object.values(panelFields)) {
-      const value = manipulation.get(container, prop);
+      console.info(`Pulling ${prop} from container`);
+      const _value = manipulation.get(container, prop);
+      let value = _value;
+      if (typeof _value !== "string") {
+        value = JSON.stringify(_value);
+      }
       saveable.push(`- ${prop}: ${value}\n`);
     }
     saveable.push("-->\n");
@@ -757,7 +762,7 @@ const parseDiv = (divData, mode = "") => {
     const node = document.createElement(nodeType);
     node.classList.add("alive"); // TODO Why do I keep alive?
     node.dataset.action = splits[3];
-    node.innerText = splits[4];
+    node.innerText = splits.slice(4).join(" ");
     div.appendChild(node);
     return div;
   }

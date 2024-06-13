@@ -86,6 +86,7 @@ const createPanel = (parentId, id, buttons, weave, options) => {
   const seconds = d.getTime();
   bodyContainer.spaceCounter = 10;
 
+  // TODO this is useful in other places
   const save = () => {
     const body = bodyContainer.querySelector(".body");
     // TODO this is very repeated with isave

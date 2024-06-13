@@ -126,6 +126,22 @@ Crazy FSRS stuff
   display: none;
 }
 
+.fsrs-again .alive {
+  background: var(--dark-red);
+}
+
+.fsrs-hard .alive {
+  background: var(--dark-orange);
+}
+
+.fsrs-good .alive {
+  background: var(--dark-green);
+}
+
+.fsrs-easy .alive {
+  background: var(--green);
+}
+
 /**
 
 Crazy SVG stuff

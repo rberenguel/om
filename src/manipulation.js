@@ -15,6 +15,7 @@ const panelFields = Object.freeze({
   kY: "y",
   kKind: "kind",
   kStartup: "startup",
+  kFSRSSchedule: "fsrsSchedule",
 });
 
 const manipulation = {
@@ -89,6 +90,15 @@ const manipulation = {
           return parseFloat(container.dataset.y);
         } else {
           return Math.floor(currentRect.y);
+        }
+      case panelFields.kFSRSSchedule:
+        console.info("Getting kFSRF");
+        if (container[panelFields.kFSRSSchedule]) {
+          // TODO all should be like this? I don't need to use data, really
+          console.warn("Non-empty fields");
+          return container[panelFields.kFSRSSchedule];
+        } else {
+          return null;
         }
     }
   },
@@ -175,14 +185,29 @@ const manipulation = {
         container.dataset.y = Math.floor(parseFloat(value));
         break;
       case panelFields.kStartup:
-        console.info(`Reading startup evaluation for ${value}`);
         if (!value) {
           container.dataset.startup = [];
         } else {
           container.dataset.startup = JSON.parse(value);
         }
-
         break;
+      case panelFields.kFSRSSchedule:
+        console.info(`Setting scheduling fields with `);
+        console.info(value);
+        if (!value) {
+          container[panelFields.kFSRSSchedule] = null;
+        } else {
+          if (typeof value === "string") {
+            try {
+              container[panelFields.kFSRSSchedule] = JSON.parse(value);
+            } catch (e) {
+              console.error(e);
+              container[panelFields.kFSRSSchedule] = null;
+            }
+          } else {
+            container[panelFields.kFSRSSchedule] = value;
+          }
+        }
     }
   },
   reposition(node) {

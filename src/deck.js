@@ -27,16 +27,23 @@
 // Still unclear how to easily split them: hr? Then cannot use it for styling.
 // Specific headings? A bit verbose
 
-export { renderCard, editFSRSCard };
+export { renderCard, fsrsButtons };
 
 import weave from "../src/weave.js";
-
+import { set } from "./libs/idb-keyval.js";
 import { parseIntoWrapper, toMarkdown } from "./parser.js";
 import { wireEverything } from "./load.js";
+import { createEmptyCard, Rating } from "./libs/fsrs.js";
+import { manipulation } from "./manipulation.js";
+
 const cardStates = Object.freeze({
   kQuestion: "question",
   kAnswer: "answer",
   kEdit: "edit",
+});
+
+const fields = Object.freeze({
+  kAnswerDues: "answerDues",
 });
 
 /*const reparse = (body) => {
@@ -67,18 +74,24 @@ const insertAtTop = (markdown, insertion) => {
 };
 
 const editButtonText = `\`[div] .wrap.weave-skip u .alive editFSRSCard edit\``;
-const reviewAgainButton = `\`[div] .wrap.weave-skip u .alive answerAgain again\``;
-const reviewHardButton = `\`[div] .wrap.weave-skip u .alive answerHard hard\``;
-const reviewGoodButton = `\`[div] .wrap.weave-skip u .alive answerGood good\``;
-const reviewEasyButton = `\`[div] .wrap.weave-skip u .alive answerEasy easy\``;
-const reviewButtonsText = [
-  editButtonText,
-  reviewAgainButton,
-  reviewHardButton,
-  reviewGoodButton,
-  reviewEasyButton,
-].join(" ");
-const hr = "--- .weave-skip";
+const reviewAgainButton = (days) =>
+  `\`[div] .wrap.fsrs-again.weave-skip u .alive againFSRSCard again (${days}d)\``;
+const reviewHardButton = (days) =>
+  `\`[div] .wrap.fsrs-hard.weave-skip u .alive hardFSRSCard hard (${days}d)\``;
+const reviewGoodButton = (days) =>
+  `\`[div] .wrap.fsrs-good.weave-skip u .alive goodFSRSCard good (${days}d)\``;
+const reviewEasyButton = (days) =>
+  `\`[div] .wrap.fsrs-easy.weave-skip u .alive easyFSRSCard easy (${days}d)\``;
+
+const reviewButtonsText = (scheduling) => {
+  const again = reviewAgainButton(scheduling[Rating.Again].card.scheduled_days);
+  const hard = reviewHardButton(scheduling[Rating.Hard].card.scheduled_days);
+  const easy = reviewEasyButton(scheduling[Rating.Easy].card.scheduled_days);
+  const good = reviewGoodButton(scheduling[Rating.Good].card.scheduled_days);
+
+  return [editButtonText, again, hard, good, easy].join(" ");
+};
+const hr = "--- .weave-skip.clicky-answer";
 
 // All these skips are all good and well, but it's better if I just store the "real" markdown and
 // raw uses that then. I'll keep the skips in place because it is a potentially useful feature, particularly because
@@ -95,6 +108,56 @@ const editFSRSCard = {
   el: "u",
 };
 
+// TODO I just got this from panel because saving is not properly scoped
+
+const save = (container) => {
+  // TODO this is very repeated with isave
+  const body = container.querySelector(".body");
+  const filename = manipulation.get(body, manipulation.fields.kFilename);
+  body.baseMarkdown = toMarkdown(body);
+  const content = btoa(encodeURIComponent(body.baseMarkdown));
+
+  const title = manipulation.get(body, manipulation.fields.kTitle);
+  const saveString = `${title} ${content}`;
+  set(filename, saveString)
+    .then(() => {
+      console.info("Data saved in IndexedDb");
+      body.saved = true;
+    })
+    .catch((err) => console.info("Saving in IndexedDb failed", err));
+};
+
+const answerButtonGenerator = (shortname, rating) => {
+  console.warn(shortname, rating);
+  return {
+    text: [`${shortname}FSRSCard`], // Bogus name I'm not expecting anybody to write ever
+    action: (ev) => {
+      const container = ev.target.closest(".body-container"); // This always affects itself. ALWAYS
+      const scheduleInfo = container[fields.kAnswerDues][rating];
+      console.info(scheduleInfo);
+      manipulation.set(
+        container,
+        manipulation.fields.kFSRSSchedule,
+        scheduleInfo.card,
+      );
+      save(container);
+    },
+    description: "Somethingsomething",
+    el: "u",
+  };
+};
+
+const answerButtons = [
+  ["again", Rating.Again],
+  ["good", Rating.Good],
+  ["hard", Rating.Hard],
+  ["easy", Rating.Easy],
+].map(([sn, r]) => answerButtonGenerator(sn, r));
+
+console.warn();
+
+const fsrsButtons = [editFSRSCard, ...answerButtons];
+
 const renderCard = (body) => {
   // By default, assume it is in question
   console.warn(body.state);
@@ -103,6 +166,7 @@ const renderCard = (body) => {
   if (!body.baseMarkdown) {
     body.baseMarkdown = toMarkdown(body);
   }
+  console.warn(body.baseMarkdown);
   if (initialState == cardStates.kEdit) {
     console.warn(body.contentEditable, body.contentEditable == "false");
     if (body.contentEditable == "false" || !body.contentEditable) {
@@ -136,23 +200,48 @@ const renderCard = (body) => {
     }); // A hack to prevent a cycle of parsing
     // wireEverything is a very hard hammer. Should wire only new panels, will be faster
     wireEverything(weave.buttons(weave.root));
+
+    const f = fsrs();
+    let cardInfo = manipulation.get(body, manipulation.fields.kFSRSSchedule);
+    console.warn(cardInfo);
+    if (!cardInfo) {
+      cardInfo = createEmptyCard(new Date());
+      manipulation.set(body, manipulation.fields.kFSRSSchedule, cardInfo);
+      console.warn(manipulation.get(body, manipulation.fields.kFSRSSchedule));
+    }
+
+    container[fields.kAnswerDues] = f.repeat(cardInfo, new Date());
+
     body.contentEditable = false;
     body.style.cursor = "default";
+    const reveal = () => {
+      body.state = cardStates.kAnswer;
+      container.onkeydown = container._questionEventListener;
+      container._questionEventListener = null;
+      renderCard(body);
+    };
     container._questionEventListener = container.onkeydown;
     container.onkeydown = null;
     container.onkeydown = (ev) => {
       console.warn(ev);
       if (ev.key === "Enter") {
-        body.state = cardStates.kAnswer;
-        container.onkeydown = container._questionEventListener;
-        container._questionEventListener = null;
-        renderCard(body);
+        reveal();
       }
     };
+    container
+      .querySelector(".clicky-answer")
+      .addEventListener("click", (ev) => {
+        reveal();
+      });
   }
   if (initialState == cardStates.kAnswer) {
     let markdown = body.baseMarkdown;
-    markdown = insertAtTop(markdown, [reviewButtonsText, hr]);
+    console.warn(markdown);
+    markdown = insertAtTop(markdown, [
+      reviewButtonsText(container[fields.kAnswerDues]),
+      hr,
+    ]);
     parseIntoWrapper(markdown, body, { starting: false, keepStill: true });
+    wireEverything(weave.buttons(weave.root));
   }
 };

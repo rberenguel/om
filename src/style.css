@@ -19,6 +19,10 @@
   --bright-red: #c00;
   --wired-code: #2aa198;
   --yellow: #b58900;
+  --dark-orange: #a60;
+  --dark-red: #800;
+  --dark-green: #060;
+  --green: #090;
 }
 
 body {
