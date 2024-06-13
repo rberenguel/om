@@ -16,6 +16,7 @@ import { common, reset } from "./commands_base.js";
 import { createOrMoveArrowBetweenDivs } from "./arrow.js";
 import { dndDynamicDiv } from "./dynamicdiv.js";
 import { link } from "./formatters.js";
+import { renderCard } from "./deck.js";
 
 const DEBUG = false;
 
@@ -70,7 +71,7 @@ const close_ = {
   el: "u",
 };
 
-const createPanel = (parentId, id, buttons, weave, options) => {
+const createPanel = (parentId, id, buttons, weave, options = {}) => {
   const bodyContainer = document.createElement("div");
   bodyContainer.tabIndex = 0;
   bodyContainer.dragMethod = "dragmove"; // TODO convert to constants
@@ -105,6 +106,11 @@ const createPanel = (parentId, id, buttons, weave, options) => {
         body.saved = true;
       })
       .catch((err) => console.info("Saving in IndexedDb failed", err));
+    if(body.fsrsState){
+      console.warn("there is state")
+      body.fsrsState = null
+      renderCard(body)
+    }
   };
   bodyContainer.addEventListener("keydown", (ev) => {
     // This auto-fits height as we type

@@ -126,19 +126,31 @@ Crazy FSRS stuff
   display: none;
 }
 
-.fsrs-again .alive {
+#fsrs-wrapper {
+  margin: 0;
+  text-align: center;
+}
+
+div.fsrs.alive {
+  margin-left: 0.1em;
+  margin-right: 0.1em;
+  margin-bottom: 0.1em;
+  font-size: 60%;
+}
+
+div.fsrs.again.alive {
   background: var(--dark-red);
 }
 
-.fsrs-hard .alive {
+div.fsrs.hard.alive {
   background: var(--dark-orange);
 }
 
-.fsrs-good .alive {
+div.fsrs.good.alive {
   background: var(--dark-green);
 }
 
-.fsrs-easy .alive {
+div.fsrs.easy.alive {
   background: var(--green);
 }
 
