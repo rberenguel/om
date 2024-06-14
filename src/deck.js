@@ -27,32 +27,28 @@
 // Still unclear how to easily split them: hr? Then cannot use it for styling.
 // Specific headings? A bit verbose
 
-export { renderCard };
+export { renderCard, fsrsAddHandler, addToDeck };
 
 import weave from "../src/weave.js";
 import { set } from "./libs/idb-keyval.js";
-import { parseIntoWrapper, toMarkdown } from "./parser.js";
+import { parseIntoWrapper, parseInto, toMarkdown } from "./parser.js";
 import { wireEverything } from "./load.js";
 import { createEmptyCard, Rating } from "./libs/fsrs.js";
 import { manipulation } from "./manipulation.js";
+import { createNextPanel } from "./panel.js";
+
+const emptyCard = "question\n---\nanswer\n"
 
 const cardStates = Object.freeze({
   kQuestion: "question",
   kAnswer: "answer",
   kEdit: "edit",
+  kAdd: "adding"
 });
 
 const fields = Object.freeze({
   kAnswerDues: "answerDues",
 });
-
-/*const reparse = (body) => {
-    const body = document.getElementById(weave.internal.bodyClicks[0]);
-    const container = body.closest(".body-container");
-    parseIntoWrapper(toMarkdown(body), body);
-    wireEverything(weave.buttons(weave.root));
-}
-*/
 
 // Assumes insertion is a list of lines
 const insertAtTop = (markdown, insertion) => {
@@ -97,6 +93,44 @@ const editButton = (container) => {
   return div
 }
 
+
+const addToDeck = {
+  // TODO I want this as a separate button in deck-started panels instead, but this is faster to write
+  text: ["add-deck"],
+  action: (ev) => {
+    const body = document.getElementById(weave.internal.bodyClicks[0]);
+    const container = body.closest(".body-container");
+    const bodyId = body.id; // TODO this should come from manipulation too
+    const cardPanel = createNextPanel(weave.root);
+    const cardBody = cardPanel.querySelector(".body")
+    container.relatedContainers = [ // TODO "relatedcontainers" has body ids… Maybe it is time to move these ids
+      cardBody.id
+    ];
+    console.log(cardBody)
+    cardBody.fsrsDeck = bodyId
+    cardBody.fsrsState = cardStates.kAdd
+    //cardBody.contentEditable = "false" // This is also needed for the state edit to work. TODO This is not good.
+    parseInto(emptyCard, cardBody)
+    renderCard(cardBody);
+  },
+  description: "Reparses the current panel through a fake markdown conversion",
+  el: "u",
+};
+
+const reviewDeck = {
+  // TODO I want this as a separate button in deck-started panels instead, but this is faster to write
+  text: ["review-deck"],
+  action: (ev) => {
+    const body = document.getElementById(weave.internal.bodyClicks[0]);
+    const container = body.closest(".body-container");
+
+  },
+  description: "Reparses the current panel through a fake markdown conversion",
+  el: "u",
+};
+
+
+
 const answerButton = (container) => (rating) => {
   const div = document.createElement("div")
   let baseText = Rating[rating].toLowerCase()
@@ -138,6 +172,7 @@ const buttonWrapper = (container, buttons) => {
 
 const save = (container) => {
   // TODO this is very repeated with isave
+  console.log("AAAAEOEOEEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOE")
   const body = container.querySelector(".body");
   const filename = manipulation.get(body, manipulation.fields.kFilename);
   body.baseMarkdown = toMarkdown(body);
@@ -156,6 +191,8 @@ const save = (container) => {
 const renderCard = (body) => {
   // By default, assume it is in question
   const atHandle = body.closest(".better-handle")
+
+  console.warn(`state: ${body.fsrsState}`)
   const initialState = body.fsrsState || cardStates.kQuestion;
   const container = body.closest(".body-container");
   if (!body.baseMarkdown) {
@@ -163,6 +200,7 @@ const renderCard = (body) => {
   }
   console.warn(body.baseMarkdown);
   if (initialState == cardStates.kEdit) {
+    // TODO this is bad, it is not only checking the state but also handling the state machine
     console.warn(body.contentEditable, body.contentEditable == "false");
     if (body.contentEditable == "false" || !body.contentEditable) {
       console.warn("A");
@@ -178,6 +216,7 @@ const renderCard = (body) => {
       container.onkeydown = null;
       container._questionEventListener = null;
     } else {
+      console.warn("B")
       body.fsrsState = cardStates.kQuestion;
       renderCard(body);
     }
@@ -244,4 +283,50 @@ const renderCard = (body) => {
     const buttons = [Rating.Again, Rating.Hard, Rating.Good, Rating.Easy].map(r => answerButton(container)(r))
     buttonWrapper(atHandle, buttons)
   }
+  if(initialState == cardStates.kAdd){
+    console.warn(body.fsrsState)
+    // Adding cards. Should have a linked document to store them.
+  }
 };
+
+const fsrsAddHandler = (body) => {
+    // When adding, Cmd-S saves and creates a new identifier for this panel.
+    const container = body.closest(".body-container")
+    if(!body.fsrsDeck){
+      throw NoDeckError("nothing here");
+    }
+    const deckBody = document.getElementById(`${body.fsrsDeck}`)
+    if(!deckBody){
+      throw NoDeckError(body.fsrsDeck)
+    }
+  const deckContainer = deckBody.closest(".body-container")
+    // Rename the file to "card", save it and add it to the deck
+    let filename = manipulation.get(
+      body,
+      manipulation.fields.kFilename,
+    ).replace("f", "c");
+    manipulation.set(body, manipulation.fields.kFilename, filename)
+    save(container)
+
+  let markdown = toMarkdown(deckBody)
+    // Replaces to cID
+  markdown = markdown + `\n[[${filename}]]`
+  parseIntoWrapper(markdown, deckBody, { starting: false, keepStill: true });  
+  save(deckContainer)
+  // Now prepare an empty card to add more
+
+  parseInto(emptyCard, body)
+  const d = new Date();
+  const seconds = d.getTime();
+
+  manipulation.set(body, manipulation.fields.kFilename, `c${seconds}`);
+  // TODO this wire everything is becoming a problem
+  // This should keep in "add mode"
+  wireEverything(weave.buttons(weave.root));
+}
+
+const NoDeckError = (id) => {return {
+        name: "WeaveFSRSError",
+        message: `There is no deck associated to this card (id=${id})`,
+      }};
+

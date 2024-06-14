@@ -199,7 +199,7 @@ const idel = {
       .then((entries) => {
         if (DEBUG) console.log(entries);
         const files = entries
-          .filter(([key, value]) => value && !value.startsWith("g:"))
+          .filter(([key, value]) => value && !value.startsWith("g:") && !key.startsWith("d"))
           .map(([key, value]) => convertNonGroupFileData(key, value));
         presentFiles(files, fileContainer);
         const hr = document.createElement("hr");

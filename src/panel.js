@@ -16,7 +16,7 @@ import { common, reset } from "./commands_base.js";
 import { createOrMoveArrowBetweenDivs } from "./arrow.js";
 import { dndDynamicDiv } from "./dynamicdiv.js";
 import { link } from "./formatters.js";
-import { renderCard } from "./deck.js";
+import { renderCard, fsrsAddHandler } from "./deck.js";
 
 const DEBUG = false;
 
@@ -91,6 +91,10 @@ const createPanel = (parentId, id, buttons, weave, options = {}) => {
   const save = () => {
     const body = bodyContainer.querySelector(".body");
     // TODO this is very repeated with isave
+    if(body.fsrsState === "adding"){ // TODO use the constant
+      console.warn("TRIGGERED THE SPECIAL HANDLER")
+      fsrsAddHandler(body)
+    }
     const filename = manipulation.get(
       bodyContainer,
       manipulation.fields.kFilename,
@@ -107,7 +111,6 @@ const createPanel = (parentId, id, buttons, weave, options = {}) => {
       })
       .catch((err) => console.info("Saving in IndexedDb failed", err));
     if(body.fsrsState){
-      console.warn("there is state")
       body.fsrsState = null
       renderCard(body)
     }
@@ -158,6 +161,7 @@ const createPanel = (parentId, id, buttons, weave, options = {}) => {
       ev.preventDefault();
       ev.stopPropagation();
       ev.stopImmediatePropagation();
+      console.warn("SAVING FFS")
       save();
       info.innerHTML = "Saved";
       info.classList.add("fades");

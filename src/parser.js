@@ -129,11 +129,12 @@ const parseIntoWrapper = (text, body, options = {}) => {
         }, 1);
       });
     }
-    if (startup.includes("card")) {
+    /*if (startup.includes("card")) {
       body.click();
       toTop(body)();
       renderCard(body);
-    }
+    }*/
+    // This may be a bad idea
   }
 };
 
