@@ -91,9 +91,10 @@ const createPanel = (parentId, id, buttons, weave, options = {}) => {
   const save = () => {
     const body = bodyContainer.querySelector(".body");
     // TODO this is very repeated with isave
-    if(body.fsrsState === "adding"){ // TODO use the constant
-      console.warn("TRIGGERED THE SPECIAL HANDLER")
-      fsrsAddHandler(body)
+    if (body.fsrsState === "adding") {
+      // TODO use the constant
+      console.warn("TRIGGERED THE SPECIAL HANDLER");
+      fsrsAddHandler(body);
     }
     const filename = manipulation.get(
       bodyContainer,
@@ -110,10 +111,10 @@ const createPanel = (parentId, id, buttons, weave, options = {}) => {
         body.saved = true;
       })
       .catch((err) => console.info("Saving in IndexedDb failed", err));
-    if(body.fsrsState){
+    /*if(body.fsrsState){
       body.fsrsState = null
       renderCard(body)
-    }
+    }*/
   };
   bodyContainer.addEventListener("keydown", (ev) => {
     // This auto-fits height as we type
@@ -161,7 +162,7 @@ const createPanel = (parentId, id, buttons, weave, options = {}) => {
       ev.preventDefault();
       ev.stopPropagation();
       ev.stopImmediatePropagation();
-      console.warn("SAVING FFS")
+      console.warn("SAVING FFS");
       save();
       info.innerHTML = "Saved";
       info.classList.add("fades");

@@ -176,10 +176,10 @@ const linkStateMachine = (line, body, mode = "") => {
         // We have finished the link text. We still don't emit
         // anything though, we need to finish, potentially, the link.
       } else {
-        console.log("closing references");
+        if (DEBUG) console.log("closing references");
         closedReference += 1;
-        console.log(closedReference);
-        console.log(linkText);
+        if (DEBUG) console.log(closedReference);
+        if (DEBUG) console.log(linkText);
         if (closedReference == 2) {
           inReference = false; // Reference finished, emit it
           closedReference = 0;
@@ -234,7 +234,7 @@ const linkStateMachine = (line, body, mode = "") => {
       // We can either be in a real link reference, or just getting some braces
       if (!inLinkHref) {
         // A link has not really been started (something like `([a])` or `([])` maybe)
-        console.log("not inlink, with", closedReference);
+        if (DEBUG) console.log("not inlink, with", closedReference);
         if (linkText.length > 0 || closedReference > 0) {
           accum.push(`[${linkText}])`);
           closedReference = 0;
@@ -349,8 +349,8 @@ const parseInto = (text, body, mode = "") => {
       if (codeBlock) {
         codeBlock.appendChild(br);
       } else {
-        console.log("Appending a br");
-        console.log(line);
+        if (DEBUG) console.log("Appending a br");
+        if (DEBUG) console.log(line);
         body.appendChild(br);
       }
 

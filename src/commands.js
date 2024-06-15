@@ -51,7 +51,7 @@ import { cmap } from "./cmap.js";
 import { _gnuplot } from "./gnuplot.js";
 // import { highlight } from "./highlight.js";
 
-import { addToDeck } from "./deck.js";
+import { addToDeck, reviewDeck } from "./deck.js";
 
 const DEBUG = false;
 
@@ -425,7 +425,8 @@ const buttons = (parentId) => {
     exportCurrent,
     xgid,
     //highlight
-    addToDeck
+    addToDeck,
+    reviewDeck,
   ];
 };
 

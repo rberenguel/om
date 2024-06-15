@@ -47,15 +47,19 @@ const loadRow = (row) => {
     );
 };
 
-const iloadIntoBody = (filename, body) => {
+const iloadIntoBody = (filename, body, options = {}) => {
   get(filename)
     .then((dbContent) => {
+      const defaults = {
+        starting: true,
+      };
       console.info(`Loaded ${filename} from IndexedDB`);
       const { _, value } = convertNonGroupFileData(filename, dbContent);
       if (DEBUG) console.debug(value);
-      parseIntoWrapper(decodeURIComponent(atob(value)), body, {
-        starting: true,
-      }); // This is likely to always be a "starting"
+      const markdown = decodeURIComponent(atob(value));
+      console.warn(markdown);
+      body.baseMarkdown = markdown;
+      parseIntoWrapper(markdown, body, { ...defaults, ...options }); // This is likely to always be a "starting"
       const paddingDiv = document.createElement("DIV");
       paddingDiv.id = "padding";
       paddingDiv.innerHTML = "&nbsp;"; // This preserves the cursor
@@ -63,6 +67,9 @@ const iloadIntoBody = (filename, body) => {
       if (DEBUG) console.info("About to wire");
       body.focus();
       wireEverything(weave.buttons(weave.root));
+      if (options.callback) {
+        options.callback();
+      }
     })
     .catch((err) => {
       console.error("There was an unexpected error in loading");
@@ -199,7 +206,10 @@ const idel = {
       .then((entries) => {
         if (DEBUG) console.log(entries);
         const files = entries
-          .filter(([key, value]) => value && !value.startsWith("g:") && !key.startsWith("d"))
+          .filter(
+            ([key, value]) =>
+              value && !value.startsWith("g:") && !key.startsWith("d"),
+          )
           .map(([key, value]) => convertNonGroupFileData(key, value));
         presentFiles(files, fileContainer);
         const hr = document.createElement("hr");
