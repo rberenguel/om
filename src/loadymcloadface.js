@@ -78,7 +78,7 @@ const iloadIntoBody = (filename, body, options = {}) => {
     });
 };
 
-const presentFiles = (files, container) => {
+const presentFiles = (files, container, options = {}) => {
   // Expects files as { key: key, value: content, title: title }
   const modal = document.getElementById("modal");
   container.innerHTML = "";
@@ -87,6 +87,9 @@ const presentFiles = (files, container) => {
   container.appendChild(hovering);
   for (const file of files) {
     const key = file["key"];
+    if (options.filterOutKeys) {
+      if (options.filterOutKeys.includes(key[0])) continue;
+    }
     const title = file["title"];
     const k = document.createTextNode(title);
     const div = document.createElement("div");
@@ -165,10 +168,13 @@ const iload = {
         const files = entries
           .filter(
             ([key, value]) =>
-              value && !value.startsWith("g:") && !key.startsWith("d"),
+              value &&
+              !value.startsWith("g:") &&
+              !key.startsWith("d") &&
+              !key.startsWith("c"), // Avoid loading deletions, groups or cards
           )
           .map(([key, value]) => convertNonGroupFileData(key, value));
-        presentFiles(files, fileContainer);
+        presentFiles(files, fileContainer, { filterOutKeys: "cd" });
         const hr = document.createElement("hr");
         modal.appendChild(hr);
         showModalAndGet(
@@ -183,7 +189,7 @@ const iload = {
             console.info(`Loading ${filename} from IndexedDB`);
             iloadIntoBody(filename, body);
           },
-          { dbsearching: true },
+          { dbsearching: true, filterOutKeys: "cd" },
         );
       })
       .catch((err) => console.error(err));

@@ -133,12 +133,14 @@ function showModalAndGet(
         }
 
         entries().then((entries) => {
+          const filterOut = options.filterOutKeys || "";
           const files = entries
             .filter(
               ([key, value]) =>
                 value &&
                 !value.startsWith("g:") &&
                 !key.startsWith("d") &&
+                !filterOut.includes(key[0]) &&
                 keys.includes(key),
             )
             .map(([key, value]) => convertNonGroupFileData(key, value));

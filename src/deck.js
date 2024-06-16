@@ -95,6 +95,17 @@ const editButton = (container) => {
   return div;
 };
 
+const goToAnswerButton = (container) => {
+  const div = document.createElement("div");
+  div.classList.add("wrap", "alive");
+  div.style.float = "right";
+  div.textContent = "answer";
+  div.addEventListener("click", () => {
+    reveal(container);
+  });
+  return div;
+};
+
 const addToDeck = {
   // TODO I want this as a separate button in deck-started panels instead, but this is faster to write
   text: ["add-deck"],
@@ -233,6 +244,14 @@ const save = (container) => {
     .catch((err) => console.info("Saving in IndexedDb failed", err));
 };
 
+const reveal = (container) => {
+  const body = container.querySelector(".body");
+  body.fsrsState = cardStates.kAnswer;
+  container.onkeydown = container._questionEventListener;
+  container._questionEventListener = null;
+  renderCard(body);
+};
+
 const renderCard = (body) => {
   // By default, assume it is in question
   const atHandle = body.closest(".better-handle");
@@ -304,7 +323,10 @@ const renderCard = (body) => {
     }); // A hack to prevent a cycle of parsing
     // wireEverything is a very hard hammer. Should wire only new panels, will be faster
     wireEverything(weave.buttons(weave.root));
-    buttonWrapper(atHandle, [editButton(container)]);
+    buttonWrapper(atHandle, [
+      editButton(container),
+      goToAnswerButton(container),
+    ]);
     const f = fsrs();
     let cardInfo = manipulation.get(body, manipulation.fields.kFSRSSchedule);
     console.warn(cardInfo);
@@ -330,24 +352,18 @@ const renderCard = (body) => {
 
     body.contentEditable = false;
     body.style.cursor = "default";
-    const reveal = () => {
-      body.fsrsState = cardStates.kAnswer;
-      container.onkeydown = container._questionEventListener;
-      container._questionEventListener = null;
-      renderCard(body);
-    };
     container._questionEventListener = container.onkeydown;
     container.onkeydown = null;
     container.onkeydown = (ev) => {
       console.warn(ev);
       if (ev.key === "Enter") {
-        reveal();
+        reveal(container);
       }
     };
     container
       .querySelector(".clicky-answer")
       .addEventListener("click", (ev) => {
-        reveal();
+        reveal(container);
       });
   }
   if (initialState == cardStates.kAnswer) {

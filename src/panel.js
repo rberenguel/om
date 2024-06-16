@@ -1,4 +1,13 @@
-export { createPanel, createNextPanel, split, close_, toRight, toLeft };
+export {
+  createPanel,
+  createNextPanel,
+  split,
+  close_,
+  toRight,
+  toLeft,
+  previewModal,
+  dismissModal,
+};
 
 import weave from "./weave.js";
 
@@ -18,7 +27,11 @@ import { dndDynamicDiv } from "./dynamicdiv.js";
 import { link } from "./formatters.js";
 import { renderCard, fsrsAddHandler } from "./deck.js";
 
+import { loadHelper } from "./yalh.js";
+
 const DEBUG = false;
+
+const loader = loadHelper();
 
 const createNextPanel = (parentId, options = {}) => {
   const n =
@@ -570,6 +583,9 @@ const createPanel = (parentId, id, buttons, weave, options = {}) => {
       body.mark.unmark();
     }
   });
+  bodyContainer.addEventListener("mouseenter", (e) => {
+    dismissModal(null, e);
+  });
   document.getElementById(parentId).appendChild(bodyContainer);
   document.getElementById(parentId).appendChild(title);
   wireBodies(buttons);
@@ -622,4 +638,41 @@ const toRight = (container) => {
   manipulation.set(container, manipulation.fields.kY, vgap() / 3);
   manipulation.reposition(container);
   manipulation.resize(container);
+};
+
+const previewModal = async (id, ev) => {
+  // Create a preview modal given a mouseover event for an internal object with id id:
+  const bb = ev.relatedTarget.getBoundingClientRect();
+  const content = await loader.markdownLines(id);
+  const hovering = document.createElement("div");
+  hovering.classList.add("raw-preview");
+  hovering.style.marginBottom = "0";
+  const hover = document.getElementById("hover");
+  hover.innerHTML = "";
+  hover.appendChild(hovering);
+  hover.style.display = "block";
+  let count = 0;
+  for (const line of content) {
+    const p = document.createElement("P");
+    p.textContent = line;
+    hovering.appendChild(p);
+    count += 1;
+    if (count == 4) {
+      break;
+    }
+  }
+  hover.style.transform = `translate(${bb.x}px, ${bb.y}px)`;
+  hover.style.zIndex = 1000000;
+};
+
+const dismissModal = (_, e) => {
+  if (e.relatedTarget.closest(".raw-preview")) {
+    // Do not dismiss the hover when it is mouseouting itself
+    return;
+  }
+  const hover = document.getElementById("hover");
+  hover.innerHTML = "";
+  hover.style.display = "none";
+  hover.style.transform = `translate(0px, 0px)`;
+  hover.style.zIndex = -1000000;
 };

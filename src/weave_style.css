@@ -118,6 +118,16 @@ Draggable div useful for "anything", technically
 
 /**
 
+Hover preview
+
+**/
+
+#hover {
+  position: absolute;
+}
+
+/**
+
 Crazy FSRS stuff
 
 **/

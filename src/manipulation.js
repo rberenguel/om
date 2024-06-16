@@ -35,6 +35,7 @@ const manipulation = {
       body = node;
       container = node;
     } else {
+      console.warn(node.nodeName, node.classList);
       throw {
         name: "WeaveNodeError",
         message: `The node is neither a .body-container, .body or document.body (it is '${node.nodeName} '${node.classList}')`,

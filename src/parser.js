@@ -16,6 +16,7 @@ import { dynamicDiv } from "./dynamicdiv.js";
 import { calWithEvents, parseCalendar } from "./cal.js";
 import { xgidRenderer } from "./xgid.js";
 import { cmap } from "./cmap.js";
+import { previewModal, dismissModal } from "./panel.js";
 
 import { renderCard } from "./deck.js";
 
@@ -222,6 +223,15 @@ const linkStateMachine = (line, body, mode = "") => {
               window.open(href, "_blank");
             }
           });
+
+          if (JSON.parse(link.dataset.internal)) {
+            link.addEventListener("mouseover", (e) => {
+              previewModal(href, e);
+            });
+            link.addEventListener("mouseout", (e) => {
+              dismissModal(href, e);
+            });
+          }
         }
       }
       continue;
@@ -280,6 +290,15 @@ const linkStateMachine = (line, body, mode = "") => {
           window.open(href, "_blank");
         }
       });
+      if (JSON.parse(link.dataset.internal)) {
+        link.addEventListener("mouseover", (e) => {
+          previewModal(href, e);
+        });
+        link.addEventListener("mouseout", (e) => {
+          console.warn(e);
+          dismissModal(href, e);
+        });
+      }
       continue;
     }
     if (inLinkText) {

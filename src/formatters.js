@@ -182,12 +182,18 @@ const link = {
         ? containerElement.parentElement
         : containerElement;
     let cmap = false;
-    if (
-      manipulation.get(containerElement, manipulation.fields.kKind) ===
-      "literal"
-    ) {
-      cmap = true;
+
+    try {
+      if (
+        manipulation.get(containerElement, manipulation.fields.kKind) ===
+        "literal"
+      ) {
+        cmap = true;
+      }
+    } catch (err) {
+      console.error(err);
     }
+
     const link = document.createElement("a");
     const tn = document.createElement("span");
     range.deleteContents();
@@ -235,6 +241,9 @@ const link = {
         } else {
           window.open(href, "_blank");
         }
+      });
+      link.addEventListener("mouseover", (e) => {
+        console.warn(e);
       });
     };
     const modal = document.getElementById("modal");
