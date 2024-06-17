@@ -37,6 +37,10 @@ const constructCurrentGroupAsMarkdown = () => {
       continue;
     }
     const filename = manipulation.get(container, manipulation.fields.kFilename);
+    if (filename.startsWith("c")) {
+      // Cards should not be saved to groups, it feels strange.
+      continue;
+    }
     const title = manipulation.get(container, manipulation.fields.kTitle);
     lines.push(`# ${filename} (${title})`);
     const x = manipulation.get(container, manipulation.fields.kX);

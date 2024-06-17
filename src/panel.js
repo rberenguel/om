@@ -101,12 +101,15 @@ const createPanel = (parentId, id, buttons, weave, options = {}) => {
   bodyContainer.spaceCounter = 10;
 
   // TODO this is useful in other places
-  const save = () => {
+  const save = (mode) => {
     const body = bodyContainer.querySelector(".body");
     // TODO this is very repeated with isave
     if (body.fsrsState === "adding") {
       // TODO use the constant
-      console.warn("TRIGGERED THE SPECIAL HANDLER");
+      if (mode === "autosave") {
+        // Autosave should not break the adding-card flow
+        return;
+      }
       fsrsAddHandler(body);
     }
     const filename = manipulation.get(
@@ -139,7 +142,7 @@ const createPanel = (parentId, id, buttons, weave, options = {}) => {
     }
     if (ev.code === "Space" && bodyContainer.spaceCounter == 0) {
       bodyContainer.spaceCounter = 10;
-      save();
+      save("autosave");
       console.info("Autosaving");
     }
     // All the key commands need tests
@@ -175,7 +178,6 @@ const createPanel = (parentId, id, buttons, weave, options = {}) => {
       ev.preventDefault();
       ev.stopPropagation();
       ev.stopImmediatePropagation();
-      console.warn("SAVING FFS");
       save();
       info.innerHTML = "Saved";
       info.classList.add("fades");
@@ -661,7 +663,11 @@ const previewModal = async (id, ev) => {
       break;
     }
   }
-  hover.style.transform = `translate(${bb.x}px, ${bb.y}px)`;
+  //hover.style.transform = `translate(${bb.clientX}px, ${bb.clientY}px)`;
+  hover.style.left = "50%";
+  hover.style.position = "absolute";
+  hover.style.transform = "translate(-50%, 0%)";
+  hover.style.top = "1em";
   hover.style.zIndex = 1000000;
 };
 
@@ -673,6 +679,8 @@ const dismissModal = (_, e) => {
   const hover = document.getElementById("hover");
   hover.innerHTML = "";
   hover.style.display = "none";
-  hover.style.transform = `translate(0px, 0px)`;
+  hover.style.transform = null;
+  hover.style.top = null;
+  hover.style.left = null;
   hover.style.zIndex = -1000000;
 };

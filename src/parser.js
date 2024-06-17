@@ -703,12 +703,17 @@ function iterateDOM(node, mode = "") {
         .map((c) => `.${c}`)
         .join(" ");
       if (DEBUG) console.debug(splits);
-      const md =
-        "\n```" +
-        ` ${allClasses}\n` +
-        splits.join("\n<br id='br-pre'/>\n") +
-        "\n```\n";
-      generated.push(md);
+      if (allClasses.includes("inline")) {
+        const md = "`" + splits.join("\n") + "`";
+        generated.push(md);
+      } else {
+        const md =
+          "\n```" +
+          ` ${allClasses}\n` +
+          splits.join("\n<br id='br-pre'/>\n") +
+          "\n```\n";
+        generated.push(md);
+      }
     }
     if (child.classList.contains("dynamic-div")) {
       // const text = child.innerText;
@@ -753,19 +758,27 @@ function iterateDOM(node, mode = "") {
   return generated.flat(Infinity);
 }
 
+const failedDiv = (msg) => {
+  console.error("This is bad, no div data");
+  const div = document.createElement("div");
+  div.id = "failure-processing-div";
+  div.textContent = msg || "";
+  return div;
+};
+
 const divBlock = "[div]";
 
 const parseDiv = (divData, mode = "") => {
   if (DEBUG) console.debug(`Parsing div: ${divData}, mode: ${mode}`);
   if (!divData) {
-    console.error("This is bad, no div data");
-    const div = document.createElement("div");
-    div.id = "failure-processing-div";
-    return div;
+    return failedDiv("Div with no data");
   }
   if (!divData.startsWith(divBlock)) {
     if (DEBUG) console.debug(`Not a div`);
-    return divData; // This eventually should create a textNode for code blocks in Markdown
+    const pre = document.createElement("PRE");
+    pre.classList.add("inline");
+    pre.textContent = divData;
+    return pre;
   }
   const splits = divData
     .replace(divBlock, "")
@@ -790,7 +803,6 @@ const parseDiv = (divData, mode = "") => {
     if (DEBUG) console.debug(`Calendar`);
     const events = JSON.parse(splits.slice(1).join(" "));
     console.log(events);
-    const div = document.createElement("div");
     events.span = 1;
     const tables = calWithEvents(events, mode);
     return tables[0];
@@ -832,5 +844,5 @@ const parseDiv = (divData, mode = "") => {
     div.dataset.kind = kind;
     return div;
   }
-  return;
+  return failedDiv("Could not process div");
 };

@@ -1,32 +1,3 @@
-// Place to have spaced repetition in Weave
-
-// Sketch of design
-
-// File with either "initial" or custom settings with a property "deck".
-// This autogenerates buttons on it for "create", "review"
-// Create will create a new panel, normal edit mode. The file handle will
-// be of the form cTIMESTAMP (c for card). kind card. Additional field in
-// header for FSRS scheduling.
-// kind card can be in add mode (which is a superset of) edit mode or review mode.
-// Edit mode shows it as normally would. Pressing Cmd-Enter overrides maximise
-// and instead saves. If it's in add mode it has a reference to the corresponding
-// deck: saving adds a line to the deck with the card identifier, as a link (to make
-// decks "normal" files) and replaces itself with a new panel (updates all identifiers
-// without creating a new panel)
-// A card in review mode can be in two modes then, question or answer.
-// In answer renders (edits itself technically) with a row of buttons on the top:
-// edit again hard good easy edit goes to edit mode, as does pressing E
-// In question only edit shows, pressing enter switches from question to answer
-// again-hard-good-easy only appear on the answer side.
-// Pressing each of these buttons updates the internal FSRS information of the card,
-// stored in the header. It also saves.
-// Note: deck -> review necessarily needs to load all the cards present (to decide
-// which require review _now_ or are overdue)
-// minimal thing to get working: card side.
-// A card has a "front" and a "back", I.e. a question side and an answer side.
-// Still unclear how to easily split them: hr? Then cannot use it for styling.
-// Specific headings? A bit verbose
-
 export { renderCard, fsrsAddHandler, addToDeck, reviewDeck };
 
 import weave from "../src/weave.js";
@@ -37,6 +8,7 @@ import { createEmptyCard, Rating } from "./libs/fsrs.js";
 import { manipulation } from "./manipulation.js";
 import { createNextPanel, close_ } from "./panel.js";
 import { iloadIntoBody } from "./loadymcloadface.js";
+import { toTop } from "./doms.js";
 
 const emptyCard = "question\n---\nanswer\n";
 
@@ -115,6 +87,7 @@ const addToDeck = {
     const bodyId = body.id; // TODO this should come from manipulation too
     const cardPanel = createNextPanel(weave.root);
     const cardBody = cardPanel.querySelector(".body");
+    toTop(cardBody)();
     container.relatedContainers = [
       // TODO "relatedcontainers" has body ids… Maybe it is time to move these ids
       cardBody.id,
@@ -152,6 +125,7 @@ const reviewDeck = {
     console.warn(cardIds);
     const cardPanel = createNextPanel(weave.root);
     const cardBody = cardPanel.querySelector(".body");
+    toTop(cardBody)();
     container.relatedContainers = [
       // TODO "relatedcontainers" has body ids… Maybe it is time to move these ids
       cardBody.id,
@@ -311,13 +285,10 @@ const renderCard = (body) => {
     }
     const split = body.baseMarkdown.split("---");
     let question = split[0];
-    let answer = split[1];
+    //let answer = split[1];
     //question = insertAtTop(question, [editButtonText, hr]);
 
-    // Hacked around having a "real markdown" and a "presented markdown", used for raw / unraw for now
-    // I need to make sure it is consistent all around though. For now saving updates it, so it's close
-    // to being consistent
-    parseIntoWrapper(question + "``` .hide" + answer + "```", body, {
+    parseIntoWrapper(question, body, {
       starting: false,
       keepStill: true,
     }); // A hack to prevent a cycle of parsing

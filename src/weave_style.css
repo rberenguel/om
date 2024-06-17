@@ -801,14 +801,28 @@ div.wrap {
   background-color: #00000022;
   padding-right: 0.8em;
   padding-top: 0.8em;
-  padding-left: 1.6em;
-  padding-bottom: 0.8em;
   padding-bottom: 0.4em;
   border: 1px solid var(--bright-blue);
   border-radius: 5px;
   white-space: pre-wrap;
   text-indent: -1em each-line;
   font-weight: 100;
+}
+
+.body pre.inline {
+  font-family: "monoidregular";
+  padding-left: 1.2em;
+  padding-right: 0.2em;
+  font-size: 60%;
+  line-height: 1.1em;
+  background-color: #00000022;
+  padding-top: 0.8em;
+  border: 1px solid var(--bright-blue);
+  border-radius: 5px;
+  white-space: pre-wrap;
+  text-indent: -1em each-line;
+  font-weight: 100;
+  display: inline-block;
 }
 
 .tt {
