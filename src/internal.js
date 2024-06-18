@@ -31,7 +31,12 @@ const disableSelectionOnAll = () => {
 const constructCurrentGroupAsMarkdown = () => {
   const current = weave.containers();
   let lines = [];
+  const internalGroup = weave.internal.group
   for (const container of current) {
+    if(internalGroup && !internalGroup.has(container.querySelector(".body").id)){
+      console.warn("Skipping container from group")
+      continue
+    }
     if (DEBUG) console.log(container);
     if (container.saveable === false) {
       continue;

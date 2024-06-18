@@ -111,8 +111,17 @@ const presentFiles = (files, container, options = {}) => {
       if (DEBUG) console.log(file);
       hovering.innerHTML = "";
       if (DEBUG) console.log(file["value"]);
-      const content = decodeURIComponent(atob(file["value"])).split("\n");
+      const value = file["value"]
+      
+      let content = [""]
       let count = -1;
+      if(value.startsWith("g:")){
+        count = 0 // Groups have no header
+        content = decodeURIComponent(atob(value.slice(2))).split("\n");
+      } else {
+        content = decodeURIComponent(atob(value)).split("\n");
+      }
+      
       for (const line of content) {
         if (count >= 0) {
           const p = document.createElement("P");
@@ -323,6 +332,7 @@ const gload = {
 const loadAllFromGroup = (groupname) => {
   return get(groupname)
     .then((groupcontent) => {
+      console.warn(groupcontent)
       const text = groupcontent.substring(2); // Discarg g:
       if (DEBUG) console.log(text);
       const group = decodeURIComponent(atob(text));

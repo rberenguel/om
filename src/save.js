@@ -7,6 +7,7 @@ import { toMarkdown } from "./parser.js";
 import { presentFiles } from "./loadymcloadface.js";
 import { manipulation } from "./manipulation.js";
 import { convertNonGroupFileData } from "./loadymcloadface.js";
+import { constructCurrentGroup } from "./internal.js";
 
 const dbdump = {
   text: ["dbdump", "dumpdb"],
@@ -360,7 +361,9 @@ const gsave = {
           if (!groupname) {
             return;
           }
-          set(groupname, "g:" + allFiles.join("|"))
+          const md = constructCurrentGroup()
+          console.warn(`groupname: ${groupname}`)
+          set(groupname, md)
             .then(() => console.info("Group data saved in IndexedDb"))
             .catch((err) => console.info("Saving in IndexedDb failed", err));
           info.innerHTML = "&#x1F4BE;";
