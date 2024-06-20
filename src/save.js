@@ -139,7 +139,7 @@ function showModalAndGet(
             .filter(
               ([key, value]) =>
                 value &&
-                !value.startsWith("g:") &&
+                //!value.startsWith("g:") &&
                 !key.startsWith("d") &&
                 !filterOut.includes(key[0]) &&
                 keys.includes(key),
@@ -343,7 +343,9 @@ const gsave = {
     if (common(ev)) {
       return;
     }
-    ev.preventDefault(); // To allow focusing on input
+    if(ev){
+      ev.preventDefault(); // To allow focusing on input
+    }
     if (!weave.internal.group || weave.internal.group.size == 0) {
       return;
     }

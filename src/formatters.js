@@ -7,6 +7,7 @@ export {
   mono,
   gfont,
   serif,
+  inter,
   fontup,
   fontdown,
   underline,
@@ -101,34 +102,67 @@ const fontdown = {
   el: "u",
 };
 
+
 const serif = {
   text: ["serif"],
-  action: (ev) => {
+  action: (ev, options={}) => {
     if (common(ev)) {
       return;
+    }
+    if(options.global){
+      document.body.classList.add("serif")
+      document.body.classList.remove("inter")
+      document.body.classList.remove("mono")
+      return
     }
     const body = document.getElementById(weave.internal.bodyClicks[0]);
     body.classList.add("serif");
+    body.classList.remove("inter");
     body.classList.remove("mono");
-    // TODO(me) Does this really need to be stored in config at all? It's part of the saved styling after all
-    // config.mono = true;
   },
-  description: "Switch to a serif font (Reforma1969) (stored in config)",
+  description: "Switch to the Reforma1969 font",
   el: "u",
 };
 
-const mono = {
-  text: ["mono"],
-  action: (ev) => {
+const inter = {
+  text: ["inter"],
+  action: (ev, options={}) => {
     if (common(ev)) {
       return;
     }
+    if(options.global){
+      document.body.classList.add("inter")
+      document.body.classList.remove("serif")
+      document.body.classList.remove("mono")
+      return
+    }
+    const body = document.getElementById(weave.internal.bodyClicks[0]);
+    body.classList.add("inter");
+    body.classList.remove("serif");
+    body.classList.remove("mono");
+  },
+  description: "Switch to the Inter typeface",
+  el: "u",
+};
+
+
+const mono = {
+  text: ["mono"],
+  action: (ev, options={}) => {
+    if (common(ev)) {
+      return;
+    }
+    if(options.global){
+      document.body.classList.add("mono")
+      document.body.classList.remove("serif")
+      document.body.classList.remove("inter")
+      return
+    }
+
     const body = document.getElementById(weave.internal.bodyClicks[0]);
     body.classList.remove("serif");
+    body.classList.remove("inter");
     body.classList.add("mono");
-
-    // TODO(me) This is still pending discussion with myself
-    //config.mono = true;
   },
   description: "Switch to a monospace font (Monoid) (stored in config)",
   el: "u",
@@ -182,18 +216,12 @@ const link = {
         ? containerElement.parentElement
         : containerElement;
     let cmap = false;
-
-    try {
-      if (
-        manipulation.get(containerElement, manipulation.fields.kKind) ===
-        "literal"
-      ) {
-        cmap = true;
-      }
-    } catch (err) {
-      console.error(err);
+    if (
+      manipulation.get(containerElement, manipulation.fields.kKind) ===
+      "literal"
+    ) {
+      cmap = true;
     }
-
     const link = document.createElement("a");
     const tn = document.createElement("span");
     range.deleteContents();
@@ -241,9 +269,6 @@ const link = {
         } else {
           window.open(href, "_blank");
         }
-      });
-      link.addEventListener("mouseover", (e) => {
-        console.warn(e);
       });
     };
     const modal = document.getElementById("modal");

@@ -1,5 +1,5 @@
-export { buttons };
-
+export { buttons, grouping };
+// TODO remove any explicit commands from here
 import weave from "./weave.js";
 import { split, close_ } from "./panel.js";
 import { common } from "./commands_base.js";
@@ -25,7 +25,7 @@ import {
   italic,
   bold,
 } from "./formatters.js";
-import { iload, idel, iload2, gload, dbload } from "./loadymcloadface.js";
+import { iload, idel, gload, dbload } from "./loadymcloadface.js";
 // Buttons
 import { div, task } from "./dynamicdiv.js";
 import { weather } from "./weather.js";
@@ -392,7 +392,6 @@ const buttons = (parentId) => {
     dbload,
     dbdump,
     iload,
-    iload2,
     title,
     div,
     task,

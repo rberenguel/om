@@ -8,7 +8,6 @@ export {
   loadAllFromGroup,
   dbload,
   convertNonGroupFileData,
-  iload2,
 };
 
 import weave from "./weave.js";
@@ -56,7 +55,12 @@ const iloadIntoBody = (filename, body, options = {}) => {
       console.info(`Loaded ${filename} from IndexedDB`);
       const { _, value } = convertNonGroupFileData(filename, dbContent);
       if (DEBUG) console.debug(value);
-      const markdown = decodeURIComponent(atob(value));
+      let content = value
+      if(value.startsWith("g:")){
+        content = value.slice(2,)
+        // TODO this is not enough to directly load groups
+      }
+      const markdown = decodeURIComponent(atob(content));
       console.warn(markdown);
       body.baseMarkdown = markdown;
       parseIntoWrapper(markdown, body, { ...defaults, ...options }); // This is likely to always be a "starting"
@@ -79,6 +83,8 @@ const iloadIntoBody = (filename, body, options = {}) => {
 };
 
 const presentFiles = (files, container, options = {}) => {
+  console.log("Presenting")
+  console.log(files)
   // Expects files as { key: key, value: content, title: title }
   const modal = document.getElementById("modal");
   container.innerHTML = "";
@@ -146,6 +152,7 @@ const presentFiles = (files, container, options = {}) => {
 const convertNonGroupFileData = (key, value) => {
   let title = undefined;
   let content = "";
+  console.log(key, value)
   if (value) {
     // Store also the title at the beginning so it's more readable
     const splits = value.split(" ");
@@ -178,11 +185,12 @@ const iload = {
           .filter(
             ([key, value]) =>
               value &&
-              !value.startsWith("g:") &&
+              //!value.startsWith("g:") &&
               !key.startsWith("d") &&
               !key.startsWith("c"), // Avoid loading deletions, groups or cards
           )
           .map(([key, value]) => convertNonGroupFileData(key, value));
+        console.warn(files)
         presentFiles(files, fileContainer, { filterOutKeys: "cd" });
         const hr = document.createElement("hr");
         modal.appendChild(hr);
@@ -256,46 +264,6 @@ const idel = {
   el: "u",
 };
 
-const iload2 = {
-  text: ["iload2"],
-  action: (ev) => {
-    console.info("iload triggered");
-    if (DEBUG) console.debug("iloading");
-    const body = document.getElementById(weave.internal.bodyClicks[0]);
-    const modal = document.getElementById("modal");
-    modal.showing = true;
-    const fileContainer = document.createElement("div");
-    fileContainer.id = "fileContainer";
-    modal.append(fileContainer);
-    entries()
-      .then((entries) => {
-        const files = entries
-          .filter(([key, value]) => value && !value.startsWith("g:"))
-          .map(([key, value]) => convertNonGroupFileData(key, value));
-        presentFiles(files, fileContainer);
-        const hr = document.createElement("hr");
-        modal.appendChild(hr);
-        showModalAndGet(
-          "filename?",
-          fileContainer,
-          "",
-          (filename) => {
-            if (!filename) {
-              console.info("No file selected in modal, returning empty");
-              return;
-            }
-            console.info(`Loading ${filename} from IndexedDB`);
-            iloadIntoBody(filename, body);
-          },
-          { dbsearching: true },
-        );
-      })
-      .catch((err) => console.error(err));
-  },
-  description: "???",
-  el: "u",
-};
-
 const gload = {
   text: ["gload"],
   action: (ev) => {
@@ -305,7 +273,7 @@ const gload = {
     modal.append(fileContainer);
     entries().then((entries) => {
       const files = entries
-        .filter(([key, value]) => value.startsWith("g:"))
+        .filter(([key, value]) => value && value.startsWith("g:"))
         .map(([key, value]) => convertNonGroupFileData(key, value));
       presentFiles(files, fileContainer);
       const hr = document.createElement("hr");
@@ -323,7 +291,10 @@ const gload = {
         { dbsearching: true },
       );
     });
-    ev.target.closest(".body-container").remove();
+    if(ev){
+      // TODO. Is this really a good idea?
+      ev.target.closest(".body-container").remove();
+    }
   },
   description: "Load a group of panes",
   el: "u",
@@ -336,6 +307,7 @@ const loadAllFromGroup = (groupname) => {
       const text = groupcontent.substring(2); // Discarg g:
       if (DEBUG) console.log(text);
       const group = decodeURIComponent(atob(text));
+      console.warn(group)
       try {
         parseGroupFromMarkdown(group);
       } catch (err) {

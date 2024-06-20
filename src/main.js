@@ -6,8 +6,8 @@ import {
   convertNonGroupFileData,
 } from "./loadymcloadface.js";
 import { createPanel, split } from "./panel.js";
-import { iload, iloadIntoBody } from "./loadymcloadface.js";
-import { dbdump } from "./save.js";
+import { iload, iloadIntoBody, gload } from "./loadymcloadface.js";
+import { dbdump, gsave } from "./save.js";
 import { getPropertiesFromFile } from "./parser.js";
 import { manipulation } from "./manipulation.js";
 import { enableSelectionOnAll, disableSelectionOnAll } from "./internal.js";
@@ -15,6 +15,9 @@ import { presentFiles } from "./loadymcloadface.js";
 import { showModalAndGet } from "./save.js";
 import { toTop } from "./doms.js";
 
+import {inter, mono, serif } from "./formatters.js";
+import { grouping } from "./commands.js"
+import { enterKeyDownEvent } from "./commands_base.js";
 // Globals that are used everywhere
 const DEBUG = false;
 
@@ -299,9 +302,199 @@ document.body.addEventListener(
   { passive: false },
 );
 
+const metaShiftP = () => {
+  const showModalHandler = (command) => {
+    console.log(command)
+    if (!command) {
+      console.log("No command provided");
+      return;
+    }
+    console.log(`Command provided: ${command}`)
+    if(command==="serif"){
+      serif.action(null, {global: true})
+    }    
+    if(command==="inter"){
+      inter.action(null, {global: true})
+    }
+    if(command==="mono"){
+      mono.action(null, {global: true})
+    }
+    if(command==="group"){
+      grouping.action(null, {global: true}) // doesn't matter, doesn't use global
+    }    // Do stuff with the command
+    if(command==="gload"){
+      console.log("gload")
+      gload.action(null, {global: true})
+    }  
+    if(command==="gsave"){
+      gsave.action(null, {global: true})
+    }
+  };
+  const modal = document.getElementById("modal");
+  const commandContainer = document.createElement("div");
+  commandContainer.id = "commandContainer";
+  modal.append(commandContainer);
+ 
+  const commands = [
+    // This would be better if it took advantage of all possible commands… and considered
+    // those that "can" work in this scenario. And preview should be the help from the command
+    {key: "inter", title: "inter", preview: ["Change font to Inter"]},
+    {key: "serif", title: "serif", preview: ["Change font to Reforma1969"]},
+    {key: "mono", title: "mono", preview: ["Change font to Monoid"]},
+    {key: "group", title: "group", preview: ["Group panels"]},
+    {key: "gsave", title: "gsave", preview: ["Save group"]},
+    {key: "gload", title: "gload", preview: ["Load group"]},
+  ]
+  presentData(commands, {container: commandContainer});
+  const hr = document.createElement("hr");
+  modal.appendChild(hr);
+  const options = {
+    originalData: commands, 
+    placeholder: "command to run?",
+    container: commandContainer,
+    callback: showModalHandler
+  }
+  showOnlyModalAndGet(options);
+};
+
+// data with key, title and preview/help (3 lines) for "now"
+const presentData = (data, options={}) => {
+  const modal = document.getElementById("modal");
+  options.container.innerHTML = "";
+  const hovering = document.createElement("div");
+  hovering.classList.add("raw-preview");
+  options.container.appendChild(hovering);
+  for (const datum of data) {
+    const key = datum["key"];
+    const title = datum["title"];
+    const k = document.createTextNode(title);
+    const div = document.createElement("div");
+    div.classList.add("hoverable");
+    div.dataset.key = datum["key"];
+    div.dataset.title = datum["title"];
+    div.dataset.preview = datum["preview"];
+    div.appendChild(k);
+    options.container.appendChild(div);
+    div.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      ev.preventDefault();
+      const inp = document.querySelector("input.filename");
+      if (DEBUG) console.log(key);
+      console.log("command", key)
+      inp.value = key;
+      modal.innerHTML = "";
+      inp.dispatchEvent(enterKeyDownEvent);
+    });
+    if(options.showPreview){
+      div.addEventListener("mouseover", (ev) => {
+        hovering.innerHTML = "";
+        for(const line of datum["preview"]){
+            const p = document.createElement("P");
+            p.textContent = line;
+            hovering.appendChild(p);
+        }
+      });
+    }
+    div.addEventListener("mouseout", (ev) => {
+      hovering.innerHTML = "";
+    });
+  }
+};
+
+
+// Cleaned up version
+function showOnlyModalAndGet(
+  options = {},
+) {
+  // prefix is for search field for lunr
+  console.log(options)
+  const inp = document.createElement("input");
+  inp.classList.add("dark");
+  inp.classList.add("search");
+  inp.placeholder = options.placeholder;
+  const loadInput = document.createElement("input");
+  loadInput.classList.add("filename");
+  const modal = document.getElementById("modal");
+  modal.appendChild(inp);
+  modal.appendChild(loadInput);
+  modal.style.display = "block";
+  inp.focus();
+  inp.addEventListener("blur", (ev) => {
+    console.log("blurred");
+    setTimeout(() => {
+      modal.innerHTML = "";
+      modal.style.display = "none";
+      modal.showing = false;
+      //options.callback("blurred");
+    }, 150);
+  });
+
+  const getPresented = () => {
+    const divs = modal.querySelectorAll(".hoverable");
+    const infos = Array.from(divs).map((d) => {
+      return {
+        key: d.dataset.key,
+        title: d.dataset.title,
+        preview: d.dataset.preview
+      };
+    });
+    return infos;
+  };
+
+  inp.addEventListener("keyup", function (ev) {
+    console.log("keyed up");
+    const searchString = inp.value;
+    let results = [];
+    console.log("Refreshing presentation");
+    if (options.filtering !== false) {
+      const regex = new RegExp(`.*?${searchString}.*?`, "i");
+      const infos = getPresented();
+      const results = infos.filter((d) => regex.test(d.title));
+      presentData(results, options);
+    }
+    if (options.originalData && ev.key === "Backspace") {
+      console.log("Deleting")
+      console.log(options.originalData)
+      presentData(options.originalData, options);
+    }
+    if (ev.key === "Enter") {
+      const infos = getPresented();
+      if (infos.length === 1) {
+        loadInput.value = infos[0].key;
+      } else {
+        loadInput.value = searchString;
+      }
+      modal.innerHTML = "";
+      loadInput.dispatchEvent(enterKeyDownEvent);
+    }
+    if (ev.key === "Escape") {
+      modal.innerHTML = "";
+      modal.style.display = "none";
+      modal.showing = false;
+      callback("escaped");
+    }
+  });
+  loadInput.addEventListener("keydown", function (ev) {
+    if (ev.key === "Enter") {
+      ev.preventDefault();
+      ev.stopPropagation();
+      ev.stopImmediatePropagation();
+      console.log("Returning enter", loadInput.value)
+      const command = loadInput.value;
+      console.log(options)
+      modal.style.display = "none";
+      modal.showing = false;
+      modal.innerHTML = "";
+      options.callback(command);
+    }
+  });
+}
+
+
+
+
 const metak = () => {
   const showModalHandler = (destination) => {
-    console.log(`Destination: ${destination}`);
     if (!destination) {
       console.log("no dest");
       return;
@@ -340,7 +533,15 @@ const metak = () => {
 document.body.addEventListener("keydown", (ev) => {
   const oldp = window.print;
   window.print = null;
-  if (ev.key === "p" && ev.metaKey) {
+  if (ev.key === "p" && ev.metaKey && ev.shiftKey) {
+    console.log("M-S p")
+    ev.preventDefault();
+    ev.stopPropagation();
+    ev.stopImmediatePropagation();
+    metaShiftP();
+    return
+  }
+  if (ev.key === "p" && ev.metaKey && !ev.shiftKey) {
     ev.preventDefault();
     ev.stopPropagation();
     ev.stopImmediatePropagation();
