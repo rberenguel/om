@@ -1,7 +1,7 @@
 export { renderCard, fsrsAddHandler, addToDeck, reviewDeck };
 
 import weave from "../src/weave.js";
-import { set, getMany } from "./libs/idb-keyval.js";
+import { set } from "./libs/idb-keyval.js";
 import { parseIntoWrapper, parseInto, toMarkdown } from "./parser.js";
 import { wireEverything } from "./load.js";
 import { createEmptyCard, Rating } from "./libs/fsrs.js";

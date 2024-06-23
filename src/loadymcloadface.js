@@ -14,12 +14,9 @@ import weave from "./weave.js";
 import { del, set, get, entries } from "./libs/idb-keyval.js";
 import { showModalAndGet } from "./save.js";
 import { enterKeyDownEvent } from "./commands_base.js";
-import { getPropertiesFromFile, parseIntoWrapper } from "./parser.js";
+import { parseIntoWrapper } from "./parser.js";
 import { parseGroupFromMarkdown } from "./internal.js";
-import { manipulation } from "./manipulation.js";
 import { wireEverything } from "./load.js";
-import { createPanel } from "./panel.js";
-import { parseInto } from "./parser.js";
 const DEBUG = false;
 
 const dbload = {
@@ -55,9 +52,9 @@ const iloadIntoBody = (filename, body, options = {}) => {
       console.info(`Loaded ${filename} from IndexedDB`);
       const { _, value } = convertNonGroupFileData(filename, dbContent);
       if (DEBUG) console.debug(value);
-      let content = value
-      if(value.startsWith("g:")){
-        content = value.slice(2,)
+      let content = value;
+      if (value.startsWith("g:")) {
+        content = value.slice(2);
         // TODO this is not enough to directly load groups
       }
       const markdown = decodeURIComponent(atob(content));
@@ -83,8 +80,8 @@ const iloadIntoBody = (filename, body, options = {}) => {
 };
 
 const presentFiles = (files, container, options = {}) => {
-  console.log("Presenting")
-  console.log(files)
+  console.log("Presenting");
+  console.log(files);
   // Expects files as { key: key, value: content, title: title }
   const modal = document.getElementById("modal");
   container.innerHTML = "";
@@ -117,17 +114,17 @@ const presentFiles = (files, container, options = {}) => {
       if (DEBUG) console.log(file);
       hovering.innerHTML = "";
       if (DEBUG) console.log(file["value"]);
-      const value = file["value"]
-      
-      let content = [""]
+      const value = file["value"];
+
+      let content = [""];
       let count = -1;
-      if(value.startsWith("g:")){
-        count = 0 // Groups have no header
+      if (value.startsWith("g:")) {
+        count = 0; // Groups have no header
         content = decodeURIComponent(atob(value.slice(2))).split("\n");
       } else {
         content = decodeURIComponent(atob(value)).split("\n");
       }
-      
+
       for (const line of content) {
         if (count >= 0) {
           const p = document.createElement("P");
@@ -152,7 +149,7 @@ const presentFiles = (files, container, options = {}) => {
 const convertNonGroupFileData = (key, value) => {
   let title = undefined;
   let content = "";
-  console.log(key, value)
+  console.log(key, value);
   if (value) {
     // Store also the title at the beginning so it's more readable
     const splits = value.split(" ");
@@ -190,7 +187,7 @@ const iload = {
               !key.startsWith("c"), // Avoid loading deletions, groups or cards
           )
           .map(([key, value]) => convertNonGroupFileData(key, value));
-        console.warn(files)
+        console.warn(files);
         presentFiles(files, fileContainer, { filterOutKeys: "cd" });
         const hr = document.createElement("hr");
         modal.appendChild(hr);
@@ -291,7 +288,7 @@ const gload = {
         { dbsearching: true },
       );
     });
-    if(ev){
+    if (ev) {
       // TODO. Is this really a good idea?
       ev.target.closest(".body-container").remove();
     }
@@ -303,11 +300,11 @@ const gload = {
 const loadAllFromGroup = (groupname) => {
   return get(groupname)
     .then((groupcontent) => {
-      console.warn(groupcontent)
+      console.warn(groupcontent);
       const text = groupcontent.substring(2); // Discarg g:
       if (DEBUG) console.log(text);
       const group = decodeURIComponent(atob(text));
-      console.warn(group)
+      console.warn(group);
       try {
         parseGroupFromMarkdown(group);
       } catch (err) {

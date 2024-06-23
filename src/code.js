@@ -1,6 +1,6 @@
 export { id, eval_, sql, wireEval };
 
-import { reset, common } from "./commands_base.js";
+import { common } from "./commands_base.js";
 
 import { pad, wrap, postfix } from "./doms.js";
 

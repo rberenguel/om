@@ -1,4 +1,4 @@
-export { createFireworks }
+export { createFireworks };
 
 // Fireworks for Anki templates. It's in this repo because why not
 
@@ -16,7 +16,7 @@ function getCaretPosition(element) {
   const rect = marker.getBoundingClientRect();
   const coordinates = {
     x: rect.left + window.scrollX,
-    y: rect.top + window.scrollY + rect.height/2,
+    y: rect.top + window.scrollY + rect.height / 2,
   };
 
   marker.parentNode.removeChild(marker);
@@ -65,22 +65,22 @@ const createFireworks = () => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
         let canvas = document.getElementById("fireworks");
-        if(canvas){
-          console.info("Destroying canvas")
-          // TODO still need to remove 2 event handlers 
-          canvas.parentElement.removeChild(canvas)
-          document.removeEventListener("touchmove", trigger)
-          document.removeEventListener("click", trigger)
-          document.removeEventListener("touchmove", trigger)
-          return
+        if (canvas) {
+          console.info("Destroying canvas");
+          // TODO still need to remove 2 event handlers
+          canvas.parentElement.removeChild(canvas);
+          document.removeEventListener("touchmove", trigger);
+          document.removeEventListener("click", trigger);
+          document.removeEventListener("touchmove", trigger);
+          return;
         }
         if (!canvas) {
-          console.info("Creating canvas")
+          console.info("Creating canvas");
           canvas = document.createElement("canvas");
           document.body.append(canvas);
           canvas.style.backgroundColor = "transparent";
-          canvas.style.pointerEvents = "none"
-          canvas.id = "fireworks"
+          canvas.style.pointerEvents = "none";
+          canvas.id = "fireworks";
         }
         canvas.style.zIndex = 10000;
         ctx = canvas.getContext("2d");
@@ -103,17 +103,17 @@ const createFireworks = () => {
         document.addEventListener("mouseup", () => (mouseheld = false));
         document.addEventListener("click", trigger);
         document.addEventListener("keyup", (e) => {
-          const foo = e.currentTarget.querySelector(".body")
-          console.log(foo)
-          const pos = getCaretPosition(foo)
-          console.log(pos)
+          const foo = e.currentTarget.querySelector(".body");
+          console.log(foo);
+          const pos = getCaretPosition(foo);
+          console.log(pos);
           let ev = {
             clientX: pos.x,
             clientY: pos.y,
-            type: "click"
-          }
-          trigger(ev)
-        })
+            type: "click",
+          };
+          trigger(ev);
+        });
         observer.unobserve(targetDiv);
       }
     });

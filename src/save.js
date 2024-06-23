@@ -343,7 +343,7 @@ const gsave = {
     if (common(ev)) {
       return;
     }
-    if(ev){
+    if (ev) {
       ev.preventDefault(); // To allow focusing on input
     }
     if (!weave.internal.group || weave.internal.group.size == 0) {
@@ -363,8 +363,8 @@ const gsave = {
           if (!groupname) {
             return;
           }
-          const md = constructCurrentGroup()
-          console.warn(`groupname: ${groupname}`)
+          const md = constructCurrentGroup();
+          console.warn(`groupname: ${groupname}`);
           set(groupname, md)
             .then(() => console.info("Group data saved in IndexedDb"))
             .catch((err) => console.info("Saving in IndexedDb failed", err));

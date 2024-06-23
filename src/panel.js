@@ -343,11 +343,10 @@ const createPanel = (parentId, id, buttons, weave, options = {}) => {
   manipulation.set(bodyContainer, manipulation.fields.kFilename, `f${seconds}`);
   if (id != "b0" && weave.bodies().length > 0) {
     // This is not working well: should just use timestamps
-    const _id = weave.bodies()[weave.bodies().length - 1].id.replace("b", "")
+    const _id = weave.bodies()[weave.bodies().length - 1].id.replace("b", "");
     const prevContainer = document
-      .getElementById(
-        "b" + _id,
-      ).closest(".body-container");
+      .getElementById("b" + _id)
+      .closest(".body-container");
     // TODO with datasets
     let x = manipulation.get(prevContainer, manipulation.fields.kX) + 10;
     let y = manipulation.get(prevContainer, manipulation.fields.kY) + 10;

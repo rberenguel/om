@@ -102,18 +102,17 @@ const fontdown = {
   el: "u",
 };
 
-
 const serif = {
   text: ["serif"],
-  action: (ev, options={}) => {
+  action: (ev, options = {}) => {
     if (common(ev)) {
       return;
     }
-    if(options.global){
-      document.body.classList.add("serif")
-      document.body.classList.remove("inter")
-      document.body.classList.remove("mono")
-      return
+    if (options.global) {
+      document.body.classList.add("serif");
+      document.body.classList.remove("inter");
+      document.body.classList.remove("mono");
+      return;
     }
     const body = document.getElementById(weave.internal.bodyClicks[0]);
     body.classList.add("serif");
@@ -126,15 +125,15 @@ const serif = {
 
 const inter = {
   text: ["inter"],
-  action: (ev, options={}) => {
+  action: (ev, options = {}) => {
     if (common(ev)) {
       return;
     }
-    if(options.global){
-      document.body.classList.add("inter")
-      document.body.classList.remove("serif")
-      document.body.classList.remove("mono")
-      return
+    if (options.global) {
+      document.body.classList.add("inter");
+      document.body.classList.remove("serif");
+      document.body.classList.remove("mono");
+      return;
     }
     const body = document.getElementById(weave.internal.bodyClicks[0]);
     body.classList.add("inter");
@@ -145,18 +144,17 @@ const inter = {
   el: "u",
 };
 
-
 const mono = {
   text: ["mono"],
-  action: (ev, options={}) => {
+  action: (ev, options = {}) => {
     if (common(ev)) {
       return;
     }
-    if(options.global){
-      document.body.classList.add("mono")
-      document.body.classList.remove("serif")
-      document.body.classList.remove("inter")
-      return
+    if (options.global) {
+      document.body.classList.add("mono");
+      document.body.classList.remove("serif");
+      document.body.classList.remove("inter");
+      return;
     }
 
     const body = document.getElementById(weave.internal.bodyClicks[0]);

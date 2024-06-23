@@ -15,21 +15,12 @@ import { presentFiles } from "./loadymcloadface.js";
 import { showModalAndGet } from "./save.js";
 import { toTop } from "./doms.js";
 
-import {inter, mono, serif } from "./formatters.js";
-import { grouping } from "./commands.js"
+import { inter, mono, serif } from "./formatters.js";
+import { grouping } from "./commands.js";
 import { createFireworks } from "../toys/fireworks.js";
 import { enterKeyDownEvent } from "./commands_base.js";
 // Globals that are used everywhere
 const DEBUG = false;
-
-import { fsrs, createEmptyCard } from "./libs/fsrs.js";
-
-//window.fsrs = fsrs
-window.fsrs = fsrs;
-window.createEmptyCard = createEmptyCard;
-//window.Rating = Rating
-//window.generatorParameters = generatorParameters
-//window.State =State
 
 // Helper for inline code
 let $ = {
@@ -305,68 +296,68 @@ document.body.addEventListener(
 
 const metaShiftP = () => {
   const showModalHandler = (command) => {
-    console.log(command)
+    console.log(command);
     if (!command) {
       console.log("No command provided");
       return;
     }
-    console.log(`Command provided: ${command}`)
-    if(command==="serif"){
-      serif.action(null, {global: true})
-    }    
-    if(command==="inter"){
-      inter.action(null, {global: true})
+    console.log(`Command provided: ${command}`);
+    if (command === "serif") {
+      serif.action(null, { global: true });
     }
-    if(command==="mono"){
-      mono.action(null, {global: true})
+    if (command === "inter") {
+      inter.action(null, { global: true });
     }
-    if(command==="fireworks"){
-      createFireworks()
+    if (command === "mono") {
+      mono.action(null, { global: true });
     }
-    if(command==="group"){
-      grouping.action(null, {global: true}) // doesn't matter, doesn't use global
-    }    // Do stuff with the command
-    if(command==="gload"){
-      console.log("gload")
-      gload.action(null, {global: true})
-    }  
-    if(command==="gsave"){
-      gsave.action(null, {global: true})
+    if (command === "fireworks") {
+      createFireworks();
+    }
+    if (command === "group") {
+      grouping.action(null, { global: true }); // doesn't matter, doesn't use global
+    } // Do stuff with the command
+    if (command === "gload") {
+      console.log("gload");
+      gload.action(null, { global: true });
+    }
+    if (command === "gsave") {
+      gsave.action(null, { global: true });
     }
   };
   const modal = document.getElementById("modal");
   const commandContainer = document.createElement("div");
   commandContainer.id = "commandContainer";
   modal.append(commandContainer);
- 
+
   const commands = [
     // This would be better if it took advantage of all possible commands… and considered
     // those that "can" work in this scenario. And preview should be the help from the command
-    {key: "inter", title: "inter", preview: ["Change font to Inter"]},
-    {key: "serif", title: "serif", preview: ["Change font to Reforma1969"]},
-    {key: "mono", title: "mono", preview: ["Change font to Monoid"]},
-    {key: "fireworks", title: "fireworks", preview: ["Fireworks!"]},
-    {key: "group", title: "group", preview: ["Group panels"]},
-    {key: "gsave", title: "gsave", preview: ["Save group"]},
-    {key: "gload", title: "gload", preview: ["Load group"]},
-  ]
-  presentData(commands, {container: commandContainer, showPreview: true});
+    { key: "inter", title: "inter", preview: ["Change font to Inter"] },
+    { key: "serif", title: "serif", preview: ["Change font to Reforma1969"] },
+    { key: "mono", title: "mono", preview: ["Change font to Monoid"] },
+    { key: "fireworks", title: "fireworks", preview: ["Fireworks!"] },
+    { key: "group", title: "group", preview: ["Group panels"] },
+    { key: "gsave", title: "gsave", preview: ["Save group"] },
+    { key: "gload", title: "gload", preview: ["Load group"] },
+  ];
+  presentData(commands, { container: commandContainer, showPreview: true });
   const hr = document.createElement("hr");
   modal.appendChild(hr);
   const options = {
-    originalData: commands, 
+    originalData: commands,
     placeholder: "command to run?",
     container: commandContainer,
     callback: showModalHandler,
-    showPreview: true // There is a mix-up of options
-  }
+    showPreview: true, // There is a mix-up of options
+  };
   showOnlyModalAndGet(options);
 };
 
 // data with key, title and preview/help (3 lines) for "now"
-const presentData = (data, options={}) => {
+const presentData = (data, options = {}) => {
   // TODO showPreview option should handle creation of hovering
-  console.info(options)
+  console.info(options);
   const modal = document.getElementById("modal");
   options.container.innerHTML = "";
   const hovering = document.createElement("div");
@@ -388,23 +379,23 @@ const presentData = (data, options={}) => {
       ev.preventDefault();
       const inp = document.querySelector("input.filename");
       if (DEBUG) console.log(key);
-      console.log("command", key)
+      console.log("command", key);
       inp.value = key;
       modal.innerHTML = "";
       inp.dispatchEvent(enterKeyDownEvent);
     });
-    console.log(options.showPreview)
-    if(options.showPreview){
-      console.log("showing preview")
-      console.log(datum)
-      console.log(div)
+    console.log(options.showPreview);
+    if (options.showPreview) {
+      console.log("showing preview");
+      console.log(datum);
+      console.log(div);
       div.addEventListener("mouseover", (ev) => {
-        console.log("Mousing over")
+        console.log("Mousing over");
         hovering.innerHTML = "";
-        for(const line of datum["preview"]){
-            const p = document.createElement("P");
-            p.textContent = line;
-            hovering.appendChild(p);
+        for (const line of datum["preview"]) {
+          const p = document.createElement("P");
+          p.textContent = line;
+          hovering.appendChild(p);
         }
       });
       div.addEventListener("mouseout", (ev) => {
@@ -414,13 +405,10 @@ const presentData = (data, options={}) => {
   }
 };
 
-
 // Cleaned up version
-function showOnlyModalAndGet(
-  options = {},
-) {
+function showOnlyModalAndGet(options = {}) {
   // prefix is for search field for lunr
-  console.log(options)
+  console.log(options);
   const inp = document.createElement("input");
   inp.classList.add("dark");
   inp.classList.add("search");
@@ -434,12 +422,12 @@ function showOnlyModalAndGet(
   inp.focus();
   inp.addEventListener("blur", (ev) => {
     console.log("blurred");
-    /*setTimeout(() => {
+    setTimeout(() => {
       modal.innerHTML = "";
       modal.style.display = "none";
       modal.showing = false;
-      //options.callback("blurred");
-    }, 150);*/
+      //options.callback("blurred"); // TODO had to remove this
+    }, 150);
   });
 
   const getPresented = () => {
@@ -448,7 +436,7 @@ function showOnlyModalAndGet(
       return {
         key: d.dataset.key,
         title: d.dataset.title,
-        preview: [d.dataset.preview] // TODO this is incorrect in the general case
+        preview: [d.dataset.preview], // TODO this is incorrect in the general case
       };
     });
     return infos;
@@ -460,15 +448,15 @@ function showOnlyModalAndGet(
     let results = [];
     console.log("Refreshing presentation");
     if (options.filtering !== false) {
-      console.log("Going through this")
+      console.log("Going through this");
       const regex = new RegExp(`.*?${searchString}.*?`, "i");
       const infos = getPresented();
       const results = infos.filter((d) => regex.test(d.title));
       presentData(results, options);
     }
     if (options.originalData && ev.key === "Backspace") {
-      console.log("Deleting")
-      console.log(options.originalData)
+      console.log("Deleting");
+      console.log(options.originalData);
       presentData(options.originalData, options);
     }
     if (ev.key === "Enter") {
@@ -493,9 +481,9 @@ function showOnlyModalAndGet(
       ev.preventDefault();
       ev.stopPropagation();
       ev.stopImmediatePropagation();
-      console.log("Returning enter", loadInput.value)
+      console.log("Returning enter", loadInput.value);
       const command = loadInput.value;
-      console.log(options)
+      console.log(options);
       modal.style.display = "none";
       modal.showing = false;
       modal.innerHTML = "";
@@ -503,9 +491,6 @@ function showOnlyModalAndGet(
     }
   });
 }
-
-
-
 
 const metak = () => {
   const showModalHandler = (destination) => {
@@ -548,12 +533,12 @@ document.body.addEventListener("keydown", (ev) => {
   const oldp = window.print;
   window.print = null;
   if (ev.key === "p" && ev.metaKey && ev.shiftKey) {
-    console.log("M-S p")
+    console.log("M-S p");
     ev.preventDefault();
     ev.stopPropagation();
     ev.stopImmediatePropagation();
     metaShiftP();
-    return
+    return;
   }
   if (ev.key === "p" && ev.metaKey && !ev.shiftKey) {
     ev.preventDefault();
