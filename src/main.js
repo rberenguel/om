@@ -17,6 +17,7 @@ import { toTop } from "./doms.js";
 
 import {inter, mono, serif } from "./formatters.js";
 import { grouping } from "./commands.js"
+import { createFireworks } from "../toys/fireworks.js";
 import { enterKeyDownEvent } from "./commands_base.js";
 // Globals that are used everywhere
 const DEBUG = false;
@@ -319,6 +320,9 @@ const metaShiftP = () => {
     if(command==="mono"){
       mono.action(null, {global: true})
     }
+    if(command==="fireworks"){
+      createFireworks()
+    }
     if(command==="group"){
       grouping.action(null, {global: true}) // doesn't matter, doesn't use global
     }    // Do stuff with the command
@@ -341,6 +345,7 @@ const metaShiftP = () => {
     {key: "inter", title: "inter", preview: ["Change font to Inter"]},
     {key: "serif", title: "serif", preview: ["Change font to Reforma1969"]},
     {key: "mono", title: "mono", preview: ["Change font to Monoid"]},
+    {key: "fireworks", title: "fireworks", preview: ["Fireworks!"]},
     {key: "group", title: "group", preview: ["Group panels"]},
     {key: "gsave", title: "gsave", preview: ["Save group"]},
     {key: "gload", title: "gload", preview: ["Load group"]},
