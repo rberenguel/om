@@ -26,15 +26,40 @@ const createFireworks = () => {
     return Math.sqrt(d1 * d1 + d2 * d2);
   };
 
+  const trigger = (e) => {
+    let x = e.clientX;
+    let y = e.clientY;
+    if (e.touches) {
+      x = e.touches[0].clientX;
+      y = e.touches[0].clientY;
+    }
+    const curr = [x, y];
+    if (dist(prev, curr) > 50 || e.type == "click") {
+      prev = curr;
+      explodeFirework(x, y, ctx, canvas);
+    }
+  };
+
   const answerObserver = new IntersectionObserver((entries, observer) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
         let canvas = document.getElementById("fireworks");
+        if(canvas){
+          console.info("Destroying canvas")
+          // TODO still need to remove 2 event handlers 
+          canvas.parentElement.removeChild(canvas)
+          document.removeEventListener("touchmove", trigger)
+          document.removeEventListener("click", trigger)
+          document.removeEventListener("touchmove", trigger)
+          return
+        }
         if (!canvas) {
+          console.info("Creating canvas")
           canvas = document.createElement("canvas");
           document.body.append(canvas);
           canvas.style.backgroundColor = "transparent";
           canvas.style.pointerEvents = "none"
+          canvas.id = "fireworks"
         }
         canvas.style.zIndex = 10000;
         ctx = canvas.getContext("2d");
@@ -47,19 +72,6 @@ const createFireworks = () => {
         canvas.style.top = 0;
         canvas.style.width = null;
         canvas.style.height = null;
-        const trigger = (e) => {
-          let x = e.clientX;
-          let y = e.clientY;
-          if (e.touches) {
-            x = e.touches[0].clientX;
-            y = e.touches[0].clientY;
-          }
-          const curr = [x, y];
-          if (dist(prev, curr) > 50 || e.type == "click") {
-            prev = curr;
-            explodeFirework(x, y, ctx, canvas);
-          }
-        };
         document.addEventListener("touchmove", trigger);
         document.addEventListener("mousemove", (e) => {
           if (mouseheld) {
