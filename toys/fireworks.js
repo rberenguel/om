@@ -2,6 +2,27 @@ export { createFireworks }
 
 // Fireworks for Anki templates. It's in this repo because why not
 
+// TODO this may be useful in other places
+
+function getCaretPosition(element) {
+  const selection = window.getSelection();
+  if (!selection.rangeCount) return;
+
+  const range = selection.getRangeAt(0);
+  const marker = document.createElement("span");
+  marker.appendChild(document.createTextNode("\u200b")); // Zero-width space, I might as well reuse the constant I have somewhere
+  range.insertNode(marker);
+
+  const rect = marker.getBoundingClientRect();
+  const coordinates = {
+    x: rect.left + window.scrollX,
+    y: rect.top + window.scrollY + rect.height/2,
+  };
+
+  marker.parentNode.removeChild(marker);
+  return coordinates;
+}
+
 const createFireworks = () => {
   // Needs a div to be observed
   const pixelRatio = window.devicePixelRatio;
@@ -81,6 +102,18 @@ const createFireworks = () => {
         document.addEventListener("mousedown", () => (mouseheld = true));
         document.addEventListener("mouseup", () => (mouseheld = false));
         document.addEventListener("click", trigger);
+        document.addEventListener("keyup", (e) => {
+          const foo = e.currentTarget.querySelector(".body")
+          console.log(foo)
+          const pos = getCaretPosition(foo)
+          console.log(pos)
+          let ev = {
+            clientX: pos.x,
+            clientY: pos.y,
+            type: "click"
+          }
+          trigger(ev)
+        })
         observer.unobserve(targetDiv);
       }
     });

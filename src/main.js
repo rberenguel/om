@@ -350,20 +350,23 @@ const metaShiftP = () => {
     {key: "gsave", title: "gsave", preview: ["Save group"]},
     {key: "gload", title: "gload", preview: ["Load group"]},
   ]
-  presentData(commands, {container: commandContainer});
+  presentData(commands, {container: commandContainer, showPreview: true});
   const hr = document.createElement("hr");
   modal.appendChild(hr);
   const options = {
     originalData: commands, 
     placeholder: "command to run?",
     container: commandContainer,
-    callback: showModalHandler
+    callback: showModalHandler,
+    showPreview: true // There is a mix-up of options
   }
   showOnlyModalAndGet(options);
 };
 
 // data with key, title and preview/help (3 lines) for "now"
 const presentData = (data, options={}) => {
+  // TODO showPreview option should handle creation of hovering
+  console.info(options)
   const modal = document.getElementById("modal");
   options.container.innerHTML = "";
   const hovering = document.createElement("div");
@@ -390,8 +393,13 @@ const presentData = (data, options={}) => {
       modal.innerHTML = "";
       inp.dispatchEvent(enterKeyDownEvent);
     });
+    console.log(options.showPreview)
     if(options.showPreview){
+      console.log("showing preview")
+      console.log(datum)
+      console.log(div)
       div.addEventListener("mouseover", (ev) => {
+        console.log("Mousing over")
         hovering.innerHTML = "";
         for(const line of datum["preview"]){
             const p = document.createElement("P");
@@ -399,10 +407,10 @@ const presentData = (data, options={}) => {
             hovering.appendChild(p);
         }
       });
+      div.addEventListener("mouseout", (ev) => {
+        hovering.innerHTML = "";
+      });
     }
-    div.addEventListener("mouseout", (ev) => {
-      hovering.innerHTML = "";
-    });
   }
 };
 
@@ -426,12 +434,12 @@ function showOnlyModalAndGet(
   inp.focus();
   inp.addEventListener("blur", (ev) => {
     console.log("blurred");
-    setTimeout(() => {
+    /*setTimeout(() => {
       modal.innerHTML = "";
       modal.style.display = "none";
       modal.showing = false;
       //options.callback("blurred");
-    }, 150);
+    }, 150);*/
   });
 
   const getPresented = () => {
@@ -440,7 +448,7 @@ function showOnlyModalAndGet(
       return {
         key: d.dataset.key,
         title: d.dataset.title,
-        preview: d.dataset.preview
+        preview: [d.dataset.preview] // TODO this is incorrect in the general case
       };
     });
     return infos;
@@ -452,6 +460,7 @@ function showOnlyModalAndGet(
     let results = [];
     console.log("Refreshing presentation");
     if (options.filtering !== false) {
+      console.log("Going through this")
       const regex = new RegExp(`.*?${searchString}.*?`, "i");
       const infos = getPresented();
       const results = infos.filter((d) => regex.test(d.title));
