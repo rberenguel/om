@@ -4,7 +4,7 @@ import weave from "../src/weave.js";
 import { set } from "./libs/idb-keyval.js";
 import { parseIntoWrapper, parseInto, toMarkdown } from "./parser.js";
 import { wireEverything } from "./load.js";
-import { createEmptyCard, Rating } from "./libs/fsrs.js";
+import { fsrs, createEmptyCard, Rating } from "./libs/fsrs.js";
 import { manipulation } from "./manipulation.js";
 import { createNextPanel, close_ } from "./panel.js";
 import { iloadIntoBody } from "./loadymcloadface.js";
