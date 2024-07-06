@@ -439,7 +439,7 @@ const hasArrow = (text) => {
 const hasSubgraph = (text) => text.includes("subgraph cluster_"); // Only supporting clusters, no other
 const hasCluster = (text) => text.trim().startsWith("cluster ");
 const hasReplacement = (text) => /^\s*\$\S+\s*=\s*.*$/.test(text);
-const getReplacement = (text) => /^\s*(\$\S+)\s*=\s*(\S+)\s*$/.exec(text);
+const getReplacement = (text) => /^\s*(\$\S+)\s*=\s*(.*)$/.exec(text);
 const hasURL = (text) => text.includes("URL=");
 const isComment = (text) => /^\s*\/\/.*/.test(text);
 const onlyBraces = (text) => /^\s*{\s*$/.test(text) || /^\s*}\s*$/.test(text);
