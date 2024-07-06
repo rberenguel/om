@@ -9,7 +9,7 @@ import { manipulation } from "./manipulation.js";
 
 import { graphviz } from "./graphviz.js";
 
-const DEBUG = false;
+const DEBUG = true;
 
 // TODO: ctrl-k searches for internal URLs and introduces a URL=f-name tooltip=title at cursor location
 // TODO: same functionality is added to the "link" button, when the target panel is a cmap (with kind: literal)
@@ -51,8 +51,10 @@ const cmap = {
       let gv;
       if (cmap.split("\n")[0].endsWith(" [calc]")) {
         gv = convert(normalize(processOperators(cmap))) + "\n}";
+        console.log(gv)
       } else {
         gv = convert(normalize(cmap)) + "\n}";
+        console.log(gv)
       }
 
       document.getElementById(container.cmapDestination).innerText = gv;
@@ -439,7 +441,13 @@ const hasArrow = (text) => {
 const hasSubgraph = (text) => text.includes("subgraph cluster_"); // Only supporting clusters, no other
 const hasCluster = (text) => text.trim().startsWith("cluster ");
 const hasReplacement = (text) => /^\s*\$\S+\s*=\s*.*$/.test(text);
-const getReplacement = (text) => /^\s*(\$\S+)\s*=\s*(.*)$/.exec(text);
+const getReplacement = (text) => {
+  // If a replacement is available it is easier to _not_ use regexes
+  const split = text.split("=")
+  const key = split[0].trim()
+  const replacement = split.slice(1).join("=").trim()
+  return [key, replacement]
+}
 const hasURL = (text) => text.includes("URL=");
 const isComment = (text) => /^\s*\/\/.*/.test(text);
 const onlyBraces = (text) => /^\s*{\s*$/.test(text) || /^\s*}\s*$/.test(text);
@@ -503,8 +511,9 @@ const convert = (text) => {
       continue;
     }
     if (hasReplacement(line)) {
-      const key = getReplacement(line)[1];
-      const value = getReplacement(line)[2];
+      if(DEBUG) console.log(`Replacement found on line '${line}'`)
+      const key = getReplacement(line)[0];
+      const value = getReplacement(line)[1];
       if (DEBUG) console.log(`Replacement found ${key} ${value}`);
       replacements.push([key, value]);
       continue;
