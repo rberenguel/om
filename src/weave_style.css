@@ -851,6 +851,32 @@ div.wrap {
   width: fit-content;
 }
 
+.line-numbers {
+  display: flex;
+  flex-direction: column; /* Stack numbers vertically */
+  text-align: right; /* Align numbers to the right */
+  width: fit-content; /* Make div as narrow as possible */
+  min-width: 1em; /* Ensure space for 2-digit numbers with 0.5 font */
+  user-select: none;
+}
+
+.line-numbers > div {
+  font-family: "monoidregular";
+  width: fit-content;
+  font-size: 50%;
+  /* Strange magic to get these to fit. It seems min-height adds 1/2 of height only */
+  min-height: 2em;
+  padding-top: 1em;
+}
+
+.line-numbers > div:nth-child(odd) {
+  color: #aaa;
+}
+
+.line-numbers > div:nth-child(even) {
+  color: #777;
+}
+
 .code.wired {
   font-family: "monoidregular";
   padding-left: 0.2em;

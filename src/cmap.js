@@ -35,13 +35,19 @@ const cmap = {
       manipulation.fields.kTitle,
       "generated-graphviz",
     );
+    const nums = document.createElement("div");
+    nums.classList.add("line-numbers");
+    const handle = cmapPanel.querySelector(".better-handle");
+    handle.prepend(nums);
+    handle.style = "display: flex;";
+
     cmapPanel.saveable = false;
     manipulation.set(body, manipulation.fields.kKind, "literal");
     const cmapBody = cmapPanel.querySelector(".body");
     const container = body.closest(".body-container");
 
     container.cmapDestination = cmapBody.id;
-    const render = () => {
+    const render = async () => {
       const cmap = body.innerText
         .split("\n")
         .map((l) => l.trim())
@@ -51,10 +57,9 @@ const cmap = {
       let gv;
       if (cmap.split("\n")[0].endsWith(" [calc]")) {
         gv = convert(normalize(processOperators(cmap))) + "\n}";
-        console.log(gv)
+        console.log(gv);
       } else {
         gv = convert(normalize(cmap)) + "\n}";
-        console.log(gv)
       }
 
       document.getElementById(container.cmapDestination).innerText = gv;
@@ -63,6 +68,15 @@ const cmap = {
     const fullRender = () => {
       render();
       cmapPanel.render();
+      const lineNumbers = cmapPanel.querySelector(".line-numbers");
+      const lines = cmapPanel
+        .querySelector(".body")
+        .innerText.split("\n")
+        .filter(Boolean);
+      lineNumbers.innerHTML = lines
+        .concat(lines)
+        .map((_, i) => `<div>${i + 1}</div>`)
+        .join("");
     };
     container.render = fullRender;
     if (!container.cmap) {
@@ -443,11 +457,11 @@ const hasCluster = (text) => text.trim().startsWith("cluster ");
 const hasReplacement = (text) => /^\s*\$\S+\s*=\s*.*$/.test(text);
 const getReplacement = (text) => {
   // If a replacement is available it is easier to _not_ use regexes
-  const split = text.split("=")
-  const key = split[0].trim()
-  const replacement = split.slice(1).join("=").trim()
-  return [key, replacement]
-}
+  const split = text.split("=");
+  const key = split[0].trim();
+  const replacement = split.slice(1).join("=").trim();
+  return [key, replacement];
+};
 const hasURL = (text) => text.includes("URL=");
 const isComment = (text) => /^\s*\/\/.*/.test(text);
 const onlyBraces = (text) => /^\s*{\s*$/.test(text) || /^\s*}\s*$/.test(text);
@@ -506,12 +520,17 @@ const convert = (text) => {
       let [key, value] = replacement;
       line = line.replaceAll(key, value);
     }
-    if (onlyBraces(line) || onlyAttrs(line) || isComment(line)) {
+    if (
+      onlyBraces(line) ||
+      onlyAttrs(line) ||
+      isComment(line) ||
+      line.startsWith("/*")
+    ) {
       result.push(tab + line + " // only");
       continue;
     }
     if (hasReplacement(line)) {
-      if(DEBUG) console.log(`Replacement found on line '${line}'`)
+      if (DEBUG) console.log(`Replacement found on line '${line}'`);
       const key = getReplacement(line)[0];
       const value = getReplacement(line)[1];
       if (DEBUG) console.log(`Replacement found ${key} ${value}`);

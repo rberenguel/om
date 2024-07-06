@@ -324,6 +324,21 @@ const metaShiftP = () => {
     if (command === "gsave") {
       gsave.action(null, { global: true });
     }
+    if (command === "format") {
+      const b = document.getElementById(weave.lastBodyClickId());
+      // My custom cmap syntax is not JS compatible, I use ; as separator, so js formatting
+      // breaks that hard. Hacky, but I want to be able to format these in particular!
+      const content = b.innerText.replaceAll(" ; ", " 🙈 ");
+      const formatted = js_beautify(content, {});
+      b.innerHTML = "";
+      for (const line of formatted.split("\n")) {
+        const tweaked = line.replace("- >", "->").replace("🙈 ", " ; ");
+        const tn = document.createTextNode(tweaked);
+        const br = document.createElement("BR");
+        b.appendChild(tn);
+        b.appendChild(br);
+      }
+    }
   };
   const modal = document.getElementById("modal");
   const commandContainer = document.createElement("div");
@@ -337,6 +352,11 @@ const metaShiftP = () => {
     { key: "serif", title: "serif", preview: ["Change font to Reforma1969"] },
     { key: "mono", title: "mono", preview: ["Change font to Monoid"] },
     { key: "fireworks", title: "fireworks", preview: ["Fireworks!"] },
+    {
+      key: "format",
+      title: "format",
+      preview: ["Format code as if it was JS"],
+    },
     { key: "group", title: "group", preview: ["Group panels"] },
     { key: "gsave", title: "gsave", preview: ["Save group"] },
     { key: "gload", title: "gload", preview: ["Load group"] },
