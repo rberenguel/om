@@ -328,11 +328,11 @@ const metaShiftP = () => {
       const b = document.getElementById(weave.lastBodyClickId());
       // My custom cmap syntax is not JS compatible, I use ; as separator, so js formatting
       // breaks that hard. Hacky, but I want to be able to format these in particular!
-      const content = b.innerText.replaceAll(" ; ", " 🙈 ").replaceAll(" [ ] ", " 🟨 ").replaceAll("[] ", " 🟨 ");
+      const content = b.innerText.replaceAll(" ; ", " 🙈 ").replaceAll(" [ ] ", " 🟨 ").replaceAll("[] ", " 🟨 ").replaceAll("\\n", "⏎");
       const formatted = js_beautify(content, {});
       b.innerHTML = "";
       for (const line of formatted.split("\n")) {
-        const tweaked = line.replace("- >", "->").replace("🙈 ", " ; ").replace("🟨", " [ ] ");
+        const tweaked = line.replace("- >", "->").replace("🙈 ", " ; ").replace("🟨", " [ ] ").replaceAll("⏎", "\\n");
         const tn = document.createTextNode(tweaked);
         const br = document.createElement("BR");
         b.appendChild(tn);
