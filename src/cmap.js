@@ -462,7 +462,7 @@ const getReplacement = (text) => {
   const replacement = split.slice(1).join("=").trim();
   return [key, replacement];
 };
-const hasURL = (text) => text.includes("URL=");
+const hasURL = (text) => text.includes("URL=") || text.includes("URL = "); // To also cover the post-formatted case
 const isComment = (text) => /^\s*\/\/.*/.test(text);
 const onlyBraces = (text) => /^\s*{\s*$/.test(text) || /^\s*}\s*$/.test(text);
 const onlyAttrs = (text) => /^\s*\w+=.*\s*$/.test(text);

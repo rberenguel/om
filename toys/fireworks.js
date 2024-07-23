@@ -57,7 +57,7 @@ const createFireworks = () => {
     const curr = [x, y];
     if (dist(prev, curr) > 50 || e.type == "click") {
       prev = curr;
-      explodeFirework(x, y, ctx, canvas);
+      explodeFirework(x, y);
     }
   };
 
@@ -230,7 +230,7 @@ const createFireworks = () => {
     return `rgb(${c[0] * lv}, ${c[1] * lv}, ${c[2] * lv}`;
   }
 
-  function explodeFirework(x, y, ctx, canvas) {
+  function explodeFirework(x, y) {
     const particlesLength = 15 + Math.random() * 25; // Number of particles
 
     const rainbow = [
