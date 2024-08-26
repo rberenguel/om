@@ -1,7 +1,7 @@
 [#](#) Weave
 
 > [!CAUTION]
-> Some functionality around saving is currently in a broken state.
+> This README is severely outdated. Check my twitter (@berenguel) for some usage and new feature videos, eventually I'll get back to update this)
 
 This is **Weave**, a text "editor" inspired by [Plan9's Acme](<https://en.wikipedia.org/wiki/Acme_(text_editor)>).
 
