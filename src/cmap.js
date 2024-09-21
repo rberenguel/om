@@ -16,12 +16,18 @@ const DEBUG = true;
 
 const cmap = {
   text: ["cmap"],
-  action: async (ev, body) => {
+  action: async (ev, options = {}) => {
     if (common(ev)) {
       return;
     }
-    if (!body) {
+    let body;
+    if (!options || !options.body) {
       body = document.getElementById(weave.lastBodyClickId());
+    }
+    if (!body) {
+      console.log("No body");
+      console.log(weave.lastBodyClickId());
+      return;
     }
     const bodyId = body.id; // TODO this should come from manipulation too
     body.style.whiteSpace = "pre-wrap";

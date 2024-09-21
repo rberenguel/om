@@ -290,12 +290,12 @@ const graphviz = {
                   tspan.innerHTML = ""; // fontawesome glyph for closed checkbox
                   n.classList.add("crossed");
                   for (let node of cmap.childNodes) {
-                    console.log(node.textContent)
-                    console.log(id)
-                    const regex = new RegExp(`.*id\\s*=\\s*"${id}".*`)
+                    console.log(node.textContent);
+                    console.log(id);
+                    const regex = new RegExp(`.*id\\s*=\\s*"${id}".*`);
                     if (regex.test(node.textContent)) {
-                      console.log("MATCH")
-                      console.log(node)
+                      console.log("MATCH");
+                      console.log(node);
                       node.textContent = node.textContent
                         .replace("[]", "[X]")
                         .replace("[ ]", "[X]");
@@ -305,7 +305,7 @@ const graphviz = {
                   tspan.innerHTML = ""; // fontawesome glyph for open checkbox
                   n.classList.remove("crossed");
                   for (let node of cmap.childNodes) {
-                    const regex = new RegExp(`.*id\\s*=\\s*"${id}".*`)
+                    const regex = new RegExp(`.*id\\s*=\\s*"${id}".*`);
                     if (regex.test(node.textContent)) {
                       node.textContent = node.textContent
                         .replace("[x]", "[ ]")

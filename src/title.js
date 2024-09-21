@@ -7,8 +7,10 @@ import { showModalAndGet } from "./save.js";
 const ititle = {
   text: ["ititle"],
   action: (ev) => {
-    ev.preventDefault(); // To allow focusing on input
-    ev.stopPropagation();
+    if (ev) {
+      ev.preventDefault(); // To allow focusing on input
+      ev.stopPropagation();
+    }
     const modal = document.getElementById("modal");
     if (modal.showing) {
       return;

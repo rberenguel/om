@@ -16,6 +16,8 @@ import { showModalAndGet } from "./save.js";
 import { toTop } from "./doms.js";
 
 import { inter, mono, serif } from "./formatters.js";
+import { cmap } from "./cmap.js";
+import { ititle } from "./title.js";
 import { grouping } from "./commands.js";
 import { createFireworks } from "../toys/fireworks.js";
 import { enterKeyDownEvent } from "./commands_base.js";
@@ -308,8 +310,17 @@ const metaShiftP = () => {
     if (command === "inter") {
       inter.action(null, { global: true });
     }
+    if (command === "cmap") {
+      cmap.action(null, null);
+    }
+    if (command === "title") {
+      ititle.action(null);
+    }
     if (command === "mono") {
       mono.action(null, { global: true });
+    }
+    if (command === "title") {
+      ititle.action(null, { global: true });
     }
     if (command === "fireworks") {
       createFireworks();
@@ -328,11 +339,22 @@ const metaShiftP = () => {
       const b = document.getElementById(weave.lastBodyClickId());
       // My custom cmap syntax is not JS compatible, I use ; as separator, so js formatting
       // breaks that hard. Hacky, but I want to be able to format these in particular!
-      const content = b.innerText.replaceAll(" ; ", " 🙈 ").replaceAll(" [ ] ", " 🟨 ").replaceAll("[] ", " 🟨 ").replaceAll("\\n", "⏎").replaceAll(" [X] ", " ✅ ").replaceAll(" [x] ", " ✅ ");
+      const content = b.innerText
+        .replaceAll(" ; ", " 🙈 ")
+        .replaceAll(" [ ] ", " 🟨 ")
+        .replaceAll("[] ", " 🟨 ")
+        .replaceAll("\\n", "⏎")
+        .replaceAll(" [X] ", " ✅ ")
+        .replaceAll(" [x] ", " ✅ ");
       const formatted = js_beautify(content, {});
       b.innerHTML = "";
       for (const line of formatted.split("\n")) {
-        const tweaked = line.replace("- >", "->").replace("🙈 ", " ; ").replaceAll("🟨", " [ ] ").replaceAll("⏎", "\\n").replaceAll("✅", " [X] ");
+        const tweaked = line
+          .replace("- >", "->")
+          .replace("🙈 ", " ; ")
+          .replaceAll("🟨", " [ ] ")
+          .replaceAll("⏎", "\\n")
+          .replaceAll("✅", " [X] ");
         const tn = document.createTextNode(tweaked);
         const br = document.createElement("BR");
         b.appendChild(tn);
@@ -348,10 +370,12 @@ const metaShiftP = () => {
   const commands = [
     // This would be better if it took advantage of all possible commands… and considered
     // those that "can" work in this scenario. And preview should be the help from the command
+    { key: "cmap", title: "cmap", preview: ["Concept map this"] },
     { key: "inter", title: "inter", preview: ["Change font to Inter"] },
     { key: "serif", title: "serif", preview: ["Change font to Reforma1969"] },
     { key: "mono", title: "mono", preview: ["Change font to Monoid"] },
     { key: "fireworks", title: "fireworks", preview: ["Fireworks!"] },
+    { key: "title", title: "title", preview: ["Title for this panel"] },
     {
       key: "format",
       title: "format",
@@ -361,7 +385,14 @@ const metaShiftP = () => {
     { key: "gsave", title: "gsave", preview: ["Save group"] },
     { key: "gload", title: "gload", preview: ["Load group"] },
   ];
-  presentData(commands, { container: commandContainer, showPreview: true });
+  const sortedCommands = commands
+    .slice()
+    .sort((a, b) => a.title.localeCompare(b.title));
+
+  presentData(sortedCommands, {
+    container: commandContainer,
+    showPreview: true,
+  });
   const hr = document.createElement("hr");
   modal.appendChild(hr);
   const options = {
@@ -426,7 +457,7 @@ const presentData = (data, options = {}) => {
 };
 
 // Cleaned up version
-function showOnlyModalAndGet(options = {}) {
+async function showOnlyModalAndGet(options = {}) {
   // prefix is for search field for lunr
   console.log(options);
   const inp = document.createElement("input");
@@ -496,7 +527,7 @@ function showOnlyModalAndGet(options = {}) {
       callback("escaped");
     }
   });
-  loadInput.addEventListener("keydown", function (ev) {
+  loadInput.addEventListener("keydown", async function (ev) {
     if (ev.key === "Enter") {
       ev.preventDefault();
       ev.stopPropagation();
@@ -507,7 +538,7 @@ function showOnlyModalAndGet(options = {}) {
       modal.style.display = "none";
       modal.showing = false;
       modal.innerHTML = "";
-      options.callback(command);
+      await options.callback(command);
     }
   });
 }
