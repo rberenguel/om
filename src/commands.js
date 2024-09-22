@@ -48,7 +48,7 @@ import { raw } from "./raw.js";
 import { cal, month } from "./cal.js";
 import { graphviz } from "./graphviz.js";
 import { cmap } from "./cmap.js";
-import { _gnuplot } from "./gnuplot.js";
+import { _gnuplot, _gnuplot_data } from "./gnuplot.js";
 // import { highlight } from "./highlight.js";
 
 import { addToDeck, reviewDeck } from "./deck.js";
@@ -421,6 +421,7 @@ const buttons = (parentId) => {
     graphviz,
     cmap,
     _gnuplot,
+    _gnuplot_data,
     exportCurrent,
     xgid,
     //highlight

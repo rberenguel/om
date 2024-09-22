@@ -1,10 +1,30 @@
-export { _gnuplot };
+export { _gnuplot, _gnuplot_data };
 
 import weave from "./weave.js";
 import { common } from "./commands_base.js";
 import { createNextPanel } from "./panel.js";
 import { manipulation } from "./manipulation.js";
 import { toTop } from "./doms.js";
+
+const _gnuplot_data = {
+  text: ["data"],
+  action: (ev, body) => {
+    if (!body) {
+      body = document.getElementById(weave.lastBodyClickId());
+    }
+    const title = manipulation.get(body, manipulation.fields.kTitle);
+    manipulation.set(body, manipulation.fields.kKind, "literal");
+    console.log(title);
+    const content = body.innerText
+      .split("\n")
+      .filter((l) => l.length > 0)
+      .join("\n");
+    FS.writeFile(title, content);
+  },
+  description: "Store the data in this panel for plotting in gnuplot",
+  el: "u",
+};
+
 const _gnuplot = {
   text: ["gnuplot"],
   action: (ev, body) => {
@@ -64,6 +84,22 @@ const _gnuplot = {
           gpPanel.panzoom.zoom(zoom);
           gpPanel.panzoom.pan(pan);
         }
+        div.addEventListener("dblclick", (ev) => {
+          const svgStrings = new XMLSerializer()
+            .serializeToString(
+              document
+                .getElementById(container.gnuplotDestination)
+                .querySelector("svg"),
+            )
+            .split("\n");
+          svgStrings[0] = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events" style="background: black;"><g id="viewport-20240922113932012" class="svg-pan-zoom_viewport" transform="scale(2)">`;
+          const svgString = svgStrings.join("\n");
+          const svgDataUri = "data:image/svg+xml;base64," + btoa(svgString);
+          const downloadLink = document.createElement("a");
+          downloadLink.href = svgDataUri;
+          downloadLink.download = "plot.svg";
+          downloadLink.click();
+        });
       }
     };
     if (!container.gnuplot) {
@@ -141,4 +177,37 @@ plot \
   d1(x) lc rgb "forest-green" lw 2 title "",\
   d2(x) lc rgb "gold" lw 2 with filledcurves y1=0 fs transparent solid 0.5 title "mu 2.0 sigma = 1.0", \
   d2(x) lc rgb "gold" lw 2 title ""
+*/
+
+/*
+
+set key textcolor rgb "white"
+set border lw 1 lc rgb "white"
+set key title "Project Counts by Month" center textcolor rgb "white"
+set key fixed left top vertical Left reverse enhanced autotitle nobox
+set key noinvert samplen 1 spacing 1 width 0 height 0
+
+set xrange [2023*12 : 2024*12+12]
+set yrange [0.00000 : 6.00000]
+set boxwidth 
+set samples 200
+set xtics rotate by -45
+set datafile separator whitespace
+array month_names[12] = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+orderer(year, month) = year * 12 + (month - 1)
+
+set arrow from (2024*12+1),6 to (2024*12+1),0, graph 1 nohead lt 8 lw 3 lc rgb "#cc6600" dashtype 2
+
+
+plot \
+'data' using (tmp=month_names[int($2)] . " '" . substr(strcol(1), 3, 4), orderer(int($1), int($2))):3:xtic(tmp) title '' lc rgb "#66ccff" lw 2 smooth bezier with filledcurves y1=0 fs transparent solid 0.2, \
+'data' using (tmp=month_names[int($2)] . " '" . substr(strcol(1), 3, 4), orderer(int($1), int($2))):3:xtic(tmp) title '' lc rgb "dark-violet" lw 2 smooth mcsplines with filledcurves y1=0 fs transparent solid 0.5, \
+'data' using (tmp=month_names[int($2)] . " '" . substr(strcol(1), 3, 4), orderer(int($1), int($2))):3:xtic(tmp) title '' lc rgb "dark-violet" lw 2 smooth mcsplines, \
+'data' using (tmp=month_names[int($2)] . " '" . substr(strcol(1), 3, 4), orderer(int($1), int($2))):3:xtic(tmp) title '' lc rgb "#66ccff" lw 2 smooth bezier y1=0 fs transparent solid 0.5, \
+1/0 t "Got Gemini advanced" lt 8 lw 3 dashtype 1 lc rgb "#cc6600"
+
+
+
+
 */
