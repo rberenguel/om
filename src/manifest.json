@@ -1,6 +1,6 @@
 {
   "short_name": "Weave",
-  "version": "0.1.0",
+  "version": "0.1.1", // If change -> weave.js
   "name": "Weave",
   "description": "Weave is a quirky personal text editor that started as a 'I wonder why', evolved into taking pieces of Plan9s Acme and now is a Frankenstein of Emacs and Acme.",
   "icons": [
