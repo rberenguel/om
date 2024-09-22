@@ -181,12 +181,35 @@ plot \
 
 /*
 
+2024 9 2
+2024 8 0
+2024 7 5
+2024 6 1
+2024 5 3
+2024 4 0
+2024 3 0
+2024 2 2
+2024 1 2
+2023 12 0
+2023 11 1
+2023 10 1
+2023 9 0
+2023 8 1
+2023 7 1
+2023 6 0
+2023 5 1
+2023 4 0
+2023 3 0
+2023 2 0
+2023 1 0
+ 
+
+set macros
 set key textcolor rgb "white"
 set border lw 1 lc rgb "white"
 set key title "Project Counts by Month" center textcolor rgb "white"
 set key fixed left top vertical Left reverse enhanced autotitle nobox
 set key noinvert samplen 1 spacing 1 width 0 height 0
-
 set xrange [2023*12 : 2024*12+12]
 set yrange [0.00000 : 6.00000]
 set boxwidth 
@@ -194,19 +217,17 @@ set samples 200
 set xtics rotate by -45
 set datafile separator whitespace
 array month_names[12] = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-
 orderer(year, month) = year * 12 + (month - 1)
-
 set arrow from (2024*12+1),6 to (2024*12+1),0, graph 1 nohead lt 8 lw 3 lc rgb "#cc6600" dashtype 2
 
+range1 = "using (tmp=month_names[int($2)] . \" '\" . substr(strcol(1), 3, 4), orderer(int($1), int($2))):3:xtic(tmp)"
 
 plot \
-'data' using (tmp=month_names[int($2)] . " '" . substr(strcol(1), 3, 4), orderer(int($1), int($2))):3:xtic(tmp) title '' lc rgb "#66ccff" lw 2 smooth bezier with filledcurves y1=0 fs transparent solid 0.2, \
-'data' using (tmp=month_names[int($2)] . " '" . substr(strcol(1), 3, 4), orderer(int($1), int($2))):3:xtic(tmp) title '' lc rgb "dark-violet" lw 2 smooth mcsplines with filledcurves y1=0 fs transparent solid 0.5, \
-'data' using (tmp=month_names[int($2)] . " '" . substr(strcol(1), 3, 4), orderer(int($1), int($2))):3:xtic(tmp) title '' lc rgb "dark-violet" lw 2 smooth mcsplines, \
-'data' using (tmp=month_names[int($2)] . " '" . substr(strcol(1), 3, 4), orderer(int($1), int($2))):3:xtic(tmp) title '' lc rgb "#66ccff" lw 2 smooth bezier y1=0 fs transparent solid 0.5, \
+'data' @range1 title '' lc rgb "#66ccff" lw 2 smooth bezier with filledcurves y1=0 fs transparent solid 0.2, \
+'data' @range1 title '' lc rgb "dark-violet" lw 2 smooth mcsplines with filledcurves y1=0 fs transparent solid 0.5, \
+'data' @range1 title '' lc rgb "dark-violet" lw 2 smooth mcsplines, \
+'data' @range1 title '' lc rgb "#66ccff" lw 2 smooth bezier, \
 1/0 t "Got Gemini advanced" lt 8 lw 3 dashtype 1 lc rgb "#cc6600"
-
 
 
 
